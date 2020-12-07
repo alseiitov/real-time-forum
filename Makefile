@@ -5,4 +5,9 @@ build:
 
 .PHONY: build
 run:
+ifdef config-path
+	go run cmd/real-time-forum/main.go -config-path="$(config-path)"
+else
 	go run cmd/real-time-forum/main.go
+endif
+	 
