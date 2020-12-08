@@ -1,2 +1,15 @@
+### backend
+
 #builds folder
-build
+./backend/build
+
+
+
+
+### frontend
+
+#builds folder
+./frontend/build
+
+
+
