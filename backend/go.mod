@@ -1,3 +1,3 @@
 module github.com/alseiitov/real-time-forum/backend
 
-go 1.14
+go 1.15

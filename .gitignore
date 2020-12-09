@@ -1,7 +1,7 @@
 ### backend
 
 #builds folder
-./backend/build
+/backend/build
 
 
 
@@ -9,7 +9,7 @@
 ### frontend
 
 #builds folder
-./frontend/build
+/frontend/build
 
 
 
