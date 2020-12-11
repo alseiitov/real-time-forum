@@ -1,9 +1,10 @@
 package main
 
 import (
-	"log"
 	"flag"
+	"log"
 	"net/http"
+	"text/template"
 
 	"github.com/alseiitov/real-time-forum/frontend/server/configs"
 )
@@ -17,12 +18,20 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	temp, err := template.ParseFiles("./src/index.html")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	fileServer := http.FileServer(http.Dir("./src"))
-	http.Handle("/", fileServer)
+	http.Handle("/src/", http.StripPrefix("/src/", fileServer))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		temp.Execute(w, conf)
+	})
 
 	port := conf.Server.Port
 	log.Printf("Frontend server is starting at port %v", port)
-	if err := http.ListenAndServe(":" + port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalln(err)
 	}
 }

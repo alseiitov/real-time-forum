@@ -7,8 +7,11 @@
 </head>
 
 <body>
-    <div class="container"> </div>
-    <script src="./js/index.js"></script>
+    <div class="container"></div>
+    <script>
+        var config = JSON.parse(`{{ .InJSON }}`)
+    </script>
+    <script src="./src/js/index.js"></script>
 </body>
 
 

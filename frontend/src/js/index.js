@@ -1,6 +1,8 @@
 var container = document.querySelector(".container");
 
-fetch('http://localhost:8081/api')
+var APIAdress = `http://${config.API.host}:${config.API.port}/api`
+
+fetch(APIAdress)
     .then((response) => {
         return response.json();
     })
