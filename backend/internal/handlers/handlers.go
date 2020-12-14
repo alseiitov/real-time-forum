@@ -6,6 +6,6 @@ import (
 	"github.com/alseiitov/real-time-forum/backend/internal/middlewares"
 )
 
-func HandleFunctions() {
+func Init() {
 	http.HandleFunc("/api", middlewares.EnableCORS(APIHandler))
 }

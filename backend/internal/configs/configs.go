@@ -2,24 +2,39 @@ package configs
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
-type ConfI interface {
-	GetPort() string
-}
-
 type Conf struct {
 	Server struct {
-		Port string
-	}
+		Port string `json:"port"`
+	} `json:"server"`
+	Database struct {
+		Driver   string `json:"driver"`
+		Path     string `json:"path"`
+		FileName string `json:"fileName"`
+		Schema   string `json:"schema"`
+	} `json:"database"`
 }
 
 func (c *Conf) GetPort() string {
 	return c.Server.Port
 }
 
-func Read(confPath string) (*Conf, error) {
+func (c *Conf) GetDBDirPath() string {
+	return c.Database.Path
+}
+
+func (c *Conf) GetDBFilePath() string {
+	return fmt.Sprintf("%v/%v", c.Database.Path, c.Database.FileName)
+}
+
+func (c *Conf) GetDBDriver() string {
+	return c.Database.Driver
+}
+
+func NewConfig(confPath string) (*Conf, error) {
 	file, err := os.Open(confPath)
 	if err != nil {
 		return nil, err

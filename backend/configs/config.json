@@ -1,5 +1,11 @@
 {
     "server": {
         "port": "8081"
+    },
+    "database": {
+        "driver": "sqlite3",
+        "path": "./database",
+        "fileName": "forum.db",
+        "schema": "./configs/schema.sql"
     }
 }

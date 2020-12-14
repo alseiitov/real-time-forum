@@ -31,31 +31,6 @@ func (c *Conf) GetAPIAdress() string {
 	return fmt.Sprintf("%v:%v", c.API.Host, c.API.Port)
 }
 
-// func Read(confPath string) (*Conf, error) {
-// 	file, err := os.Open(confPath)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	bytes, _ := ioutil.ReadAll(file)
-// 	decoder := json.NewDecoder(file)
-// 	var config Conf
-// 	err = decoder.Decode(&config)
-// 	if err != nil {
-
-// 	}
-// 	config.InJSON = string(bytes)
-// 	if config.Server.Port == "" {
-// 		config.Server.Port = "8081"
-// 	}
-// 	if config.API.Host == "" {
-// 		config.Server.Port = "localhost"
-// 	}
-// 	if config.API.Port == "" {
-// 		config.Server.Port = "8080"
-// 	}
-// 	return &config, nil
-// }
-
 func Read(confPath string) (*Conf, error) {
 	file, err := os.Open(confPath)
 	if err != nil {

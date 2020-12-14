@@ -1,0 +1,53 @@
+CREATE TABLE IF NOT EXISTS users (
+	id			INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, 
+	username	TEXT UNIQUE NOT NULL, 
+	password	TEXT NOT NULL, 
+	email		TEXT UNIQUE NOT NULL,
+	role		TEXT,
+	avatar		TEXT 
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+	id			INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+	title		TEXT NOT NULL,
+	author		INTEGER NOT NULL,
+	data		TEXT NOT NULL,
+	date		DATETIME,
+	image		TEXT
+);
+
+CREATE	TABLE IF NOT EXISTS comments (
+	id          INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+	author_id   INTEGER,
+    post_id		INTEGER,
+    data		TEXT,
+	date		DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+	user_id		INTEGER NOT NULL,
+	uuid		TEXT NOT NULL,
+	date		DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+	id			INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+	name		TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS posts_categories (
+	post_id			INTEGER,
+	categorie_id	INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS posts_likes (
+	post_id			INTEGER NOT NULL,
+	author_id		INTEGER NOT NULL,
+	type			TEXT	NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS comments_likes (
+	comment_id		INTEGER NOT NULL,
+	author_id		INTEGER NOT NULL,
+	type			TEXT	NOT NULL
+);

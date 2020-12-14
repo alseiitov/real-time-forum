@@ -1,21 +1,28 @@
 package main
 
 import (
-	"log"
 	"flag"
+	"log"
 
 	"github.com/alseiitov/real-time-forum/backend/internal/configs"
 	"github.com/alseiitov/real-time-forum/backend/internal/server"
+	"github.com/alseiitov/real-time-forum/backend/internal/storage"
 )
 
 func main() {
-	var configPath = flag.String("config-path", "./configs/config.json", "Path to the config file")
+	configPath := flag.String("config-path", "./configs/config.json", "Path to the config file")
 	flag.Parse()
-	
-	config, err := configs.Read(*configPath)
+
+	config, err := configs.NewConfig(*configPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	server.Run(config)
+	db, err := storage.ConnectDB(config)
+	defer db.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	server.Run(config, db)
 }
