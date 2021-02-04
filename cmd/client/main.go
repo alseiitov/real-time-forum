@@ -6,30 +6,31 @@ import (
 	"net/http"
 	"text/template"
 
-	"github.com/alseiitov/real-time-forum/frontend/server/configs"
+	"github.com/alseiitov/real-time-forum/internal/configs"
 )
 
 func main() {
 	var configPath = flag.String("config-path", "./configs/config.json", "Path to the config file")
 	flag.Parse()
 
-	conf, err := configs.Read(*configPath)
+	conf, err := configs.NewConfig(*configPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	temp, err := template.ParseFiles("./src/index.html")
+	temp, err := template.ParseFiles("./web/src/index.html")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	fileServer := http.FileServer(http.Dir("./src"))
+	fileServer := http.FileServer(http.Dir("./web/src"))
+
 	http.Handle("/src/", http.StripPrefix("/src/", fileServer))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		temp.Execute(w, conf)
+		temp.Execute(w, conf.GetBackendAdress())
 	})
 
-	port := conf.Server.Port
+	port := conf.Frontend.Server.Port
 	log.Printf("Frontend server is starting at port %v", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalln(err)

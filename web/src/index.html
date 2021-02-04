@@ -8,8 +8,11 @@
 
 <body>
     <div class="container"></div>
+
     <script>
-        var config = JSON.parse(`{{ .InJSON }}`)
+        console.log('working')
+        var APIAdress = `{{ . }}`;
+        console.log(APIAdress)
     </script>
     <script src="./src/js/index.js"></script>
 </body>

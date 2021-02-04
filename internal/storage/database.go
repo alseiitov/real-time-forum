@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alseiitov/real-time-forum/backend/internal/configs"
+	"github.com/alseiitov/real-time-forum/internal/configs"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -15,11 +15,11 @@ type Database struct {
 }
 
 func ConnectDB(c *configs.Conf) (*Database, error) {
-	if err := checkPath(c.Database.Path); err != nil {
+	if err := checkPath(c.Backend.Database.Path); err != nil {
 		return nil, err
 	}
 
-	db, err := sql.Open(c.Database.Driver, c.GetDBFilePath())
+	db, err := sql.Open(c.Backend.Database.Driver, c.GetDBFilePath())
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func ConnectDB(c *configs.Conf) (*Database, error) {
 
 	database := Database{db: db}
 
-	checkTables(&database, c.Database.Schema)
+	checkTables(&database, c.Backend.Database.Schema)
 
 	return &database, nil
 }

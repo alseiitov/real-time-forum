@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/alseiitov/real-time-forum/backend/internal/middlewares"
+	"github.com/alseiitov/real-time-forum/internal/middlewares"
 )
 
 func Init() {

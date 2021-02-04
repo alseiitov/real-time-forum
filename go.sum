@@ -1,0 +1,4 @@
+github.com/alseiitov/real-time-forum/backend v0.0.0-20201214055441-4a20aba5c3af h1:ybDUhjOCDgZ5zhcua2A0M7ufqxeqGn9nvUkfL95wC3Q=
+github.com/alseiitov/real-time-forum/backend v0.0.0-20201214055441-4a20aba5c3af/go.mod h1:EBhgbBkykAi3wCP2YmpZyEMWoYWU6X5a82mak1ncc6E=
+github.com/mattn/go-sqlite3 v1.14.5 h1:1IdxlwTNazvbKJQSxoJ5/9ECbEeaTTyeU7sEAZ5KKTQ=
+github.com/mattn/go-sqlite3 v1.14.5/go.mod h1:WVKg1VTActs4Qso6iwGbiFih2UIHo0ENGwNd0Lj+XmI=

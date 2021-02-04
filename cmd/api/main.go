@@ -4,9 +4,9 @@ import (
 	"flag"
 	"log"
 
-	"github.com/alseiitov/real-time-forum/backend/internal/configs"
-	"github.com/alseiitov/real-time-forum/backend/internal/server"
-	"github.com/alseiitov/real-time-forum/backend/internal/storage"
+	"github.com/alseiitov/real-time-forum/internal/configs"
+	"github.com/alseiitov/real-time-forum/internal/server"
+	"github.com/alseiitov/real-time-forum/internal/storage"
 )
 
 func main() {
