@@ -1,6 +1,6 @@
 var container = document.querySelector(".container");
 
-var APIAdress = `http://${APIAdress}/api`
+var APIAdress = `http://${APIAdress}/api/user`
 
 fetch(APIAdress)
     .then((response) => {

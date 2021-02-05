@@ -5,18 +5,11 @@ import (
 	"net/http"
 
 	"github.com/alseiitov/real-time-forum/internal/api"
-	"github.com/alseiitov/real-time-forum/internal/configs"
-	"github.com/alseiitov/real-time-forum/internal/storage"
+	"github.com/alseiitov/real-time-forum/internal/config"
 )
 
 func Run(configPath *string) {
-	config, err := configs.NewConfig(*configPath)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	db, err := storage.ConnectDB(config)
-	defer db.Close()
+	config, err := config.NewConfig(*configPath)
 	if err != nil {
 		log.Fatalln(err)
 	}
