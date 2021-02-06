@@ -18,7 +18,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	temp, err := template.ParseFiles("./web/src/index.html")
+	temp, err := template.ParseFiles("./web/public/index.html")
 	if err != nil {
 		log.Fatalln(err)
 	}

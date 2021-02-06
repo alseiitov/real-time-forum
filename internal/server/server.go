@@ -1,26 +1,25 @@
 package server
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/alseiitov/real-time-forum/internal/api"
+	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/config"
 )
 
-func Run(configPath *string) {
-	config, err := config.NewConfig(*configPath)
-	if err != nil {
-		log.Fatalln(err)
+type Server struct {
+	httpServer *http.Server
+}
+
+func NewServer(conf *config.Conf, router *gorouter.Router) *Server {
+	return &Server{
+		httpServer: &http.Server{
+			Addr:    ":" + conf.GetBackendPort(),
+			Handler: router,
+		},
 	}
+}
 
-	port := config.GetBackendPort()
-
-	api.Init()
-
-	log.Printf("Backend server is starting at port %v", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatalln(err)
-	}
-
+func (s *Server) Run() error {
+	return s.httpServer.ListenAndServe()
 }
