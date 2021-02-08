@@ -1,0 +1,10 @@
+CREATE TABLE messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+  chat_id INTEGER NOT NULL,
+  message TEXT NOT NULL,
+  date DATETIME,
+  user_id INTEGER NOT NULL,
+  status INTEGER NOT NULL,
+  FOREIGN KEY(chat_id) REFERENCES chats(id),
+  FOREIGN KEY(user_id) REFERENCES users(id)
+);
