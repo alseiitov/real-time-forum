@@ -1,2 +1,4 @@
 github.com/alseiitov/gorouter v0.0.0-20210206141740-6e2cfc6fd098 h1:FgqRSq1Is5cepgGuUD0YJKt6DtEWbBha1srvdOqrydM=
 github.com/alseiitov/gorouter v0.0.0-20210206141740-6e2cfc6fd098/go.mod h1:WyzCLed9mFF2pYdG5H7Ntum0KRSF/Aoa2sgRFf60WiU=
+github.com/mattn/go-sqlite3 v1.14.6 h1:dNPt6NO46WmLVt2DLNpwczCmdV5boIZ6g/tlDrlRUbg=
+github.com/mattn/go-sqlite3 v1.14.6/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=

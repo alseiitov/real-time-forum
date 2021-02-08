@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type Conf struct {
@@ -13,10 +14,10 @@ type Conf struct {
 			Port string `json:"port"`
 		} `json:"server"`
 		Database struct {
-			Driver   string `json:"driver"`
-			Path     string `json:"path"`
-			FileName string `json:"fileName"`
-			Schema   string `json:"schema"`
+			Driver     string `json:"driver"`
+			Path       string `json:"path"`
+			FileName   string `json:"fileName"`
+			SchemesDir string `json:"schemesDir"`
 		} `json:"database"`
 	} `json:"backend"`
 	Frontend struct {
@@ -43,12 +44,12 @@ func (c *Conf) GetFrontendPort() string {
 	return c.Frontend.Server.Port
 }
 
-func (c *Conf) GetDBDirPath() string {
-	return c.Backend.Database.Path
+func (c *Conf) GetDBFilePath() string {
+	return filepath.Join(c.Backend.Database.Path, c.Backend.Database.FileName)
 }
 
-func (c *Conf) GetDBFilePath() string {
-	return fmt.Sprintf("%v/%v", c.Backend.Database.Path, c.Backend.Database.FileName)
+func (c *Conf) GetDBSchemesDir() string {
+	return c.Backend.Database.SchemesDir
 }
 
 func (c *Conf) GetDBDriver() string {

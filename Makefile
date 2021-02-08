@@ -2,8 +2,8 @@
 build:
 	rm -rf build
 	mkdir build
-	go build -o api ./cmd/app/main.go
-	go build -o client ./cmd/web/web-server/main.go
+	go build -o api ./cmd/api/main.go
+	go build -o client ./cmd/client/main.go
 
 .PHONY: run-api
 run-api:

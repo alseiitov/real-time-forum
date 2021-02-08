@@ -18,12 +18,12 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	temp, err := template.ParseFiles("./web/public/index.html")
+	temp, err := template.ParseFiles("./website/public/index.html")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	fileServer := http.FileServer(http.Dir("./web/src"))
+	fileServer := http.FileServer(http.Dir("./website/src"))
 
 	http.Handle("/src/", http.StripPrefix("/src/", fileServer))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

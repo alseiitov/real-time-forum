@@ -1,0 +1,9 @@
+CREATE TABLE comments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+  user_id INTEGER NOT NULL,
+  post_id INTEGER NOT NULL,
+  data TEXT NOT NULL,
+  date DATETIME,
+  FOREIGN KEY(user_id) REFERENCES users(id),
+  FOREIGN KEY(post_id) REFERENCES posts(id)
+);
