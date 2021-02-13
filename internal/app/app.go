@@ -26,8 +26,7 @@ func Run(configPath *string) {
 	}
 
 	repos := repository.NewRepositories(db)
-	// TODO: parse secret from env
-	hasher := hash.NewBcryptHasher("SecretKEy")
+	hasher := hash.NewBcryptHasher()
 
 	services := service.NewServices(service.ServicesDeps{
 		Repos:  repos,

@@ -1,6 +1,9 @@
 package service
 
 import (
+	"database/sql"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/domain"
@@ -45,4 +48,28 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 	}
 
 	return nil
+}
+
+func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
+	password, err := s.repo.GetPasswordByLogin(input.UsernameOrEmail)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return Tokens{}, errors.New("Wrong login or password")
+		}
+		return Tokens{}, err
+	}
+
+	if !s.hasher.Compare(input.Password, password) {
+		return Tokens{}, errors.New("Wrong login or password")
+	}
+
+	user, err := s.repo.GetUserByLogin(input.UsernameOrEmail)
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	//TODO: generate and return tokens
+	fmt.Println(user)
+
+	return Tokens{}, nil
 }

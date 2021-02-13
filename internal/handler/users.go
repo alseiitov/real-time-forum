@@ -49,11 +49,43 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 		return
 	}
 
-	ctx.WriteString(200, "Registered succesfully")
+	ctx.ResponseWriter.WriteHeader(http.StatusCreated)
+}
+
+type usersSignInInput struct {
+	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64"`
+	Password        string `json:"password" validator:"required,password,min=7,max=64"`
+}
+
+type tokenResponse struct {
+	AccessToken string `json:"accessToken"`
 }
 
 func (h *Handler) usersSignIn(ctx *gorouter.Context) {
+	var input usersSignInInput
 
+	err := ctx.ReadBody(&input)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = validator.Validate(input)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	_, err = h.usersService.SignIn(service.UsersSignInInput{
+		UsernameOrEmail: input.UsernameOrEmail,
+		Password:        input.Password,
+	})
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	// ctx.WriteJSON(http.StatusOK, tokens)
 }
 
 func (h *Handler) getUser(ctx *gorouter.Context) {

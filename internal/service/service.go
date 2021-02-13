@@ -15,8 +15,18 @@ type UsersSignUpInput struct {
 	Password  string
 }
 
+type UsersSignInInput struct {
+	UsernameOrEmail string
+	Password        string
+}
+
+type Tokens struct {
+	AccessToken string
+}
+
 type Users interface {
 	SignUp(input UsersSignUpInput) error
+	SignIn(input UsersSignInInput) (Tokens, error)
 }
 
 type Services struct {

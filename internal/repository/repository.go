@@ -8,8 +8,9 @@ import (
 )
 
 type Users interface {
-	GetById(id int) (domain.User, error)
 	Create(user domain.User) error
+	GetUserByLogin(usernameOrEmail string) (domain.User, error)
+	GetPasswordByLogin(usernameOrEmail string) (string, error)
 }
 
 type Repositories struct {
