@@ -3,6 +3,8 @@ package app
 import (
 	"log"
 
+	"github.com/alseiitov/real-time-forum/pkg/hash"
+
 	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/config"
 	"github.com/alseiitov/real-time-forum/internal/handler"
@@ -24,9 +26,12 @@ func Run(configPath *string) {
 	}
 
 	repos := repository.NewRepositories(db)
+	// TODO: parse secret from env
+	hasher := hash.NewBcryptHasher("SecretKEy")
 
 	services := service.NewServices(service.ServicesDeps{
-		Repos: repos,
+		Repos:  repos,
+		Hasher: hasher,
 	})
 
 	router := gorouter.NewRouter()

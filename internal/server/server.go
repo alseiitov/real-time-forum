@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/alseiitov/gorouter"
@@ -21,5 +22,6 @@ func NewServer(conf *config.Conf, router *gorouter.Router) *Server {
 }
 
 func (s *Server) Run() error {
+	log.Printf("API server is starting at %v", s.httpServer.Addr)
 	return s.httpServer.ListenAndServe()
 }

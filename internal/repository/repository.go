@@ -9,6 +9,7 @@ import (
 
 type Users interface {
 	GetById(id int) (domain.User, error)
+	Create(user domain.User) error
 }
 
 type Repositories struct {
