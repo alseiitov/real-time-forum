@@ -9,6 +9,10 @@
             "path": "./database",
             "fileName": "forum.db",
             "schemesDir": "./database/schemes"
+        },
+        "auth": {
+            "accessTokenTTL": 15,
+            "refreshTokenTTL": 43200
         }
     },
     "frontend": {

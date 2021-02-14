@@ -58,7 +58,8 @@ type usersSignInInput struct {
 }
 
 type tokenResponse struct {
-	AccessToken string `json:"accessToken"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 func (h *Handler) usersSignIn(ctx *gorouter.Context) {
@@ -76,7 +77,7 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 		return
 	}
 
-	_, err = h.usersService.SignIn(service.UsersSignInInput{
+	tokens, err := h.usersService.SignIn(service.UsersSignInInput{
 		UsernameOrEmail: input.UsernameOrEmail,
 		Password:        input.Password,
 	})
@@ -85,7 +86,15 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 		return
 	}
 
-	// ctx.WriteJSON(http.StatusOK, tokens)
+	err = ctx.WriteJSON(http.StatusOK, tokenResponse{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	})
+
+	if err != nil {
+		ctx.WriteError(http.StatusInternalServerError, err.Error())
+		return
+	}
 }
 
 func (h *Handler) getUser(ctx *gorouter.Context) {

@@ -2,7 +2,9 @@ package app
 
 import (
 	"log"
+	"os"
 
+	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
 
 	"github.com/alseiitov/gorouter"
@@ -28,9 +30,21 @@ func Run(configPath *string) {
 	repos := repository.NewRepositories(db)
 	hasher := hash.NewBcryptHasher()
 
+	secretKey := os.Getenv("SECRET_KEY")
+	accessTokenTTL, refreshTokenTTL, err := config.GetTokenTTLs()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	tokenManager, err := auth.NewManager(secretKey, accessTokenTTL, refreshTokenTTL)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	services := service.NewServices(service.ServicesDeps{
-		Repos:  repos,
-		Hasher: hasher,
+		Repos:        repos,
+		Hasher:       hasher,
+		TokenManager: tokenManager,
 	})
 
 	router := gorouter.NewRouter()

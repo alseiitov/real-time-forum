@@ -2,9 +2,11 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type Conf struct {
@@ -19,6 +21,10 @@ type Conf struct {
 			FileName   string `json:"fileName"`
 			SchemesDir string `json:"schemesDir"`
 		} `json:"database"`
+		Auth struct {
+			AccessTokenTTL  int `json:"accessTokenTTL"`
+			RefreshTokenTTL int `json:"refreshTokenTTL"`
+		} `json:"auth"`
 	} `json:"backend"`
 	Frontend struct {
 		Server struct {
@@ -54,6 +60,24 @@ func (c *Conf) GetDBSchemesDir() string {
 
 func (c *Conf) GetDBDriver() string {
 	return c.Backend.Database.Driver
+}
+
+func (c *Conf) GetTokenTTLs() (time.Duration, time.Duration, error) {
+	accessTokenTTL := minutesToDuration(c.Backend.Auth.AccessTokenTTL)
+	if accessTokenTTL == 0 {
+		return 0, 0, errors.New("accessTokenTTL cannot be empty")
+	}
+
+	refreshTokenTTL := minutesToDuration(c.Backend.Auth.RefreshTokenTTL)
+	if refreshTokenTTL == 0 {
+		return 0, 0, errors.New("refreshTokenTTL cannot be empty")
+	}
+
+	return accessTokenTTL, refreshTokenTTL, nil
+}
+
+func minutesToDuration(m int) time.Duration {
+	return time.Duration(int(time.Minute) * m)
 }
 
 func NewConfig(confPath string) (*Conf, error) {

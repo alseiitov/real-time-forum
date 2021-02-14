@@ -3,23 +3,25 @@ package service
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/domain"
 	"github.com/alseiitov/real-time-forum/internal/repository"
+	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
 )
 
 type UsersService struct {
-	repo   repository.Users
-	hasher hash.PasswordHasher
+	repo         repository.Users
+	hasher       hash.PasswordHasher
+	tokenManager auth.TokenManager
 }
 
-func NewUsersService(repo repository.Users, hasher hash.PasswordHasher) *UsersService {
+func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager) *UsersService {
 	return &UsersService{
-		repo:   repo,
-		hasher: hasher,
+		repo:         repo,
+		hasher:       hasher,
+		tokenManager: tokenManager,
 	}
 }
 
@@ -68,8 +70,14 @@ func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
 		return Tokens{}, err
 	}
 
-	//TODO: generate and return tokens
-	fmt.Println(user)
+	accessToken, err := s.tokenManager.NewJWT(user.ID, user.Role)
+	if err != nil {
+		return Tokens{}, err
+	}
+	refreshToken := s.tokenManager.NewRefreshToken()
 
-	return Tokens{}, nil
+	return Tokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
