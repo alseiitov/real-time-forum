@@ -3,7 +3,7 @@ package sqlitedb
 import (
 	"database/sql"
 
-	"github.com/alseiitov/real-time-forum/internal/domain"
+	"github.com/alseiitov/real-time-forum/internal/model"
 )
 
 type UsersRepo struct {
@@ -14,7 +14,7 @@ func NewUserRepo(db *sql.DB) *UsersRepo {
 	return &UsersRepo{db: db}
 }
 
-func (r *UsersRepo) Create(user domain.User) error {
+func (r *UsersRepo) Create(user model.User) error {
 	stmt, err := r.db.Prepare("INSERT INTO users (username, first_name, last_name, age, gender, email, password, role, avatar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
@@ -29,8 +29,8 @@ func (r *UsersRepo) Create(user domain.User) error {
 	return nil
 }
 
-func (r *UsersRepo) GetUserByLogin(usernameOrEmail string) (domain.User, error) {
-	var user domain.User
+func (r *UsersRepo) GetUserByLogin(usernameOrEmail string) (model.User, error) {
+	var user model.User
 
 	row := r.db.QueryRow("SELECT id, username, first_name, last_name, age, gender, email, role, avatar FROM users WHERE username = $1 OR email = $1", usernameOrEmail)
 	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Age, &user.Gender, &user.Email, &user.Role, &user.Avatar)
@@ -53,7 +53,7 @@ func (r *UsersRepo) GetPasswordByLogin(usernameOrEmail string) (string, error) {
 	return password, nil
 }
 
-func (r *UsersRepo) SetSession(session domain.Session) error {
+func (r *UsersRepo) SetSession(session model.Session) error {
 	stmt, err := r.db.Prepare("INSERT INTO sessions (user_id, refresh_token, expires_at) VALUES (?, ?, ?)")
 	if err != nil {
 		return err

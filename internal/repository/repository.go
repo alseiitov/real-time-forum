@@ -3,22 +3,22 @@ package repository
 import (
 	"database/sql"
 
-	"github.com/alseiitov/real-time-forum/internal/domain"
+	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/repository/sqlitedb"
 )
 
 type Users interface {
-	Create(user domain.User) error
-	GetUserByLogin(usernameOrEmail string) (domain.User, error)
+	Create(user model.User) error
+	GetUserByLogin(usernameOrEmail string) (model.User, error)
 	GetPasswordByLogin(usernameOrEmail string) (string, error)
-	SetSession(session domain.Session) error
+	SetSession(session model.Session) error
 	// CreateRefreshToken(userID int, refreshToken string, exp )
 	// UpdateRefreshToken(userID int, refreshToken string) error
 	// DeleteRefreshToken(userID int, refreshToken string) error
 }
 
 type Posts interface {
-	Create(post domain.Post) (int, error)
+	Create(post model.Post) (int, error)
 }
 
 type Repositories struct {

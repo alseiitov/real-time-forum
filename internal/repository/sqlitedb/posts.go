@@ -3,7 +3,7 @@ package sqlitedb
 import (
 	"database/sql"
 
-	"github.com/alseiitov/real-time-forum/internal/domain"
+	"github.com/alseiitov/real-time-forum/internal/model"
 )
 
 type PostsRepo struct {
@@ -14,7 +14,7 @@ func NewPostsRepo(db *sql.DB) *PostsRepo {
 	return &PostsRepo{db: db}
 }
 
-func (r *PostsRepo) Create(post domain.Post) (int, error) {
+func (r *PostsRepo) Create(post model.Post) (int, error) {
 	stmt, err := r.db.Prepare("INSERT INTO posts (user_id, title, data, date, image) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		return 0, err

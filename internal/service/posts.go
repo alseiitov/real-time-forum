@@ -3,7 +3,7 @@ package service
 import (
 	"time"
 
-	"github.com/alseiitov/real-time-forum/internal/domain"
+	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/repository"
 )
 
@@ -18,7 +18,7 @@ func NewPostsService(repo repository.Posts) *PostsService {
 }
 
 func (s *PostsService) Create(input CreatePostInput) (int, error) {
-	post := domain.Post{
+	post := model.Post{
 		UserID: input.UserID,
 		Title:  input.Title,
 		Data:   input.Data,

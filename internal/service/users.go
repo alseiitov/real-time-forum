@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/alseiitov/real-time-forum/internal/domain"
+	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
@@ -35,7 +35,7 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 		return err
 	}
 
-	user := domain.User{
+	user := model.User{
 		Username:   input.Username,
 		FirstName:  input.FirstName,
 		LastName:   input.LastName,
@@ -44,7 +44,7 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 		Email:      input.Email,
 		Password:   password,
 		Registered: time.Now(),
-		Role:       domain.Roles.User,
+		Role:       model.Roles.User,
 		Avatar:     "",
 	}
 
@@ -89,7 +89,7 @@ func (s *UsersService) createSession(userID, role int) (Tokens, error) {
 		RefreshToken: refreshToken,
 	}
 
-	session := domain.Session{
+	session := model.Session{
 		UserID:       userID,
 		RefreshToken: refreshToken,
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),

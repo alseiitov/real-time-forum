@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/alseiitov/gorouter"
-	"github.com/alseiitov/real-time-forum/internal/domain"
+	"github.com/alseiitov/real-time-forum/internal/model"
 )
 
 func (h *Handler) cors(next gorouter.Handler) gorouter.Handler {
@@ -22,12 +22,12 @@ func (h *Handler) identify(minRole int, next gorouter.Handler) gorouter.Handler 
 	return func(ctx *gorouter.Context) {
 		token := ctx.Request.Header.Get("Authorization")
 		if token == "" {
-			if minRole > domain.Roles.Guest {
+			if minRole > model.Roles.Guest {
 				ctx.WriteError(http.StatusUnauthorized, "401 Unauthorized")
 				return
 			}
 
-			ctx.SetParam("role", strconv.Itoa(domain.Roles.Guest))
+			ctx.SetParam("role", strconv.Itoa(model.Roles.Guest))
 		} else {
 			sub, role, err := h.tokenManager.Parse(token)
 			if err != nil {
