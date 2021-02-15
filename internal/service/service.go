@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
@@ -29,18 +31,17 @@ type Tokens struct {
 type Users interface {
 	SignUp(input UsersSignUpInput) error
 	SignIn(input UsersSignInInput) (Tokens, error)
-	IdentifyByToken(token string) (int, int, error)
 }
 
 type CreatePostInput struct {
 	UserID     int
 	Title      string
 	Data       string
-	Categories []string
+	Categories []int
 }
 
 type Posts interface {
-	Create(input CreatePostInput) error
+	Create(input CreatePostInput) (int, error)
 }
 
 type Services struct {
@@ -49,14 +50,16 @@ type Services struct {
 }
 
 type ServicesDeps struct {
-	Repos        *repository.Repositories
-	Hasher       hash.PasswordHasher
-	TokenManager auth.TokenManager
+	Repos           *repository.Repositories
+	Hasher          hash.PasswordHasher
+	TokenManager    auth.TokenManager
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
 }
 
 func NewServices(deps ServicesDeps) *Services {
 	return &Services{
-		Users: NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager),
+		Users: NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL),
 		Posts: NewPostsService(deps.Repos.Posts),
 	}
 }

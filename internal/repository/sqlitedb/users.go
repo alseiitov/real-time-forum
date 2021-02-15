@@ -52,3 +52,18 @@ func (r *UsersRepo) GetPasswordByLogin(usernameOrEmail string) (string, error) {
 
 	return password, nil
 }
+
+func (r *UsersRepo) SetSession(session domain.Session) error {
+	stmt, err := r.db.Prepare("INSERT INTO sessions (user_id, refresh_token, expires_at) VALUES (?, ?, ?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(&session.UserID, &session.RefreshToken, &session.ExpiresAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

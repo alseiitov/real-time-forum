@@ -18,7 +18,7 @@ func (h *Handler) cors(next gorouter.Handler) gorouter.Handler {
 	}
 }
 
-func (h *Handler) auth(minRole int, next gorouter.Handler) gorouter.Handler {
+func (h *Handler) identify(minRole int, next gorouter.Handler) gorouter.Handler {
 	return func(ctx *gorouter.Context) {
 		token := ctx.Request.Header.Get("Authorization")
 		if token == "" {
@@ -29,7 +29,7 @@ func (h *Handler) auth(minRole int, next gorouter.Handler) gorouter.Handler {
 
 			ctx.SetParam("role", strconv.Itoa(domain.Roles.Guest))
 		} else {
-			sub, role, err := h.usersService.IdentifyByToken(token)
+			sub, role, err := h.tokenManager.Parse(token)
 			if err != nil {
 				ctx.WriteError(http.StatusBadRequest, err.Error())
 				return

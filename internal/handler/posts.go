@@ -18,9 +18,13 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 }
 
 type createPostInput struct {
-	Title      string   `json:"title" validator:"required,min=2, max=64"`
-	Data       string   `json:"data" validator:"required,min=2, max=512"`
-	Categories []string `json:"categories" validator:"required,min=5,max=64"`
+	Title      string `json:"title" validator:"required,min=2, max=64"`
+	Data       string `json:"data" validator:"required,min=2, max=512"`
+	Categories []int  `json:"categories" validator:"required,min=0"`
+}
+
+type createPostResponse struct {
+	PostID int `json:"postID"`
 }
 
 func (h *Handler) createPost(ctx *gorouter.Context) {
@@ -32,7 +36,7 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 		return
 	}
 
-	err := ctx.ReadBody(&input)
+	err = ctx.ReadBody(&input)
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -44,7 +48,7 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 		return
 	}
 
-	err = h.postsService.Create(service.CreatePostInput{
+	id, err := h.postsService.Create(service.CreatePostInput{
 		UserID:     userID,
 		Title:      input.Title,
 		Data:       input.Data,
@@ -55,5 +59,6 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 		return
 	}
 
-	ctx.ResponseWriter.WriteHeader(http.StatusCreated)
+	resp := createPostResponse{PostID: id}
+	ctx.WriteJSON(http.StatusCreated, resp)
 }

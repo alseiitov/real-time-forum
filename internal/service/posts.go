@@ -17,8 +17,7 @@ func NewPostsService(repo repository.Posts) *PostsService {
 	}
 }
 
-func (s *PostsService) Create(input CreatePostInput) error {
-
+func (s *PostsService) Create(input CreatePostInput) (int, error) {
 	post := domain.Post{
 		UserID: input.UserID,
 		Title:  input.Title,
@@ -28,5 +27,7 @@ func (s *PostsService) Create(input CreatePostInput) error {
 		Image:      "",
 		Categories: input.Categories,
 	}
-	return nil
+
+	id, err := s.repo.Create(post)
+	return id, err
 }

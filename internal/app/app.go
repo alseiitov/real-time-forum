@@ -42,14 +42,16 @@ func Run(configPath *string) {
 	}
 
 	services := service.NewServices(service.ServicesDeps{
-		Repos:        repos,
-		Hasher:       hasher,
-		TokenManager: tokenManager,
+		Repos:           repos,
+		Hasher:          hasher,
+		TokenManager:    tokenManager,
+		AccessTokenTTL:  accessTokenTTL,
+		RefreshTokenTTL: refreshTokenTTL,
 	})
 
 	router := gorouter.NewRouter()
 
-	handler := handler.NewHandler(services.Users, services.Posts)
+	handler := handler.NewHandler(services.Users, services.Posts, tokenManager)
 	handler.Init(router)
 
 	server := server.NewServer(config, router)

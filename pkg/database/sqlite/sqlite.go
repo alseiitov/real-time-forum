@@ -15,7 +15,7 @@ func ConnectDB(c *config.Conf) (*sql.DB, error) {
 	fileName := c.GetDBFilePath()
 	newDB := !fileExists(fileName)
 
-	db, err := sql.Open(driver, fileName)
+	db, err := sql.Open(driver, fileName+"?_foreign_keys=on")
 	if err != nil {
 		return nil, err
 	}

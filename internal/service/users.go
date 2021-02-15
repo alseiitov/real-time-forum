@@ -12,16 +12,20 @@ import (
 )
 
 type UsersService struct {
-	repo         repository.Users
-	hasher       hash.PasswordHasher
-	tokenManager auth.TokenManager
+	repo            repository.Users
+	hasher          hash.PasswordHasher
+	tokenManager    auth.TokenManager
+	accessTokenTTL  time.Duration
+	refreshTokenTTL time.Duration
 }
 
-func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager) *UsersService {
+func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager, accessTokenTTL time.Duration, refreshTokenTTL time.Duration) *UsersService {
 	return &UsersService{
-		repo:         repo,
-		hasher:       hasher,
-		tokenManager: tokenManager,
+		repo:            repo,
+		hasher:          hasher,
+		tokenManager:    tokenManager,
+		accessTokenTTL:  accessTokenTTL,
+		refreshTokenTTL: refreshTokenTTL,
 	}
 }
 
@@ -70,18 +74,26 @@ func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
 		return Tokens{}, err
 	}
 
-	accessToken, err := s.tokenManager.NewJWT(user.ID, user.Role)
+	return s.createSession(user.ID, user.Role)
+}
+
+func (s *UsersService) createSession(userID, role int) (Tokens, error) {
+	accessToken, err := s.tokenManager.NewJWT(userID, role)
+	refreshToken := s.tokenManager.NewRefreshToken()
 	if err != nil {
 		return Tokens{}, err
 	}
-	refreshToken := s.tokenManager.NewRefreshToken()
 
-	return Tokens{
+	tokens := Tokens{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-	}, nil
-}
+	}
 
-func (s *UsersService) IdentifyByToken(token string) (int, int, error) {
-	return s.tokenManager.Parse(token)
+	session := domain.Session{
+		UserID:       userID,
+		RefreshToken: refreshToken,
+		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),
+	}
+
+	return tokens, s.repo.SetSession(session)
 }
