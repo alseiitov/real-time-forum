@@ -17,12 +17,18 @@ type Users interface {
 	// DeleteRefreshToken(userID int, refreshToken string) error
 }
 
+type Posts interface {
+	Create(post domain.Post) error
+}
+
 type Repositories struct {
 	Users Users
+	Posts Posts
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
 		Users: sqlitedb.NewUserRepo(db),
+		Posts: sqlitedb.NewPostsRepo(db),
 	}
 }

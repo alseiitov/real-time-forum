@@ -81,3 +81,7 @@ func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
 		RefreshToken: refreshToken,
 	}, nil
 }
+
+func (s *UsersService) IdentifyByToken(token string) (int, int, error) {
+	return s.tokenManager.Parse(token)
+}

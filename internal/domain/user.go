@@ -17,15 +17,17 @@ type User struct {
 }
 
 type roles struct {
+	Guest         int
 	User          int
 	Moderator     int
 	Administrator int
 }
 
 var Roles = roles{
-	User:          0,
-	Moderator:     1,
-	Administrator: 2,
+	Guest:         0,
+	User:          1,
+	Moderator:     2,
+	Administrator: 3,
 }
 
 type gender struct {

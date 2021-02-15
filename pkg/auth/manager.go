@@ -13,7 +13,7 @@ import (
 type TokenManager interface {
 	NewJWT(userID int, role int) (string, error)
 	NewRefreshToken() string
-	Parse(token string) (string, int, error)
+	Parse(token string) (int, int, error)
 }
 
 type Manager struct {
@@ -44,9 +44,9 @@ func NewManager(secretKey string, accessTokenTTL, refreshTokenTTL time.Duration)
 
 func (m *Manager) NewJWT(userID int, role int) (string, error) {
 	jwt := sjwt.New()
-	jwt.SetPayload("sub", userID)
-	jwt.SetPayload("exp", time.Now().Add(m.accessTokenTTL).Unix())
-	jwt.SetPayload("role", role)
+	jwt.SetPayload("sub", fmt.Sprintf("%v", userID))
+	jwt.SetPayload("exp", fmt.Sprintf("%v", time.Now().Add(m.accessTokenTTL).Unix()))
+	jwt.SetPayload("role", fmt.Sprintf("%v", role))
 
 	token, err := jwt.Sign(m.secretKey)
 	if err != nil {
@@ -61,46 +61,49 @@ func (m *Manager) NewRefreshToken() string {
 	return token.String()
 }
 
-func (m *Manager) Parse(token string) (string, int, error) {
+func (m *Manager) Parse(token string) (int, int, error) {
 	jwt, err := sjwt.Parse(token)
 	if err != nil {
-		return "", -1, err
+		return -1, -1, err
 	}
 
 	err = jwt.Verify(token, m.secretKey)
 	if err != nil {
-		return "", -1, err
+		return -1, -1, err
 	}
 
 	subData, ok := jwt.Payload("sub")
 	if !ok {
-		return "", -1, errors.New("empty sub")
+		return -1, -1, errors.New("empty sub")
 	}
-	sub := fmt.Sprintf("%v", subData)
+	sub, err := strconv.Atoi(fmt.Sprintf("%v", subData))
+	if err != nil {
+		return -1, -1, err
+	}
 
 	roleData, ok := jwt.Payload("role")
 	if !ok {
-		return "", -1, errors.New("empty role")
+		return -1, -1, errors.New("empty role")
 	}
 
 	role, err := strconv.Atoi(fmt.Sprintf("%v", roleData))
 	if err != nil {
-		panic(err)
+		return -1, -1, err
 	}
 
 	expData, ok := jwt.Payload("exp")
 	if !ok {
-		return "", -1, errors.New("empty exp")
+		return -1, -1, errors.New("empty exp")
 	}
 
 	exp, err := strconv.ParseInt(fmt.Sprintf("%v", expData), 10, 64)
 	if err != nil {
-		panic(err)
+		return -1, -1, err
 	}
 	tm := time.Unix(exp, 0)
 
 	if time.Now().After(tm) {
-		return "", -1, errors.New("token has expired")
+		return -1, -1, errors.New("token has expired")
 	}
 
 	return sub, role, nil

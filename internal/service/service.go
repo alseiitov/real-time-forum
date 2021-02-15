@@ -29,10 +29,23 @@ type Tokens struct {
 type Users interface {
 	SignUp(input UsersSignUpInput) error
 	SignIn(input UsersSignInInput) (Tokens, error)
+	IdentifyByToken(token string) (int, int, error)
+}
+
+type CreatePostInput struct {
+	UserID     int
+	Title      string
+	Data       string
+	Categories []string
+}
+
+type Posts interface {
+	Create(input CreatePostInput) error
 }
 
 type Services struct {
 	Users Users
+	Posts Posts
 }
 
 type ServicesDeps struct {
@@ -44,5 +57,6 @@ type ServicesDeps struct {
 func NewServices(deps ServicesDeps) *Services {
 	return &Services{
 		Users: NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager),
+		Posts: NewPostsService(deps.Repos.Posts),
 	}
 }
