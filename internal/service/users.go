@@ -1,8 +1,6 @@
 package service
 
 import (
-	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -30,10 +28,7 @@ func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenMan
 }
 
 func (s *UsersService) SignUp(input UsersSignUpInput) error {
-	password, err := s.hasher.Hash(input.Password)
-	if err != nil {
-		return err
-	}
+	password := s.hasher.Hash(input.Password)
 
 	user := model.User{
 		Username:   input.Username,
@@ -48,7 +43,7 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 		Avatar:     "",
 	}
 
-	err = s.repo.Create(user)
+	err := s.repo.Create(user)
 	if err != nil {
 		return err
 	}
@@ -57,19 +52,9 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 }
 
 func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
-	password, err := s.repo.GetPasswordByLogin(input.UsernameOrEmail)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return Tokens{}, errors.New("Wrong login or password")
-		}
-		return Tokens{}, err
-	}
+	password := s.hasher.Hash(input.Password)
 
-	if !s.hasher.Compare(input.Password, password) {
-		return Tokens{}, errors.New("Wrong login or password")
-	}
-
-	user, err := s.repo.GetUserByLogin(input.UsernameOrEmail)
+	user, err := s.repo.GetByCredentials(input.UsernameOrEmail, password)
 	if err != nil {
 		return Tokens{}, err
 	}

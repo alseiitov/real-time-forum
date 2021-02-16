@@ -9,12 +9,8 @@ import (
 
 type Users interface {
 	Create(user model.User) error
-	GetUserByLogin(usernameOrEmail string) (model.User, error)
-	GetPasswordByLogin(usernameOrEmail string) (string, error)
+	GetByCredentials(usernameOrEmail, password string) (model.User, error)
 	SetSession(session model.Session) error
-	// CreateRefreshToken(userID int, refreshToken string, exp )
-	// UpdateRefreshToken(userID int, refreshToken string) error
-	// DeleteRefreshToken(userID int, refreshToken string) error
 }
 
 type Posts interface {

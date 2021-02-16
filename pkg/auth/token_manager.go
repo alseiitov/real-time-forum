@@ -17,14 +17,14 @@ type TokenManager interface {
 }
 
 type Manager struct {
-	secretKey       string
+	jwtSigningKey   string
 	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
 }
 
-func NewManager(secretKey string, accessTokenTTL, refreshTokenTTL time.Duration) (*Manager, error) {
-	if secretKey == "" {
-		return nil, errors.New("empty JWT secret key")
+func NewManager(jwtSigningKey string, accessTokenTTL, refreshTokenTTL time.Duration) (*Manager, error) {
+	if jwtSigningKey == "" {
+		return nil, errors.New("JWT_SIGNING_KEY is empty")
 	}
 
 	if accessTokenTTL == 0 {
@@ -36,7 +36,7 @@ func NewManager(secretKey string, accessTokenTTL, refreshTokenTTL time.Duration)
 	}
 
 	return &Manager{
-		secretKey:       secretKey,
+		jwtSigningKey:   jwtSigningKey,
 		accessTokenTTL:  accessTokenTTL,
 		refreshTokenTTL: refreshTokenTTL,
 	}, nil
@@ -48,7 +48,7 @@ func (m *Manager) NewJWT(userID int, role int) (string, error) {
 	jwt.SetPayload("exp", fmt.Sprintf("%v", time.Now().Add(m.accessTokenTTL).Unix()))
 	jwt.SetPayload("role", fmt.Sprintf("%v", role))
 
-	token, err := jwt.Sign(m.secretKey)
+	token, err := jwt.Sign(m.jwtSigningKey)
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +67,7 @@ func (m *Manager) Parse(token string) (int, int, error) {
 		return -1, -1, err
 	}
 
-	err = jwt.Verify(token, m.secretKey)
+	err = jwt.Verify(token, m.jwtSigningKey)
 	if err != nil {
 		return -1, -1, err
 	}

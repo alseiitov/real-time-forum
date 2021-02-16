@@ -11,11 +11,13 @@ build:
 run-api:
 ifdef config-path
 	@CGO_ENABLED=1 \
-	SECRET_KEY=${SECRET_KEY} \
+	JWT_SIGNING_KEY=${JWT_SIGNING_KEY} \
+	PASSWORD_SALT=${PASSWORD_SALT} \
 	go run ./cmd/api/main.go -config-path="${config-path}" 
 else
 	@CGO_ENABLED=1 \
-	SECRET_KEY=${SECRET_KEY} \
+	JWT_SIGNING_KEY=${JWT_SIGNING_KEY} \
+	PASSWORD_SALT=${PASSWORD_SALT} \
 	go run ./cmd/api/main.go
 endif
 	 
@@ -27,3 +29,6 @@ else
 	go run ./cmd/client/main.go 
 endif
 	 
+.PHONY: lint
+lint:
+	 golangci-lint run

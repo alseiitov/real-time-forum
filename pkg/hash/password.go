@@ -1,32 +1,27 @@
 package hash
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"crypto/sha256"
+	"errors"
+)
 
 type PasswordHasher interface {
-	Hash(password string) (string, error)
-	Compare(password, hashed string) bool
+	Hash(password string) string
 }
 
-type bcryptHasher struct{}
-
-func NewBcryptHasher() *bcryptHasher {
-	return &bcryptHasher{}
+type hasher struct {
+	salt string
 }
 
-func (h *bcryptHasher) Hash(password string) (string, error) {
-	encryptedPass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
-	if err != nil {
-		return "", err
+func NewHasher(salt string) (*hasher, error) {
+	if salt == "" {
+		return nil, errors.New("PASSWORD_SALT is empty")
 	}
-
-	return string(encryptedPass), nil
+	return &hasher{salt: salt}, nil
 }
 
-func (h *bcryptHasher) Compare(password, hashed string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
-	if err != nil {
-		return false
-	}
-
-	return true
+func (h *hasher) Hash(password string) string {
+	hash := sha256.New()
+	hash.Write([]byte(password))
+	return string(hash.Sum([]byte(h.salt)))
 }

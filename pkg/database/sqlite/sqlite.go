@@ -53,7 +53,10 @@ func prepareDB(db *sql.DB, schemesDir string) error {
 			return err
 		}
 
-		stmt.Exec()
+		_, err = stmt.Exec()
+		if err != nil {
+			return err
+		}
 		stmt.Close()
 	}
 

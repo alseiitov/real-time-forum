@@ -28,15 +28,20 @@ func Run(configPath *string) {
 	}
 
 	repos := repository.NewRepositories(db)
-	hasher := hash.NewBcryptHasher()
 
-	secretKey := os.Getenv("SECRET_KEY")
+	passwordSalt := os.Getenv("PASSWORD_SALT")
+	hasher, err := hash.NewHasher(passwordSalt)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
 	accessTokenTTL, refreshTokenTTL, err := config.GetTokenTTLs()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	tokenManager, err := auth.NewManager(secretKey, accessTokenTTL, refreshTokenTTL)
+	tokenManager, err := auth.NewManager(jwtSigningKey, accessTokenTTL, refreshTokenTTL)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -55,5 +60,5 @@ func Run(configPath *string) {
 	handler.Init(router)
 
 	server := server.NewServer(config, router)
-	server.Run()
+	log.Fatalln(server.Run())
 }

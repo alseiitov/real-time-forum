@@ -27,7 +27,11 @@ func main() {
 
 	http.Handle("/src/", http.StripPrefix("/src/", fileServer))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		temp.Execute(w, conf.GetBackendAdress())
+		err := temp.Execute(w, conf.GetBackendAdress())
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
 	})
 
 	port := conf.GetFrontendPort()
