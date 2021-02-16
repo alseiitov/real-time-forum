@@ -31,3 +31,17 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 	id, err := s.repo.Create(post)
 	return id, err
 }
+
+func (s *PostsService) CreateComment(input CreateCommentInput) (int, error) {
+	comment := model.Comment{
+		UserID: input.UserID,
+		PostID: input.PostID,
+		Data:   input.Data,
+		//TODO: add image upload
+		// Image: "",
+		Date: time.Now(),
+	}
+
+	id, err := s.repo.CreateComment(comment)
+	return id, err
+}

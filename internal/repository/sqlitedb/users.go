@@ -22,11 +22,8 @@ func (r *UsersRepo) Create(user model.User) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(&user.Username, user.FirstName, user.LastName, user.Age, user.Gender, user.Email, user.Password, user.Role, user.Avatar)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (r *UsersRepo) GetByCredentials(usernameOrEmail, password string) (model.User, error) {
@@ -34,11 +31,8 @@ func (r *UsersRepo) GetByCredentials(usernameOrEmail, password string) (model.Us
 
 	row := r.db.QueryRow("SELECT id, role FROM users WHERE (username = $1 OR email = $1) AND (password = $2)", usernameOrEmail, password)
 	err := row.Scan(&user.ID, &user.Role)
-	if err != nil {
-		return user, err
-	}
 
-	return user, nil
+	return user, err
 }
 
 func (r *UsersRepo) SetSession(session model.Session) error {
@@ -49,9 +43,6 @@ func (r *UsersRepo) SetSession(session model.Session) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(&session.UserID, &session.RefreshToken, &session.ExpiresAt)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }

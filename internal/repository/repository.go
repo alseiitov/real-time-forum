@@ -15,6 +15,7 @@ type Users interface {
 
 type Posts interface {
 	Create(post model.Post) (int, error)
+	CreateComment(comment model.Comment) (int, error)
 }
 
 type Repositories struct {

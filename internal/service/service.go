@@ -40,8 +40,15 @@ type CreatePostInput struct {
 	Categories []int
 }
 
+type CreateCommentInput struct {
+	UserID int
+	PostID int
+	Data   string
+}
+
 type Posts interface {
 	Create(input CreatePostInput) (int, error)
+	CreateComment(input CreateCommentInput) (int, error)
 }
 
 type Services struct {

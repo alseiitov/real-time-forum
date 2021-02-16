@@ -11,7 +11,7 @@
             "schemesDir": "./database/schemes"
         },
         "auth": {
-            "accessTokenTTL": 15,
+            "accessTokenTTL": 99999999999,
             "refreshTokenTTL": 43200
         }
     },

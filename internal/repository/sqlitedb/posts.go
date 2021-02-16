@@ -51,3 +51,19 @@ func (r *PostsRepo) addCategoriesToPost(postID int, categories []int) error {
 
 	return nil
 }
+
+func (r *PostsRepo) CreateComment(comment model.Comment) (int, error) {
+	stmt, err := r.db.Prepare("INSERT INTO comments (user_id, post_id, data, image, date) VALUES (?, ?, ?, ?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	defer stmt.Close()
+
+	res, err := stmt.Exec(&comment.UserID, &comment.PostID, &comment.Data, &comment.Image, &comment.Date)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := res.LastInsertId()
+	return int(id), err
+}
