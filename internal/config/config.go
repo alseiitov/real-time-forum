@@ -10,27 +10,39 @@ import (
 )
 
 type Conf struct {
-	Backend struct {
-		Server struct {
-			Host string `json:"host"`
-			Port string `json:"port"`
-		} `json:"server"`
-		Database struct {
-			Driver     string `json:"driver"`
-			Path       string `json:"path"`
-			FileName   string `json:"fileName"`
-			SchemesDir string `json:"schemesDir"`
-		} `json:"database"`
-		Auth struct {
-			AccessTokenTTL  int `json:"accessTokenTTL"`
-			RefreshTokenTTL int `json:"refreshTokenTTL"`
-		} `json:"auth"`
-	} `json:"backend"`
-	Frontend struct {
-		Server struct {
-			Port string `json:"port"`
-		} `json:"server"`
-	} `json:"frontend"`
+	Backend  backend  `json:"backend"`
+	Frontend frontend `json:"frontend"`
+}
+
+type backend struct {
+	Server   backendServer `json:"server"`
+	Database database      `json:"database"`
+	Auth     auth          `json:"auth"`
+}
+
+type auth struct {
+	AccessTokenTTL  int `json:"accessTokenTTL"`
+	RefreshTokenTTL int `json:"refreshTokenTTL"`
+}
+
+type database struct {
+	Driver     string `json:"driver"`
+	Path       string `json:"path"`
+	FileName   string `json:"fileName"`
+	SchemesDir string `json:"schemesDir"`
+}
+
+type backendServer struct {
+	Host string `json:"host"`
+	Port string `json:"port"`
+}
+
+type frontend struct {
+	Server frontendServer `json:"server"`
+}
+
+type frontendServer struct {
+	Port string `json:"port"`
 }
 
 func (c *Conf) GetBackendPort() string {
