@@ -45,8 +45,8 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.POST("/api/posts",
 		h.cors(h.identify(model.Roles.User, h.createPost)))
 
-	r.GET("/api/posts/:id",
-		h.cors(h.getPost))
+	r.GET("/api/posts/:post_id",
+		h.cors(h.identify(model.Roles.Guest, h.getPost)))
 
 	r.POST("/api/posts/:post_id/comments",
 		h.cors(h.identify(model.Roles.User, h.createComment)))

@@ -3,6 +3,7 @@ package service
 import (
 	"time"
 
+	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
@@ -37,7 +38,7 @@ type CreatePostInput struct {
 	UserID     int
 	Title      string
 	Data       string
-	Categories []int
+	Categories []model.Categorie
 }
 
 type CreateCommentInput struct {
@@ -48,6 +49,8 @@ type CreateCommentInput struct {
 
 type Posts interface {
 	Create(input CreatePostInput) (int, error)
+	GetByID(role int, postID int) (model.Post, error)
+	Delete(userID int, role int, postID int) error
 	CreateComment(input CreateCommentInput) (int, error)
 }
 

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/alseiitov/real-time-forum/internal/model"
+
 	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/service"
 	"github.com/alseiitov/validator"
@@ -14,7 +16,27 @@ func (h *Handler) getAllPosts(ctx *gorouter.Context) {
 }
 
 func (h *Handler) getPost(ctx *gorouter.Context) {
+	roleParam, _ := ctx.GetParam("role")
+	role, err := strconv.Atoi(roleParam)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
 
+	postIDParam, _ := ctx.GetParam("post_id")
+	postID, err := strconv.Atoi(postIDParam)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	post, err := h.postsService.GetByID(role, postID)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.WriteJSON(http.StatusOK, &post)
 }
 
 type createPostInput struct {
@@ -52,15 +74,16 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 		UserID:     userID,
 		Title:      input.Title,
 		Data:       input.Data,
-		Categories: input.Categories,
+		Categories: model.CategorieFromInts(input.Categories...),
 	})
+
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	resp := createPostResponse{PostID: newPostID}
-	ctx.WriteJSON(http.StatusCreated, resp)
+	ctx.WriteJSON(http.StatusCreated, &resp)
 }
 
 type createCommentInput struct {
