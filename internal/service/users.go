@@ -59,10 +59,21 @@ func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
 		return Tokens{}, err
 	}
 
-	return s.createSession(user.ID, user.Role)
+	return s.setSession(user.ID, user.Role)
 }
 
-func (s *UsersService) createSession(userID, role int) (Tokens, error) {
+func (s *UsersService) RefreshTokens(input UsersRefreshTokensInput) (Tokens, error) {
+	sub, role, _ := s.tokenManager.Parse(input.AccessToken)
+
+	err := s.repo.DeleteSession(sub, input.RefreshToken)
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	return s.setSession(sub, role)
+}
+
+func (s *UsersService) setSession(userID, role int) (Tokens, error) {
 	accessToken, err := s.tokenManager.NewJWT(userID, role)
 	refreshToken := s.tokenManager.NewRefreshToken()
 	if err != nil {

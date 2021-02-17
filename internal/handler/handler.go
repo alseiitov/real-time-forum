@@ -36,7 +36,7 @@ func (h *Handler) Init(r *gorouter.Router) {
 	// 	h.cors(h.updateUser))
 
 	r.POST("/api/auth/refresh",
-		h.cors(h.usersRefreshToken))
+		h.cors(h.usersRefreshTokens))
 
 	// Posts handlers
 	r.GET("/api/posts",

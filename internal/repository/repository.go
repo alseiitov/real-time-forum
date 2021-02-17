@@ -11,6 +11,7 @@ type Users interface {
 	Create(user model.User) error
 	GetByCredentials(usernameOrEmail, password string) (model.User, error)
 	SetSession(session model.Session) error
+	DeleteSession(userID int, refreshToken string) error
 }
 
 type Posts interface {

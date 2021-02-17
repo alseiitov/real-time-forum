@@ -86,15 +86,10 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 		return
 	}
 
-	err = ctx.WriteJSON(http.StatusOK, tokenResponse{
+	ctx.WriteJSON(http.StatusOK, tokenResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
 	})
-
-	if err != nil {
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
-		return
-	}
 }
 
 func (h *Handler) getUser(ctx *gorouter.Context) {
@@ -105,6 +100,37 @@ func (h *Handler) updateUser(ctx *gorouter.Context) {
 
 }
 
-func (h *Handler) usersRefreshToken(ctx *gorouter.Context) {
+type usersRefreshTokensInput struct {
+	AccessToken  string `json:"accessToken" validator:"required"`
+	RefreshToken string `json:"refreshToken" validator:"required"`
+}
 
+func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
+	var input usersRefreshTokensInput
+
+	err := ctx.ReadBody(&input)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = validator.Validate(input)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokens, err := h.usersService.RefreshTokens(service.UsersRefreshTokensInput{
+		AccessToken:  input.AccessToken,
+		RefreshToken: input.RefreshToken,
+	})
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.WriteJSON(http.StatusOK, tokenResponse{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	})
 }

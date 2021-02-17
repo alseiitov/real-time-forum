@@ -2,6 +2,7 @@ package sqlitedb
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -44,5 +45,18 @@ func (r *UsersRepo) SetSession(session model.Session) error {
 
 	_, err = stmt.Exec(&session.UserID, &session.RefreshToken, &session.ExpiresAt)
 
+	return err
+}
+
+func (r *UsersRepo) DeleteSession(userID int, refreshToken string) error {
+	res, err := r.db.Exec("DELETE FROM sessions WHERE user_id = $1 AND refresh_token = $2", userID, refreshToken)
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if n == 0 {
+		return errors.New("refresh token is invalid or already used")
+	}
 	return err
 }

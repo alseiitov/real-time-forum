@@ -30,6 +30,7 @@ func (h *Handler) identify(minRole int, next gorouter.Handler) gorouter.Handler 
 			ctx.SetParam("role", strconv.Itoa(model.Roles.Guest))
 		} else {
 			sub, role, err := h.tokenManager.Parse(token)
+
 			if err != nil {
 				ctx.WriteError(http.StatusBadRequest, err.Error())
 				return

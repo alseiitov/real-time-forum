@@ -24,6 +24,11 @@ type UsersSignInInput struct {
 	Password        string
 }
 
+type UsersRefreshTokensInput struct {
+	AccessToken  string
+	RefreshToken string
+}
+
 type Tokens struct {
 	AccessToken  string
 	RefreshToken string
@@ -32,6 +37,7 @@ type Tokens struct {
 type Users interface {
 	SignUp(input UsersSignUpInput) error
 	SignIn(input UsersSignInInput) (Tokens, error)
+	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
 }
 
 type CreatePostInput struct {

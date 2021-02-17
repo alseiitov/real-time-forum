@@ -58,20 +58,18 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 
 func (r *PostsRepo) GetByID(postID int, withComments bool) (model.Post, error) {
 	var post model.Post
-	// Get post
+
 	row := r.db.QueryRow("SELECT * FROM posts WHERE id = $1", postID)
 	err := row.Scan(&post.ID, &post.UserID, &post.Title, &post.Data, &post.Date, &post.Image)
 	if err != nil {
 		return post, err
 	}
 
-	// Get post categories
 	post.Categories, err = r.getPostCategories(postID)
 	if err != nil {
 		return post, err
 	}
 
-	//Get post comments
 	if withComments {
 		post.Comments, err = r.getPostComments(postID)
 		if err != nil {
