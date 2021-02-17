@@ -38,6 +38,7 @@ type Users interface {
 	SignUp(input UsersSignUpInput) error
 	SignIn(input UsersSignInInput) (Tokens, error)
 	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
+	DeleteExpiredSessions()
 }
 
 type CreatePostInput struct {

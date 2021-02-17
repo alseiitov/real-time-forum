@@ -12,6 +12,7 @@ type Users interface {
 	GetByCredentials(usernameOrEmail, password string) (model.User, error)
 	SetSession(session model.Session) error
 	DeleteSession(userID int, refreshToken string) error
+	DeleteExpiredSessions() error
 }
 
 type Posts interface {

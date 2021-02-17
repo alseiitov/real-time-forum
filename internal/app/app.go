@@ -54,6 +54,8 @@ func Run(configPath *string) {
 		RefreshTokenTTL: refreshTokenTTL,
 	})
 
+	go services.Users.DeleteExpiredSessions()
+
 	router := gorouter.NewRouter()
 
 	handler := handler.NewHandler(services.Users, services.Posts, tokenManager)
