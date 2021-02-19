@@ -55,7 +55,6 @@ func (s *PostsService) GetByID(role int, postID int) (model.Post, error) {
 }
 
 func (s *PostsService) Delete(userID int, role int, postID int) error {
-
 	return s.repo.Delete(postID)
 }
 

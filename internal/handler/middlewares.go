@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -21,6 +22,7 @@ func (h *Handler) cors(next gorouter.Handler) gorouter.Handler {
 func (h *Handler) identify(minRole int, next gorouter.Handler) gorouter.Handler {
 	return func(ctx *gorouter.Context) {
 		token := ctx.Request.Header.Get("Authorization")
+		token = strings.TrimPrefix(token, "Bearer ")
 		if token == "" {
 			if minRole > model.Roles.Guest {
 				ctx.WriteError(http.StatusUnauthorized, "401 Unauthorized")
