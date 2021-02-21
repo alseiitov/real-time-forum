@@ -56,7 +56,7 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 	return int(id), tx.Commit()
 }
 
-func (r *PostsRepo) GetByID(postID int, withComments bool) (model.Post, error) {
+func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
 	var post model.Post
 
 	row := r.db.QueryRow("SELECT * FROM posts WHERE id = $1", postID)
@@ -70,11 +70,9 @@ func (r *PostsRepo) GetByID(postID int, withComments bool) (model.Post, error) {
 		return post, err
 	}
 
-	if withComments {
-		post.Comments, err = r.getPostComments(postID)
-		if err != nil {
-			return post, err
-		}
+	post.Comments, err = r.getPostComments(postID)
+	if err != nil {
+		return post, err
 	}
 
 	return post, nil
@@ -83,7 +81,7 @@ func (r *PostsRepo) GetByID(postID int, withComments bool) (model.Post, error) {
 func (r *PostsRepo) getPostCategories(postID int) ([]model.Categorie, error) {
 	var categories []model.Categorie
 
-	rows, err := r.db.Query("SELECT categorie_id FROM posts_categories WHERE post_id = $1", postID)
+	rows, err := r.db.Query("SELECT id, name FROM categories WHERE id IN (SELECT categorie_id FROM posts_categories WHERE post_id = $1)", postID)
 	if err != nil {
 		return categories, err
 	}
@@ -91,7 +89,7 @@ func (r *PostsRepo) getPostCategories(postID int) ([]model.Categorie, error) {
 
 	for rows.Next() {
 		var categorie model.Categorie
-		err = rows.Scan(&categorie.ID)
+		err = rows.Scan(&categorie.ID, &categorie.Name)
 		if err != nil {
 			return categories, err
 		}

@@ -42,14 +42,20 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.GET("/api/posts",
 		h.cors(h.getAllPosts))
 
-	r.POST("/api/posts",
-		h.cors(h.identify(model.Roles.User, h.createPost)))
-
 	r.GET("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.Guest, h.getPost)))
 
-	r.POST("/api/posts/:post_id/comments",
-		h.cors(h.identify(model.Roles.User, h.createComment)))
+	r.POST("/api/posts",
+		h.cors(h.identify(model.Roles.User, h.createPost)))
+
+	r.DELETE("/api/posts/:post_id",
+		h.cors(h.identify(model.Roles.User, h.deletePost)))
+
 	// r.PATCH("/api/posts/:id",
 	// 	h.cors(h.updatePost))
+
+	//Comments handlers
+	r.POST("/api/posts/:post_id/comments",
+		h.cors(h.identify(model.Roles.User, h.createComment)))
+
 }

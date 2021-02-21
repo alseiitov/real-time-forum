@@ -37,16 +37,9 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 	return id, err
 }
 
-func (s *PostsService) GetByID(role int, postID int) (model.Post, error) {
-	var post model.Post
-	var err error
+func (s *PostsService) GetByID(postID int) (model.Post, error) {
+	post, err := s.repo.GetByID(postID)
 
-	if role > model.Roles.Guest {
-		post, err = s.repo.GetByID(postID, withComments)
-
-	} else {
-		post, err = s.repo.GetByID(postID, withoutComments)
-	}
 	if err != nil {
 		return post, err
 	}
@@ -55,6 +48,7 @@ func (s *PostsService) GetByID(role int, postID int) (model.Post, error) {
 }
 
 func (s *PostsService) Delete(userID int, role int, postID int) error {
+
 	return s.repo.Delete(postID)
 }
 

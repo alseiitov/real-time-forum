@@ -16,13 +16,6 @@ func (h *Handler) getAllPosts(ctx *gorouter.Context) {
 }
 
 func (h *Handler) getPost(ctx *gorouter.Context) {
-	roleParam, _ := ctx.GetParam("role")
-	role, err := strconv.Atoi(roleParam)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
 	postIDParam, _ := ctx.GetParam("post_id")
 	postID, err := strconv.Atoi(postIDParam)
 	if err != nil {
@@ -30,7 +23,7 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 		return
 	}
 
-	post, err := h.postsService.GetByID(role, postID)
+	post, err := h.postsService.GetByID(postID)
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -84,6 +77,35 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 
 	resp := createPostResponse{PostID: newPostID}
 	ctx.WriteJSON(http.StatusCreated, &resp)
+}
+
+func (h *Handler) deletePost(ctx *gorouter.Context) {
+	sub, _ := ctx.GetParam("sub")
+	userID, err := strconv.Atoi(sub)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	roleParam, _ := ctx.GetParam("role")
+	role, err := strconv.Atoi(roleParam)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	postIDParam, _ := ctx.GetParam("post_id")
+	postID, err := strconv.Atoi(postIDParam)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.postsService.Delete(userID, role, postID)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
 }
 
 type createCommentInput struct {
