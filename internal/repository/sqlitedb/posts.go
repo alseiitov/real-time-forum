@@ -121,7 +121,7 @@ func (r *PostsRepo) getPostComments(postID int) ([]model.Comment, error) {
 	return comments, rows.Err()
 }
 
-func (r *PostsRepo) Delete(userID int, postID int) error {
+func (r *PostsRepo) Delete(userID, postID int) error {
 	res, err := r.db.Exec("DELETE FROM posts WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", postID, userID, model.Roles.Administrator)
 	if err != nil {
 		return err
@@ -129,7 +129,7 @@ func (r *PostsRepo) Delete(userID int, postID int) error {
 
 	n, err := res.RowsAffected()
 	if n == 0 {
-		return errors.New("access denied")
+		return errors.New("post with this id doesn't exist or you have no permissions to delete this post")
 	}
 
 	return err
@@ -149,4 +149,18 @@ func (r *PostsRepo) CreateComment(comment model.Comment) (int, error) {
 
 	id, err := res.LastInsertId()
 	return int(id), err
+}
+
+func (r *PostsRepo) DeleteComment(userID, commentID int) error {
+	res, err := r.db.Exec("DELETE FROM comments WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", commentID, userID, model.Roles.Administrator)
+	if err != nil {
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if n == 0 {
+		return errors.New("comment with this id doesn't exist or you have no permissions to delete this comment")
+	}
+
+	return err
 }

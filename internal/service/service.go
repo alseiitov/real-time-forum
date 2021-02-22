@@ -59,6 +59,7 @@ type Posts interface {
 	GetByID(postID int) (model.Post, error)
 	Delete(userID int, postID int) error
 	CreateComment(input CreateCommentInput) (int, error)
+	DeleteComment(userID, postID int) error
 }
 
 type Services struct {

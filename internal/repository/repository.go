@@ -20,6 +20,7 @@ type Posts interface {
 	GetByID(postID int) (model.Post, error)
 	Delete(userID int, postID int) error
 	CreateComment(comment model.Comment) (int, error)
+	DeleteComment(userID, commentID int) error
 }
 
 type Repositories struct {

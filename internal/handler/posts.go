@@ -102,7 +102,8 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 }
 
 type createCommentInput struct {
-	Data string `json:"data" validator:"required,min=2,max=128"`
+	PostID int    `json:"postID" validator:"required"`
+	Data   string `json:"data" validator:"required,min=2,max=128"`
 }
 
 type createCommentResponse struct {
@@ -114,13 +115,6 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 
 	sub, _ := ctx.GetParam("sub")
 	userID, err := strconv.Atoi(sub)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	id, _ := ctx.GetParam("post_id")
-	postID, err := strconv.Atoi(id)
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -140,7 +134,7 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 
 	newCommentID, err := h.postsService.CreateComment(service.CreateCommentInput{
 		UserID: userID,
-		PostID: postID,
+		PostID: input.PostID,
 		Data:   input.Data,
 	})
 	if err != nil {
@@ -150,4 +144,26 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 
 	resp := createCommentResponse{CommentID: newCommentID}
 	ctx.WriteJSON(http.StatusCreated, resp)
+}
+
+func (h *Handler) deleteComment(ctx *gorouter.Context) {
+	sub, _ := ctx.GetParam("sub")
+	userID, err := strconv.Atoi(sub)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	commentIDParam, _ := ctx.GetParam("comment_id")
+	commentID, err := strconv.Atoi(commentIDParam)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.postsService.DeleteComment(userID, commentID)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
 }
