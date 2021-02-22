@@ -5,5 +5,5 @@ CREATE TABLE posts (
   data TEXT NOT NULL,
   date DATETIME NOT NULL,
   image TEXT,
-  FOREIGN KEY(user_id) REFERENCES users(id)
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );

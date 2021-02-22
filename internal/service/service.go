@@ -57,7 +57,7 @@ type CreateCommentInput struct {
 type Posts interface {
 	Create(input CreatePostInput) (int, error)
 	GetByID(postID int) (model.Post, error)
-	Delete(userID int, role int, postID int) error
+	Delete(userID int, postID int) error
 	CreateComment(input CreateCommentInput) (int, error)
 }
 

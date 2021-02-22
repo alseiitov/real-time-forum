@@ -2,6 +2,7 @@ package sqlitedb
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -120,8 +121,17 @@ func (r *PostsRepo) getPostComments(postID int) ([]model.Comment, error) {
 	return comments, rows.Err()
 }
 
-func (r *PostsRepo) Delete(postID int) error {
-	_, err := r.db.Exec("DELETE FROM posts WHERE post_id = $1", postID)
+func (r *PostsRepo) Delete(userID int, postID int) error {
+	res, err := r.db.Exec("DELETE FROM posts WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", postID, userID, model.Roles.Administrator)
+	if err != nil {
+		return err
+	}
+
+	n, err := res.RowsAffected()
+	if n == 0 {
+		return errors.New("access denied")
+	}
+
 	return err
 }
 

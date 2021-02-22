@@ -87,13 +87,6 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 		return
 	}
 
-	roleParam, _ := ctx.GetParam("role")
-	role, err := strconv.Atoi(roleParam)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
 	postIDParam, _ := ctx.GetParam("post_id")
 	postID, err := strconv.Atoi(postIDParam)
 	if err != nil {
@@ -101,7 +94,7 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 		return
 	}
 
-	err = h.postsService.Delete(userID, role, postID)
+	err = h.postsService.Delete(userID, postID)
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return

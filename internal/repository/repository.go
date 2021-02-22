@@ -18,7 +18,7 @@ type Users interface {
 type Posts interface {
 	Create(post model.Post) (int, error)
 	GetByID(postID int) (model.Post, error)
-	Delete(postID int) error
+	Delete(userID int, postID int) error
 	CreateComment(comment model.Comment) (int, error)
 }
 

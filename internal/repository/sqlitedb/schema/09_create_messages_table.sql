@@ -5,6 +5,6 @@ CREATE TABLE messages (
   date DATETIME,
   user_id INTEGER NOT NULL,
   status INTEGER NOT NULL,
-  FOREIGN KEY(chat_id) REFERENCES chats(id),
-  FOREIGN KEY(user_id) REFERENCES users(id)
+  FOREIGN KEY(chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );

@@ -47,9 +47,9 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 	return post, nil
 }
 
-func (s *PostsService) Delete(userID int, role int, postID int) error {
+func (s *PostsService) Delete(userID int, postID int) error {
 
-	return s.repo.Delete(postID)
+	return s.repo.Delete(userID, postID)
 }
 
 func (s *PostsService) CreateComment(input CreateCommentInput) (int, error) {
