@@ -60,6 +60,7 @@ type Posts interface {
 	Delete(userID int, postID int) error
 	CreateComment(input CreateCommentInput) (int, error)
 	DeleteComment(userID, postID int) error
+	GetCategories() ([]model.Categorie, error)
 }
 
 type Services struct {

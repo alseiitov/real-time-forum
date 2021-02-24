@@ -164,3 +164,24 @@ func (r *PostsRepo) DeleteComment(userID, commentID int) error {
 
 	return err
 }
+
+func (r *PostsRepo) GetCategories() ([]model.Categorie, error) {
+	var categories []model.Categorie
+
+	rows, err := r.db.Query("SELECT * FROM categories")
+	if err != nil {
+		return categories, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var categorie model.Categorie
+		err = rows.Scan(&categorie.ID, &categorie.Name)
+		if err != nil {
+			return categories, err
+		}
+		categories = append(categories, categorie)
+	}
+
+	return categories, rows.Err()
+}

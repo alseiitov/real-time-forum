@@ -13,9 +13,10 @@ import (
 func ConnectDB(c *config.Conf) (*sql.DB, error) {
 	driver := c.GetDBDriver()
 	fileName := c.GetDBFilePath()
-	newDB := !fileExists(fileName)
+	isNewDB := !fileExists(fileName)
+	enableForeignKeys := "?_foreign_keys=on"
 
-	db, err := sql.Open(driver, fileName+"?_foreign_keys=on")
+	db, err := sql.Open(driver, fileName+enableForeignKeys)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +26,7 @@ func ConnectDB(c *config.Conf) (*sql.DB, error) {
 		return nil, err
 	}
 
-	if newDB {
+	if isNewDB {
 		if err = prepareDB(db, c.GetDBSchemesDir()); err != nil {
 			return nil, err
 		}

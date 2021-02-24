@@ -68,3 +68,11 @@ func (s *PostsService) CreateComment(input CreateCommentInput) (int, error) {
 func (s *PostsService) DeleteComment(userID, postID int) error {
 	return s.repo.DeleteComment(userID, postID)
 }
+
+func (s *PostsService) GetCategories() ([]model.Categorie, error) {
+	return s.repo.GetCategories()
+}
+
+// func (s *PostsService) CreateCategorie() ([]model.Categorie, error) {
+// 	return s.repo.GetCategories()
+// }

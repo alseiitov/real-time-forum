@@ -22,7 +22,9 @@ func NewHandler(usersService service.Users, postsService service.Posts, tokenMan
 }
 
 func (h *Handler) Init(r *gorouter.Router) {
+	//
 	// Users handlers
+
 	r.POST("/api/users/sign-up",
 		h.cors(h.identify(model.Roles.Guest, h.usersSignUp)))
 
@@ -38,9 +40,8 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.POST("/api/auth/refresh",
 		h.cors(h.usersRefreshTokens))
 
+	//
 	// Posts handlers
-	r.GET("/api/posts",
-		h.cors(h.getAllPosts))
 
 	r.GET("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.Guest, h.getPost)))
@@ -48,13 +49,27 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.POST("/api/posts",
 		h.cors(h.identify(model.Roles.User, h.createPost)))
 
-	r.DELETE("/api/posts/:post_id",
-		h.cors(h.identify(model.Roles.User, h.deletePost)))
-
 	// r.PATCH("/api/posts/:id",
 	// 	h.cors(h.updatePost))
 
+	r.DELETE("/api/posts/:post_id",
+		h.cors(h.identify(model.Roles.User, h.deletePost)))
+
+	//
+	// Categories handlers
+
+	r.GET("/api/categories",
+		h.cors(h.identify(model.Roles.Guest, h.getCategories)))
+
+	r.GET("/api/categories/:category_id/:page",
+		h.cors(h.identify(model.Roles.Guest, h.getPostsByCategory)))
+
+	r.POST("/api/categories",
+		h.cors(h.identify(model.Roles.Administrator, h.createCategory)))
+
+	//
 	//Comments handlers
+
 	r.POST("/api/comments",
 		h.cors(h.identify(model.Roles.User, h.createComment)))
 

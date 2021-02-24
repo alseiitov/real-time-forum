@@ -21,6 +21,7 @@ type Posts interface {
 	Delete(userID int, postID int) error
 	CreateComment(comment model.Comment) (int, error)
 	DeleteComment(userID, commentID int) error
+	GetCategories() ([]model.Categorie, error)
 }
 
 type Repositories struct {
