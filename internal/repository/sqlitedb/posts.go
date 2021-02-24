@@ -71,11 +71,6 @@ func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
 		return post, err
 	}
 
-	post.Comments, err = r.getPostComments(postID)
-	if err != nil {
-		return post, err
-	}
-
 	return post, nil
 }
 
@@ -100,27 +95,6 @@ func (r *PostsRepo) getPostCategories(postID int) ([]model.Categorie, error) {
 	return categories, rows.Err()
 }
 
-func (r *PostsRepo) getPostComments(postID int) ([]model.Comment, error) {
-	var comments []model.Comment
-
-	rows, err := r.db.Query("SELECT * FROM comments WHERE post_id = $1", postID)
-	if err != nil {
-		return comments, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var comment model.Comment
-		err = rows.Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.Data, &comment.Image, &comment.Date)
-		if err != nil {
-			return comments, err
-		}
-		comments = append(comments, comment)
-	}
-
-	return comments, rows.Err()
-}
-
 func (r *PostsRepo) Delete(userID, postID int) error {
 	res, err := r.db.Exec("DELETE FROM posts WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", postID, userID, model.Roles.Administrator)
 	if err != nil {
@@ -130,36 +104,6 @@ func (r *PostsRepo) Delete(userID, postID int) error {
 	n, err := res.RowsAffected()
 	if n == 0 {
 		return errors.New("post with this id doesn't exist or you have no permissions to delete this post")
-	}
-
-	return err
-}
-
-func (r *PostsRepo) CreateComment(comment model.Comment) (int, error) {
-	stmt, err := r.db.Prepare("INSERT INTO comments (user_id, post_id, data, image, date) VALUES (?, ?, ?, ?, ?)")
-	if err != nil {
-		return 0, err
-	}
-	defer stmt.Close()
-
-	res, err := stmt.Exec(&comment.UserID, &comment.PostID, &comment.Data, &comment.Image, &comment.Date)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := res.LastInsertId()
-	return int(id), err
-}
-
-func (r *PostsRepo) DeleteComment(userID, commentID int) error {
-	res, err := r.db.Exec("DELETE FROM comments WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", commentID, userID, model.Roles.Administrator)
-	if err != nil {
-		return err
-	}
-
-	n, err := res.RowsAffected()
-	if n == 0 {
-		return errors.New("comment with this id doesn't exist or you have no permissions to delete this comment")
 	}
 
 	return err

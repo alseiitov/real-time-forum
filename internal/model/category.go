@@ -5,11 +5,21 @@ type Categorie struct {
 	Name string `json:"name"`
 }
 
-func CategorieFromInts(ints ...int) []Categorie {
+func CategorieFromInts(ints []int) []Categorie {
+	unique := make(map[int]bool)
+
+	for _, num := range ints {
+		if _, ok := unique[num]; ok {
+			continue
+		} else {
+			unique[num] = true
+		}
+	}
+
 	var categories []Categorie
 
-	for _, i := range ints {
-		categorie := Categorie{ID: i}
+	for num := range unique {
+		categorie := Categorie{ID: num}
 		categories = append(categories, categorie)
 	}
 

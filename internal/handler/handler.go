@@ -8,16 +8,18 @@ import (
 )
 
 type Handler struct {
-	usersService service.Users
-	postsService service.Posts
-	tokenManager auth.TokenManager
+	usersService    service.Users
+	postsService    service.Posts
+	commentsService service.Comments
+	tokenManager    auth.TokenManager
 }
 
-func NewHandler(usersService service.Users, postsService service.Posts, tokenManager auth.TokenManager) *Handler {
+func NewHandler(usersService service.Users, postsService service.Posts, commentsService service.Comments, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
-		usersService: usersService,
-		postsService: postsService,
-		tokenManager: tokenManager,
+		usersService:    usersService,
+		postsService:    postsService,
+		commentsService: commentsService,
+		tokenManager:    tokenManager,
 	}
 }
 

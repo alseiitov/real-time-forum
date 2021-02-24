@@ -39,7 +39,6 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 
 func (s *PostsService) GetByID(postID int) (model.Post, error) {
 	post, err := s.repo.GetByID(postID)
-
 	if err != nil {
 		return post, err
 	}
@@ -49,24 +48,6 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 
 func (s *PostsService) Delete(userID, postID int) error {
 	return s.repo.Delete(userID, postID)
-}
-
-func (s *PostsService) CreateComment(input CreateCommentInput) (int, error) {
-	comment := model.Comment{
-		UserID: input.UserID,
-		PostID: input.PostID,
-		Data:   input.Data,
-		//TODO: add image upload
-		// Image: "",
-		Date: time.Now(),
-	}
-
-	id, err := s.repo.CreateComment(comment)
-	return id, err
-}
-
-func (s *PostsService) DeleteComment(userID, postID int) error {
-	return s.repo.DeleteComment(userID, postID)
 }
 
 func (s *PostsService) GetCategories() ([]model.Categorie, error) {

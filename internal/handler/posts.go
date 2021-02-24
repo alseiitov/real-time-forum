@@ -25,6 +25,12 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 		return
 	}
 
+	post.Comments, err = h.commentsService.GetCommentsByPostID(postID)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	ctx.WriteJSON(http.StatusOK, &post)
 }
 
@@ -63,7 +69,7 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 		UserID:     userID,
 		Title:      input.Title,
 		Data:       input.Data,
-		Categories: model.CategorieFromInts(input.Categories...),
+		Categories: model.CategorieFromInts(input.Categories),
 	})
 
 	if err != nil {
@@ -91,73 +97,6 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 	}
 
 	err = h.postsService.Delete(userID, postID)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-}
-
-type createCommentInput struct {
-	PostID int    `json:"postID" validator:"required"`
-	Data   string `json:"data" validator:"required,min=2,max=128"`
-}
-
-type createCommentResponse struct {
-	CommentID int `json:"commentID"`
-}
-
-func (h *Handler) createComment(ctx *gorouter.Context) {
-	var input createCommentInput
-
-	sub, _ := ctx.GetParam("sub")
-	userID, err := strconv.Atoi(sub)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	err = ctx.ReadBody(&input)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	err = validator.Validate(input)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	newCommentID, err := h.postsService.CreateComment(service.CreateCommentInput{
-		UserID: userID,
-		PostID: input.PostID,
-		Data:   input.Data,
-	})
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	resp := createCommentResponse{CommentID: newCommentID}
-	ctx.WriteJSON(http.StatusCreated, resp)
-}
-
-func (h *Handler) deleteComment(ctx *gorouter.Context) {
-	sub, _ := ctx.GetParam("sub")
-	userID, err := strconv.Atoi(sub)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	commentIDParam, _ := ctx.GetParam("comment_id")
-	commentID, err := strconv.Atoi(commentIDParam)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	err = h.postsService.DeleteComment(userID, commentID)
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return

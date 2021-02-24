@@ -58,14 +58,19 @@ type Posts interface {
 	Create(input CreatePostInput) (int, error)
 	GetByID(postID int) (model.Post, error)
 	Delete(userID int, postID int) error
-	CreateComment(input CreateCommentInput) (int, error)
-	DeleteComment(userID, postID int) error
 	GetCategories() ([]model.Categorie, error)
 }
 
+type Comments interface {
+	Create(input CreateCommentInput) (int, error)
+	Delete(userID, postID int) error
+	GetCommentsByPostID(postID int) ([]model.Comment, error)
+}
+
 type Services struct {
-	Users Users
-	Posts Posts
+	Users    Users
+	Posts    Posts
+	Comments Comments
 }
 
 type ServicesDeps struct {
@@ -78,7 +83,8 @@ type ServicesDeps struct {
 
 func NewServices(deps ServicesDeps) *Services {
 	return &Services{
-		Users: NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL),
-		Posts: NewPostsService(deps.Repos.Posts),
+		Users:    NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL),
+		Posts:    NewPostsService(deps.Repos.Posts),
+		Comments: NewCommentsService(deps.Repos.Comments),
 	}
 }
