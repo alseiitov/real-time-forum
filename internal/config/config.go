@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -62,8 +61,12 @@ func (c *Conf) GetFrontendPort() string {
 	return c.Frontend.Server.Port
 }
 
-func (c *Conf) GetDBFilePath() string {
-	return filepath.Join(c.Backend.Database.Path, c.Backend.Database.FileName)
+func (c *Conf) GetDBFileName() string {
+	return c.Backend.Database.FileName
+}
+
+func (c *Conf) GetDBPath() string {
+	return c.Backend.Database.Path
 }
 
 func (c *Conf) GetDBSchemesDir() string {

@@ -22,7 +22,12 @@ func Run(configPath *string) {
 		log.Fatalln(err)
 	}
 
-	db, err := sqlite.ConnectDB(config)
+	db, err := sqlite.ConnectDB(
+		config.GetDBDriver(),
+		config.GetDBPath(),
+		config.GetDBFileName(),
+		config.GetDBSchemesDir(),
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}

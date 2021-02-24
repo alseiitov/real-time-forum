@@ -6,17 +6,22 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/alseiitov/real-time-forum/internal/config"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func ConnectDB(c *config.Conf) (*sql.DB, error) {
-	driver := c.GetDBDriver()
-	fileName := c.GetDBFilePath()
-	isNewDB := !fileExists(fileName)
-	enableForeignKeys := "?_foreign_keys=on"
+func ConnectDB(driver, dir, fileName, schemesDir string) (*sql.DB, error) {
+	isNewDB := !fileExists(filepath.Join(dir, fileName))
+	if isNewDB {
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-	db, err := sql.Open(driver, fileName+enableForeignKeys)
+	enableForeignKeys := "?_foreign_keys=on"
+	dataSourceName := filepath.Join(dir, fileName) + enableForeignKeys
+
+	db, err := sql.Open(driver, dataSourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +32,7 @@ func ConnectDB(c *config.Conf) (*sql.DB, error) {
 	}
 
 	if isNewDB {
-		if err = prepareDB(db, c.GetDBSchemesDir()); err != nil {
+		if err = prepareDB(db, schemesDir); err != nil {
 			return nil, err
 		}
 	}
