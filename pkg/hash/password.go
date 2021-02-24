@@ -3,6 +3,7 @@ package hash
 import (
 	"crypto/sha256"
 	"errors"
+	"fmt"
 )
 
 type PasswordHasher interface {
@@ -23,5 +24,5 @@ func NewHasher(salt string) (*hasher, error) {
 func (h *hasher) Hash(password string) string {
 	hash := sha256.New()
 	hash.Write([]byte(password))
-	return string(hash.Sum([]byte(h.salt)))
+	return fmt.Sprintf("%x", hash.Sum([]byte(h.salt)))
 }
