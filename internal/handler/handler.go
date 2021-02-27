@@ -78,4 +78,11 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.DELETE("/api/comments/:comment_id",
 		h.cors(h.identify(model.Roles.User, h.deleteComment)))
 
+	//Images handler
+	r.GET("/api/images/:image_name",
+		h.cors(h.getImage))
+
+	r.POST("/api/images",
+		h.cors(h.createImage))
+
 }

@@ -28,14 +28,12 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 		return
 	}
 
-	err = ctx.ReadBody(&input)
-	if err != nil {
+	if err = ctx.ReadBody(&input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = validator.Validate(input)
-	if err != nil {
+	if err = validator.Validate(input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}

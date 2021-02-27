@@ -27,6 +27,16 @@ func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenMan
 	}
 }
 
+type UsersSignUpInput struct {
+	Username  string
+	FirstName string
+	LastName  string
+	Age       int
+	Gender    int
+	Email     string
+	Password  string
+}
+
 func (s *UsersService) SignUp(input UsersSignUpInput) error {
 	password := s.hasher.Hash(input.Password)
 
@@ -49,6 +59,11 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 	}
 
 	return nil
+}
+
+type UsersSignInInput struct {
+	UsernameOrEmail string
+	Password        string
 }
 
 func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {

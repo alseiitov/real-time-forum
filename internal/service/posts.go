@@ -7,11 +7,6 @@ import (
 	"github.com/alseiitov/real-time-forum/internal/repository"
 )
 
-const (
-	withComments    = true
-	withoutComments = false
-)
-
 type PostsService struct {
 	repo repository.Posts
 }
@@ -20,6 +15,13 @@ func NewPostsService(repo repository.Posts) *PostsService {
 	return &PostsService{
 		repo: repo,
 	}
+}
+
+type CreatePostInput struct {
+	UserID     int
+	Title      string
+	Data       string
+	Categories []model.Categorie
 }
 
 func (s *PostsService) Create(input CreatePostInput) (int, error) {

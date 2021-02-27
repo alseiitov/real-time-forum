@@ -7,6 +7,11 @@ import (
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
 
+type Tokens struct {
+	AccessToken  string
+	RefreshToken string
+}
+
 func (s *UsersService) DeleteExpiredSessions() {
 	for {
 		err := s.repo.DeleteExpiredSessions()
@@ -15,6 +20,11 @@ func (s *UsersService) DeleteExpiredSessions() {
 		}
 		time.Sleep(time.Minute * 10)
 	}
+}
+
+type UsersRefreshTokensInput struct {
+	AccessToken  string
+	RefreshToken string
 }
 
 func (s *UsersService) RefreshTokens(input UsersRefreshTokensInput) (Tokens, error) {

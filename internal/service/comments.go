@@ -17,6 +17,12 @@ func NewCommentsService(repo repository.Comments) *CommentsService {
 	}
 }
 
+type CreateCommentInput struct {
+	UserID int
+	PostID int
+	Data   string
+}
+
 func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 	comment := model.Comment{
 		UserID: input.UserID,

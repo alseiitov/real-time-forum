@@ -22,19 +22,17 @@ type usersSignUpInput struct {
 func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 	var input usersSignUpInput
 
-	err := ctx.ReadBody(&input)
-	if err != nil {
+	if err := ctx.ReadBody(&input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = validator.Validate(input)
-	if err != nil {
+	if err := validator.Validate(input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = h.usersService.SignUp(service.UsersSignUpInput{
+	err := h.usersService.SignUp(service.UsersSignUpInput{
 		Username:  input.Username,
 		FirstName: input.FirstName,
 		LastName:  input.LastName,
@@ -65,14 +63,12 @@ type tokenResponse struct {
 func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 	var input usersSignInInput
 
-	err := ctx.ReadBody(&input)
-	if err != nil {
+	if err := ctx.ReadBody(&input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = validator.Validate(input)
-	if err != nil {
+	if err := validator.Validate(input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -81,15 +77,18 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 		UsernameOrEmail: input.UsernameOrEmail,
 		Password:        input.Password,
 	})
+
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.WriteJSON(http.StatusOK, tokenResponse{
+	resp := tokenResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
-	})
+	}
+
+	ctx.WriteJSON(http.StatusOK, resp)
 }
 
 func (h *Handler) getUser(ctx *gorouter.Context) {
@@ -108,14 +107,12 @@ type usersRefreshTokensInput struct {
 func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 	var input usersRefreshTokensInput
 
-	err := ctx.ReadBody(&input)
-	if err != nil {
+	if err := ctx.ReadBody(&input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = validator.Validate(input)
-	if err != nil {
+	if err := validator.Validate(input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -124,13 +121,16 @@ func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 		AccessToken:  input.AccessToken,
 		RefreshToken: input.RefreshToken,
 	})
+
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.WriteJSON(http.StatusOK, tokenResponse{
+	resp := tokenResponse{
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
-	})
+	}
+
+	ctx.WriteJSON(http.StatusOK, resp)
 }

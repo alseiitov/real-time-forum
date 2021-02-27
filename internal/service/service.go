@@ -9,49 +9,11 @@ import (
 	"github.com/alseiitov/real-time-forum/pkg/hash"
 )
 
-type UsersSignUpInput struct {
-	Username  string
-	FirstName string
-	LastName  string
-	Age       int
-	Gender    int
-	Email     string
-	Password  string
-}
-
-type UsersSignInInput struct {
-	UsernameOrEmail string
-	Password        string
-}
-
-type UsersRefreshTokensInput struct {
-	AccessToken  string
-	RefreshToken string
-}
-
-type Tokens struct {
-	AccessToken  string
-	RefreshToken string
-}
-
 type Users interface {
 	SignUp(input UsersSignUpInput) error
 	SignIn(input UsersSignInInput) (Tokens, error)
 	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
 	DeleteExpiredSessions()
-}
-
-type CreatePostInput struct {
-	UserID     int
-	Title      string
-	Data       string
-	Categories []model.Categorie
-}
-
-type CreateCommentInput struct {
-	UserID int
-	PostID int
-	Data   string
 }
 
 type Posts interface {
