@@ -16,11 +16,16 @@ type Users interface {
 	DeleteExpiredSessions()
 }
 
+type Categories interface {
+	GetAll() ([]model.Categorie, error)
+	GetByID(categoryID int, page int) (model.Categorie, error)
+}
+
 type Posts interface {
 	Create(input CreatePostInput) (int, error)
 	GetByID(postID int) (model.Post, error)
 	Delete(userID int, postID int) error
-	GetCategories() ([]model.Categorie, error)
+	GetPostsByCategoryID(categoryID int, page int) ([]model.Post, error)
 }
 
 type Comments interface {
@@ -30,9 +35,10 @@ type Comments interface {
 }
 
 type Services struct {
-	Users    Users
-	Posts    Posts
-	Comments Comments
+	Users      Users
+	Categories Categories
+	Posts      Posts
+	Comments   Comments
 }
 
 type ServicesDeps struct {
@@ -46,8 +52,9 @@ type ServicesDeps struct {
 
 func NewServices(deps ServicesDeps) *Services {
 	return &Services{
-		Users:    NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL),
-		Posts:    NewPostsService(deps.Repos.Posts, deps.ImagesDir),
-		Comments: NewCommentsService(deps.Repos.Comments, deps.ImagesDir),
+		Users:      NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL),
+		Categories: NewCategoriesService(deps.Repos.Categories),
+		Posts:      NewPostsService(deps.Repos.Posts, deps.ImagesDir),
+		Comments:   NewCommentsService(deps.Repos.Comments, deps.ImagesDir),
 	}
 }

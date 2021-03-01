@@ -15,12 +15,16 @@ type Users interface {
 	DeleteExpiredSessions() error
 }
 
+type Categories interface {
+	GetAll() ([]model.Categorie, error)
+	GetByID(categoryID int) (model.Categorie, error)
+}
+
 type Posts interface {
 	Create(post model.Post) (int, error)
 	GetByID(postID int) (model.Post, error)
 	Delete(userID int, postID int) error
-
-	GetCategories() ([]model.Categorie, error)
+	GetPostsByCategoryID(categoryID int, limit int, offset int) ([]model.Post, error)
 }
 
 type Comments interface {
@@ -30,15 +34,17 @@ type Comments interface {
 }
 
 type Repositories struct {
-	Users    Users
-	Posts    Posts
-	Comments Comments
+	Users      Users
+	Categories Categories
+	Posts      Posts
+	Comments   Comments
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
-		Users:    sqlitedb.NewUserRepo(db),
-		Posts:    sqlitedb.NewPostsRepo(db),
-		Comments: sqlitedb.NewCommentsRepo(db),
+		Users:      sqlitedb.NewUserRepo(db),
+		Categories: sqlitedb.NewCategoriesRepo(db),
+		Posts:      sqlitedb.NewPostsRepo(db),
+		Comments:   sqlitedb.NewCommentsRepo(db),
 	}
 }

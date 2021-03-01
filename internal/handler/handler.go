@@ -8,18 +8,20 @@ import (
 )
 
 type Handler struct {
-	usersService    service.Users
-	postsService    service.Posts
-	commentsService service.Comments
-	tokenManager    auth.TokenManager
+	usersService      service.Users
+	categoriesService service.Categories
+	postsService      service.Posts
+	commentsService   service.Comments
+	tokenManager      auth.TokenManager
 }
 
-func NewHandler(usersService service.Users, postsService service.Posts, commentsService service.Comments, tokenManager auth.TokenManager) *Handler {
+func NewHandler(usersService service.Users, categoriesService service.Categories, postsService service.Posts, commentsService service.Comments, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
-		usersService:    usersService,
-		postsService:    postsService,
-		commentsService: commentsService,
-		tokenManager:    tokenManager,
+		usersService:      usersService,
+		categoriesService: categoriesService,
+		postsService:      postsService,
+		commentsService:   commentsService,
+		tokenManager:      tokenManager,
 	}
 }
 
@@ -61,13 +63,10 @@ func (h *Handler) Init(r *gorouter.Router) {
 	// Categories handlers
 
 	r.GET("/api/categories",
-		h.cors(h.identify(model.Roles.Guest, h.getCategories)))
+		h.cors(h.identify(model.Roles.Guest, h.getAllCategories)))
 
 	r.GET("/api/categories/:category_id/:page",
-		h.cors(h.identify(model.Roles.Guest, h.getPostsByCategory)))
-
-	r.POST("/api/categories",
-		h.cors(h.identify(model.Roles.Administrator, h.createCategory)))
+		h.cors(h.identify(model.Roles.Guest, h.getCategoryPage)))
 
 	//
 	//Comments handlers

@@ -1,8 +1,9 @@
 package model
 
 type Categorie struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Posts []Post `json:"posts"`
 }
 
 func CategorieFromInts(ints []int) []Categorie {

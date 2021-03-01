@@ -3,6 +3,7 @@ package sqlitedb
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -109,23 +110,25 @@ func (r *PostsRepo) Delete(userID, postID int) error {
 	return err
 }
 
-func (r *PostsRepo) GetCategories() ([]model.Categorie, error) {
-	var categories []model.Categorie
+func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) ([]model.Post, error) {
+	var posts []model.Post
 
-	rows, err := r.db.Query("SELECT * FROM categories")
+	rows, err := r.db.Query("SELECT id, user_id, title, date FROM posts WHERE (id IN (SELECT post_id from posts_categories WHERE categorie_id = $1 LIMIT $2 OFFSET $3))", categoryID, limit, offset)
 	if err != nil {
-		return categories, err
+		return posts, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var categorie model.Categorie
-		err = rows.Scan(&categorie.ID, &categorie.Name)
+		var post model.Post
+		err = rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Date)
 		if err != nil {
-			return categories, err
+			return posts, err
 		}
-		categories = append(categories, categorie)
+		posts = append(posts, post)
 	}
 
-	return categories, rows.Err()
+	fmt.Println(posts)
+
+	return posts, nil
 }

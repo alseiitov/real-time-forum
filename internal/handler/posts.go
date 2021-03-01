@@ -102,29 +102,3 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 		return
 	}
 }
-
-func (h *Handler) getCategories(ctx *gorouter.Context) {
-	categories, err := h.postsService.GetCategories()
-	if err != nil {
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	ctx.WriteJSON(http.StatusOK, categories)
-}
-
-func (h *Handler) getPostsByCategory(ctx *gorouter.Context) {
-
-}
-
-type createCategoryInput struct {
-	Name string `json:"name" validator:"required,min=2,max=128"`
-}
-
-type createCategoryResponse struct {
-	CategoryID int `json:"categoryID"`
-}
-
-func (h *Handler) createCategory(ctx *gorouter.Context) {
-
-}

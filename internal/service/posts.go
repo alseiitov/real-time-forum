@@ -9,6 +9,8 @@ import (
 	"github.com/alseiitov/real-time-forum/pkg/image"
 )
 
+const postsForPage = 5
+
 type PostsService struct {
 	repo      repository.Posts
 	imagesDir string
@@ -67,10 +69,7 @@ func (s *PostsService) Delete(userID, postID int) error {
 	return s.repo.Delete(userID, postID)
 }
 
-func (s *PostsService) GetCategories() ([]model.Categorie, error) {
-	return s.repo.GetCategories()
+func (s *PostsService) GetPostsByCategoryID(categoryID int, page int) ([]model.Post, error) {
+	offset := (page - 1) * postsForPage
+	return s.repo.GetPostsByCategoryID(categoryID, postsForPage, offset)
 }
-
-// func (s *PostsService) CreateCategorie() ([]model.Categorie, error) {
-// 	return s.repo.GetCategories()
-// }
