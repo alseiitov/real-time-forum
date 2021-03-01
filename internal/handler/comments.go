@@ -12,6 +12,7 @@ import (
 type createCommentInput struct {
 	PostID int    `json:"postID" validator:"required"`
 	Data   string `json:"data" validator:"required,min=2,max=128"`
+	Image  string
 }
 
 type createCommentResponse struct {
@@ -42,6 +43,7 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 		UserID: userID,
 		PostID: input.PostID,
 		Data:   input.Data,
+		Image:  input.Image,
 	})
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())

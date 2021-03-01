@@ -1,78 +1,77 @@
 package image
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
-	"io"
-	"mime/multipart"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
-
-	uuid "github.com/satori/go.uuid"
 )
 
-func ParseFromRequest(r *http.Request) (multipart.File, *multipart.FileHeader, error) {
-	mimeTypes := make(map[string]string)
-	mimeTypes["jpg"] = "image/jpeg"
-	mimeTypes["jpeg"] = "image/jpeg"
-	mimeTypes["jpe"] = "image/jpeg"
-	mimeTypes["png"] = "image/png"
-	mimeTypes["gid"] = "image/gif"
-
-	file, stat, err := r.FormFile("image")
-	if err != nil {
-		return nil, nil, err
+func BytesFromBase64(base64string string) ([]byte, error) {
+	arr := strings.Split(base64string, ",")
+	if len(arr) != 2 {
+		return nil, errors.New("invalid base64 string")
 	}
 
-	if stat.Size > 20*1024*1024 {
-		return nil, nil, errors.New("uploaded image size is too big! (Maximum 20 Mb)")
-	}
-
-	reg := regexp.MustCompile(`\.(jpg|jpeg|jpe|png|gif)$`)
-	if !reg.MatchString(stat.Filename) {
-		return nil, nil, errors.New("only jpg, jpeg, jpe, png, gif files are allowed")
-	}
-
-	buff := make([]byte, 512)
-	_, err = file.Read(buff)
-	if err != nil {
-		return nil, nil, errors.New("can't read your image, please try again")
-	}
-
-	ext := getExtension(stat.Filename)
-	mime := http.DetectContentType(buff)
-	if mimeTypes[ext] != mime {
-		return nil, nil, errors.New("invalid or not allowed file extension")
-	}
-
-	return file, stat, nil
+	return base64.StdEncoding.DecodeString(arr[1])
 }
 
-func SaveImage(file multipart.File, stat *multipart.FileHeader, path string) (string, error) {
-	ext := getExtension(stat.Filename)
+func Validate(data []byte) error {
+	if len(data) > 20*1024*1024 {
+		return errors.New("uploaded image size is too big! (Maximum 20 Mb)")
+	}
 
-	name := fmt.Sprintf("%s.%s", uuid.NewV4().String(), ext)
-	filePath := filepath.Join(path, name)
+	mimeType := getMimeType(data)
 
-	file.Seek(0, 0)
+	regex := regexp.MustCompile(`^image/(jpeg|png|gif)$`)
+	if !regex.Match([]byte(mimeType)) {
+		return errors.New("only jpeg, png and gif images can be uploaded")
+	}
 
-	img, err := os.Create(filePath)
+	return nil
+}
+
+func GetExtension(data []byte) string {
+	var ext string
+	mimeType := getMimeType(data)
+
+	switch strings.Split(mimeType, "/")[1] {
+	case "png":
+		ext = ".png"
+	case "jpeg":
+		ext = ".jpg"
+	case "gif":
+		ext = ".gif"
+	}
+	return ext
+}
+
+func getMimeType(data []byte) string {
+	return http.DetectContentType(data)
+}
+
+func Save(data []byte, name string) error {
+	f, err := os.Create(name)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return ioutil.WriteFile(name, data, 0644)
+}
+
+func ReadImage(name string) (string, error) {
+	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return "", err
 	}
 
-	_, err = io.Copy(img, file)
-	if err != nil {
-		return "", err
-	}
+	mimeType := getMimeType(data)
+	base64string := base64.StdEncoding.EncodeToString(data)
 
-	return name, nil
-}
-
-func getExtension(fileName string) string {
-	arr := strings.Split(fileName, ".")
-	return arr[len(arr)-1]
+	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64string), nil
 }

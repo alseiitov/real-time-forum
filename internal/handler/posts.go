@@ -37,6 +37,7 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 type createPostInput struct {
 	Title      string `json:"title" validator:"required,min=2, max=64"`
 	Data       string `json:"data" validator:"required,min=2, max=512"`
+	Image      string `json:"image"`
 	Categories []int  `json:"categories" validator:"required,min=0"`
 }
 
@@ -67,6 +68,7 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 		UserID:     userID,
 		Title:      input.Title,
 		Data:       input.Data,
+		Image:      input.Image,
 		Categories: model.CategorieFromInts(input.Categories),
 	})
 

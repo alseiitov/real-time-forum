@@ -1,5 +1,3 @@
-var container = document.querySelector(".container");
-
 const http = {
     StatusOK: 200,
     StatusCreated: 201,
@@ -7,40 +5,34 @@ const http = {
     StatusInternalServerError: 500
 }
 
-console.log(APIAdress)
-
-let savePhoto = async (inp) => {
-    let image = inp.files[0];
-    if (!image) return ""
-
-    let formData = new FormData();
-    formData.append("image", image);
-
-    const options = {
-        method: "POST",
-        body: formData,
+const parseImageInBase64 = async () => {
+    let image = document.querySelector('input[name="image"]').files[0]
+    if (!image) {
+        return ""
     }
-
-    try {
-        const resp = await fetch('http://localhost:8081/api/images', options)
-        const obj = await resp.json()
-
-        if (resp.status != http.StatusCreated) {
-            alert(resp.status + obj.error)
-        } else {
-            return obj.name
-        }
-    } catch (e) {
-        alert(`Can't upload image, error: ${e.message}`);
-    }
+    return await fileToBase64(image)
 }
 
+const fileToBase64 = (file) => {
+    return new Promise(resolve => {
+        let fileReader = new FileReader();
 
-var submitButton = document.getElementById('submit-button')
+        fileReader.onload = (fileLoadedEvent) => {
+            resolve(fileLoadedEvent.target.result)
+        }
+
+        fileReader.readAsDataURL(file)
+    })
+}
+
+const checkImage = (base64) => /image\/(jpeg|png|gif)/.test(base64)
+
+
+const submitButton = document.getElementById('submit-button')
 
 submitButton.addEventListener('click', async () => {
-    let imageInput = document.querySelector('input[name="image"]')
-    let name = await savePhoto(imageInput)
-    console.log(name)
+    let base64 = await parseImageInBase64()
+    console.log(base64)
+    console.log(checkImage(base64))
 })
 
