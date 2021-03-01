@@ -7,11 +7,51 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
+
+	uuid "github.com/satori/go.uuid"
 )
 
-func BytesFromBase64(base64string string) ([]byte, error) {
+func SaveAndGetName(base64string, path string) (string, error) {
+	if base64string == "" {
+		return "", nil
+	}
+
+	imageBytes, err := bytesFromBase64(base64string)
+	if err != nil {
+		return "", err
+	}
+
+	err = validate(imageBytes)
+	if err != nil {
+		return "", err
+	}
+
+	newImageName := uuid.NewV4().String() + getExtension(imageBytes)
+
+	err = save(imageBytes, path, newImageName)
+	if err != nil {
+		return "", err
+	}
+
+	return newImageName, nil
+}
+
+func ReadImage(name string) (string, error) {
+	data, err := ioutil.ReadFile(name)
+	if err != nil {
+		return "", err
+	}
+
+	mimeType := getMimeType(data)
+	base64string := base64.StdEncoding.EncodeToString(data)
+
+	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64string), nil
+}
+
+func bytesFromBase64(base64string string) ([]byte, error) {
 	arr := strings.Split(base64string, ",")
 	if len(arr) != 2 {
 		return nil, errors.New("invalid base64 string")
@@ -20,7 +60,7 @@ func BytesFromBase64(base64string string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(arr[1])
 }
 
-func Validate(data []byte) error {
+func validate(data []byte) error {
 	if len(data) > 20*1024*1024 {
 		return errors.New("uploaded image size is too big! (Maximum 20 Mb)")
 	}
@@ -35,7 +75,7 @@ func Validate(data []byte) error {
 	return nil
 }
 
-func GetExtension(data []byte) string {
+func getExtension(data []byte) string {
 	var ext string
 	mimeType := getMimeType(data)
 
@@ -54,24 +94,28 @@ func getMimeType(data []byte) string {
 	return http.DetectContentType(data)
 }
 
-func Save(data []byte, name string) error {
-	f, err := os.Create(name)
+func save(data []byte, path, name string) error {
+	err := checkDirExistance(path)
+	if err != nil {
+		return err
+	}
+
+	f, err := os.Create(filepath.Join(path, name))
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	return ioutil.WriteFile(name, data, 0644)
+	_, err = f.Write(data)
+	return err
 }
 
-func ReadImage(name string) (string, error) {
-	data, err := ioutil.ReadFile(name)
-	if err != nil {
-		return "", err
+func checkDirExistance(path string) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err = os.MkdirAll(path, os.ModePerm)
+		if err != nil {
+			return err
+		}
 	}
-
-	mimeType := getMimeType(data)
-	base64string := base64.StdEncoding.EncodeToString(data)
-
-	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64string), nil
+	return nil
 }

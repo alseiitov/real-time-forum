@@ -4,8 +4,6 @@ import (
 	"path/filepath"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
-
 	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/pkg/image"
@@ -32,19 +30,7 @@ type CreatePostInput struct {
 }
 
 func (s *PostsService) Create(input CreatePostInput) (int, error) {
-	data, err := image.BytesFromBase64(input.Image)
-	if err != nil {
-		return 0, err
-	}
-
-	err = image.Validate(data)
-	if err != nil {
-		return 0, err
-	}
-
-	newImageName := uuid.NewV4().String() + image.GetExtension(data)
-
-	err = image.Save(data, filepath.Join(s.imagesDir, newImageName))
+	imageName, err := image.SaveAndGetName(input.Image, s.imagesDir)
 	if err != nil {
 		return 0, err
 	}
@@ -54,7 +40,7 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 		Title:      input.Title,
 		Data:       input.Data,
 		Date:       time.Now(),
-		Image:      newImageName,
+		Image:      imageName,
 		Categories: input.Categories,
 	}
 
@@ -68,7 +54,7 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 		return post, err
 	}
 
-	imgBase64, err := image.ReadImage(post.Image)
+	imgBase64, err := image.ReadImage(filepath.Join(s.imagesDir, post.Image))
 	if err != nil {
 		return post, err
 	}

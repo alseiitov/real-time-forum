@@ -12,16 +12,6 @@ type Tokens struct {
 	RefreshToken string
 }
 
-func (s *UsersService) DeleteExpiredSessions() {
-	for {
-		err := s.repo.DeleteExpiredSessions()
-		if err != nil {
-			log.Println(err.Error())
-		}
-		time.Sleep(time.Minute * 10)
-	}
-}
-
 type UsersRefreshTokensInput struct {
 	AccessToken  string
 	RefreshToken string
@@ -57,4 +47,14 @@ func (s *UsersService) setSession(userID, role int) (Tokens, error) {
 	}
 
 	return tokens, s.repo.SetSession(session)
+}
+
+func (s *UsersService) DeleteExpiredSessions() {
+	for {
+		err := s.repo.DeleteExpiredSessions()
+		if err != nil {
+			log.Println(err.Error())
+		}
+		time.Sleep(time.Minute * 10)
+	}
 }
