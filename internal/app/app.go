@@ -51,12 +51,15 @@ func Run(configPath *string) {
 		log.Fatalln(err)
 	}
 
+	imagesDir := config.GetImagesDir()
+
 	services := service.NewServices(service.ServicesDeps{
 		Repos:           repos,
 		Hasher:          hasher,
 		TokenManager:    tokenManager,
 		AccessTokenTTL:  accessTokenTTL,
 		RefreshTokenTTL: refreshTokenTTL,
+		ImagesDir:       imagesDir,
 	})
 
 	go services.Users.DeleteExpiredSessions()

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"path/filepath"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -11,12 +12,14 @@ import (
 )
 
 type PostsService struct {
-	repo repository.Posts
+	repo      repository.Posts
+	imagesDir string
 }
 
-func NewPostsService(repo repository.Posts) *PostsService {
+func NewPostsService(repo repository.Posts, imagesDir string) *PostsService {
 	return &PostsService{
-		repo: repo,
+		repo:      repo,
+		imagesDir: imagesDir,
 	}
 }
 
@@ -40,7 +43,8 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 	}
 
 	newImageName := uuid.NewV4().String() + image.GetExtension(data)
-	err = image.Save(data, newImageName)
+
+	err = image.Save(data, filepath.Join(s.imagesDir, newImageName))
 	if err != nil {
 		return 0, err
 	}

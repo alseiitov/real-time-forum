@@ -28,6 +28,7 @@ type database struct {
 	Driver     string `json:"driver"`
 	Path       string `json:"path"`
 	FileName   string `json:"fileName"`
+	ImagesDir  string `json:"imagesDir"`
 	SchemesDir string `json:"schemesDir"`
 }
 
@@ -71,6 +72,10 @@ func (c *Conf) GetDBPath() string {
 
 func (c *Conf) GetDBSchemesDir() string {
 	return c.Backend.Database.SchemesDir
+}
+
+func (c *Conf) GetImagesDir() string {
+	return c.Backend.Database.ImagesDir
 }
 
 func (c *Conf) GetDBDriver() string {

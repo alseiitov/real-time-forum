@@ -41,12 +41,13 @@ type ServicesDeps struct {
 	TokenManager    auth.TokenManager
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
+	ImagesDir       string
 }
 
 func NewServices(deps ServicesDeps) *Services {
 	return &Services{
 		Users:    NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL),
-		Posts:    NewPostsService(deps.Repos.Posts),
-		Comments: NewCommentsService(deps.Repos.Comments),
+		Posts:    NewPostsService(deps.Repos.Posts, deps.ImagesDir),
+		Comments: NewCommentsService(deps.Repos.Comments, deps.ImagesDir),
 	}
 }

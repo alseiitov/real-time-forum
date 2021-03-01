@@ -8,6 +8,7 @@
             "driver": "sqlite3",
             "path": "./database",
             "fileName": "forum.db",
+            "imagesDir": "./database/images",
             "schemesDir": "./internal/repository/sqlitedb/schema"
         },
         "auth": {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"path/filepath"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -10,12 +11,14 @@ import (
 )
 
 type CommentsService struct {
-	repo repository.Comments
+	repo      repository.Comments
+	imagesDir string
 }
 
-func NewCommentsService(repo repository.Comments) *CommentsService {
+func NewCommentsService(repo repository.Comments, imagesDir string) *CommentsService {
 	return &CommentsService{
-		repo: repo,
+		repo:      repo,
+		imagesDir: imagesDir,
 	}
 }
 
@@ -38,7 +41,8 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 	}
 
 	newImageName := uuid.NewV4().String() + image.GetExtension(data)
-	err = image.Save(data, newImageName)
+
+	err = image.Save(data, filepath.Join(s.imagesDir, newImageName))
 	if err != nil {
 		return 0, err
 	}
