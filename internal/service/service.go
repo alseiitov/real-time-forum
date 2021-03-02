@@ -43,19 +43,22 @@ type Services struct {
 }
 
 type ServicesDeps struct {
-	Repos           *repository.Repositories
-	Hasher          hash.PasswordHasher
-	TokenManager    auth.TokenManager
-	AccessTokenTTL  time.Duration
-	RefreshTokenTTL time.Duration
-	ImagesDir       string
+	Repos               *repository.Repositories
+	Hasher              hash.PasswordHasher
+	TokenManager        auth.TokenManager
+	AccessTokenTTL      time.Duration
+	RefreshTokenTTL     time.Duration
+	ImagesDir           string
+	DefaultMaleAvatar   string
+	DefaultFemaleAvatar string
+	PostsForPage        int
 }
 
 func NewServices(deps ServicesDeps) *Services {
 	return &Services{
-		Users:      NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL),
+		Users:      NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar),
 		Categories: NewCategoriesService(deps.Repos.Categories),
-		Posts:      NewPostsService(deps.Repos.Posts, deps.ImagesDir),
+		Posts:      NewPostsService(deps.Repos.Posts, deps.ImagesDir, deps.PostsForPage),
 		Comments:   NewCommentsService(deps.Repos.Comments, deps.ImagesDir),
 	}
 }

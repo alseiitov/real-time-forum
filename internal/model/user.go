@@ -24,10 +24,10 @@ type roles struct {
 }
 
 var Roles = roles{
-	Guest:         0,
-	User:          1,
-	Moderator:     2,
-	Administrator: 3,
+	Guest:         1,
+	User:          2,
+	Moderator:     3,
+	Administrator: 4,
 }
 
 type gender struct {
@@ -36,6 +36,6 @@ type gender struct {
 }
 
 var Gender = gender{
-	Male:   0,
-	Female: 1,
+	Male:   1,
+	Female: 2,
 }

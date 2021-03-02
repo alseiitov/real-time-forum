@@ -52,14 +52,19 @@ func Run(configPath *string) {
 	}
 
 	imagesDir := config.GetImagesDir()
+	postsForPage := config.GetPostsForPage()
+	defaultMaleAvatar, defaultFemaleAvatar := config.GetDefaultAvatars()
 
 	services := service.NewServices(service.ServicesDeps{
-		Repos:           repos,
-		Hasher:          hasher,
-		TokenManager:    tokenManager,
-		AccessTokenTTL:  accessTokenTTL,
-		RefreshTokenTTL: refreshTokenTTL,
-		ImagesDir:       imagesDir,
+		Repos:               repos,
+		Hasher:              hasher,
+		TokenManager:        tokenManager,
+		AccessTokenTTL:      accessTokenTTL,
+		RefreshTokenTTL:     refreshTokenTTL,
+		ImagesDir:           imagesDir,
+		PostsForPage:        postsForPage,
+		DefaultMaleAvatar:   defaultMaleAvatar,
+		DefaultFemaleAvatar: defaultFemaleAvatar,
 	})
 
 	go services.Users.DeleteExpiredSessions()

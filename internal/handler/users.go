@@ -15,7 +15,7 @@ type usersSignUpInput struct {
 	FirstName string `json:"firstName" validator:"required,min=2,max=64"`
 	LastName  string `json:"lastName" validator:"required,min=2,max=64"`
 	Age       int    `json:"age" validator:"required,min=12,max=110"`
-	Gender    int    `json:"gender" validator:"min=0,max=1"`
+	Gender    int    `json:"gender" validator:"min=1,max=2"`
 	Email     string `json:"email" validator:"required,email,max=64"`
 	Password  string `json:"password" validator:"required,password,min=7,max=64"`
 }

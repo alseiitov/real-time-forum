@@ -7,23 +7,30 @@ import (
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
+	"github.com/alseiitov/real-time-forum/pkg/image"
 )
 
 type UsersService struct {
-	repo            repository.Users
-	hasher          hash.PasswordHasher
-	tokenManager    auth.TokenManager
-	accessTokenTTL  time.Duration
-	refreshTokenTTL time.Duration
+	repo                repository.Users
+	hasher              hash.PasswordHasher
+	tokenManager        auth.TokenManager
+	accessTokenTTL      time.Duration
+	refreshTokenTTL     time.Duration
+	imagesDir           string
+	defaultMaleAvatar   string
+	defaultFemaleAvatar string
 }
 
-func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager, accessTokenTTL time.Duration, refreshTokenTTL time.Duration) *UsersService {
+func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager, accessTokenTTL time.Duration, refreshTokenTTL time.Duration, imagesDir, defaultMaleAvatar, defaultFemaleAvatar string) *UsersService {
 	return &UsersService{
-		repo:            repo,
-		hasher:          hasher,
-		tokenManager:    tokenManager,
-		accessTokenTTL:  accessTokenTTL,
-		refreshTokenTTL: refreshTokenTTL,
+		repo:                repo,
+		hasher:              hasher,
+		tokenManager:        tokenManager,
+		accessTokenTTL:      accessTokenTTL,
+		refreshTokenTTL:     refreshTokenTTL,
+		imagesDir:           imagesDir,
+		defaultMaleAvatar:   defaultMaleAvatar,
+		defaultFemaleAvatar: defaultFemaleAvatar,
 	}
 }
 
@@ -38,6 +45,15 @@ type UsersSignUpInput struct {
 }
 
 func (s *UsersService) SignUp(input UsersSignUpInput) error {
+	var avatar string
+
+	if input.Gender == model.Gender.Male {
+		avatar = s.defaultMaleAvatar
+	}
+	if input.Gender == model.Gender.Female {
+		avatar = s.defaultFemaleAvatar
+	}
+
 	password := s.hasher.Hash(input.Password)
 
 	user := model.User{
@@ -50,7 +66,7 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 		Password:   password,
 		Registered: time.Now(),
 		Role:       model.Roles.User,
-		Avatar:     "",
+		Avatar:     avatar,
 	}
 
 	err := s.repo.Create(user)
@@ -91,6 +107,13 @@ func (s *UsersService) GetByID(userID int) (model.User, error) {
 		}
 		return user, err
 	}
+
+	avatarBase64, err := image.ReadImage(s.imagesDir, user.Avatar)
+	if err != nil {
+		return user, err
+	}
+
+	user.Avatar = avatarBase64
 
 	return user, nil
 }

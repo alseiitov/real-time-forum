@@ -36,7 +36,7 @@ type createPostInput struct {
 	Title      string `json:"title" validator:"required,min=2, max=64"`
 	Data       string `json:"data" validator:"required,min=2, max=512"`
 	Image      string `json:"image"`
-	Categories []int  `json:"categories" validator:"required,min=0"`
+	Categories []int  `json:"categories" validator:"required,min=1"`
 }
 
 type createPostResponse struct {

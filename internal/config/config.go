@@ -11,6 +11,7 @@ import (
 type Conf struct {
 	Backend  backend  `json:"backend"`
 	Frontend frontend `json:"frontend"`
+	Forum    forum    `json:"forum"`
 }
 
 type backend struct {
@@ -43,6 +44,12 @@ type frontend struct {
 
 type frontendServer struct {
 	Port string `json:"port"`
+}
+
+type forum struct {
+	DefaultMaleAvatar   string `json:"defaultMaleAvatar"`
+	DefaultFemaleAvatar string `json:"defaultFemaleAvatar"`
+	PostsForPage        int    `json:"postsForPage"`
 }
 
 func (c *Conf) GetBackendPort() string {
@@ -94,6 +101,14 @@ func (c *Conf) GetTokenTTLs() (time.Duration, time.Duration, error) {
 	}
 
 	return accessTokenTTL, refreshTokenTTL, nil
+}
+
+func (c *Conf) GetDefaultAvatars() (string, string) {
+	return c.Forum.DefaultMaleAvatar, c.Forum.DefaultFemaleAvatar
+}
+
+func (c *Conf) GetPostsForPage() int {
+	return c.Forum.PostsForPage
 }
 
 func minutesToDuration(m int) time.Duration {
