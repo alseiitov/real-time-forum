@@ -16,8 +16,8 @@ type Users interface {
 }
 
 type Categories interface {
-	GetAll() ([]model.Categorie, error)
-	GetByID(categoryID int) (model.Categorie, error)
+	GetAll() ([]model.Category, error)
+	GetByID(categoryID int) (model.Category, error)
 }
 
 type Posts interface {

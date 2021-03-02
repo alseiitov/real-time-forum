@@ -3,17 +3,17 @@ package model
 import "time"
 
 type User struct {
-	ID         int
-	Username   string
-	FirstName  string
-	LastName   string
-	Age        int
-	Gender     int
-	Email      string
-	Password   string
-	Registered time.Time
-	Role       int
-	Avatar     string
+	ID         int       `json:"id,omitempty"`
+	Username   string    `json:"username,omitempty"`
+	FirstName  string    `json:"firstName,omitempty"`
+	LastName   string    `json:"lastName,omitempty"`
+	Age        int       `json:"age,omitempty"`
+	Gender     int       `json:"gender,omitempty"`
+	Email      string    `json:"email,omitempty"`
+	Password   string    `json:"password,omitempty"`
+	Registered time.Time `json:"registered"`
+	Role       int       `json:"role,omitempty"`
+	Avatar     string    `json:"avatar,omitempty"`
 }
 
 type roles struct {

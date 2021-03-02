@@ -1,5 +1,6 @@
 .env
 build
-database
-!/database/images/default-male-avatar.jpg
-!/database/images/default-female-avatar.jpg
+database/*
+database/images/*
+!database/images/default-male-avatar.jpg
+!database/images/default-female-avatar.jpg

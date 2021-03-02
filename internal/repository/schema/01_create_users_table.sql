@@ -8,5 +8,6 @@ CREATE TABLE users (
   email TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL,
   role INTEGER,
-  avatar TEXT
+  avatar TEXT,
+  registered DATETIME NOT NULL
 );

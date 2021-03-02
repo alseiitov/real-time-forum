@@ -15,10 +15,10 @@ func NewCategoriesService(repo repository.Categories) *CategoriesService {
 	}
 }
 
-func (s *CategoriesService) GetAll() ([]model.Categorie, error) {
+func (s *CategoriesService) GetAll() ([]model.Category, error) {
 	return s.repo.GetAll()
 }
 
-func (s *CategoriesService) GetByID(categoryID int, page int) (model.Categorie, error) {
+func (s *CategoriesService) GetByID(categoryID int, page int) (model.Category, error) {
 	return s.repo.GetByID(categoryID)
 }

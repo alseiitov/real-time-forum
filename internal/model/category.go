@@ -1,12 +1,12 @@
 package model
 
-type Categorie struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Posts []Post `json:"posts"`
+type Category struct {
+	ID    int    `json:"id,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Posts []Post `json:"posts,omitempty"`
 }
 
-func CategoriesFromInts(ints []int) []Categorie {
+func CategoriesFromInts(ints []int) []Category {
 	unique := make(map[int]bool)
 
 	for _, num := range ints {
@@ -17,10 +17,10 @@ func CategoriesFromInts(ints []int) []Categorie {
 		}
 	}
 
-	var categories []Categorie
+	var categories []Category
 
 	for num := range unique {
-		categorie := Categorie{ID: num}
+		categorie := Category{ID: num}
 		categories = append(categories, categorie)
 	}
 

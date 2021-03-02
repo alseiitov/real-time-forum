@@ -14,8 +14,8 @@ func NewCategoriesRepo(db *sql.DB) *CategoriesRepo {
 	return &CategoriesRepo{db: db}
 }
 
-func (r *CategoriesRepo) GetAll() ([]model.Categorie, error) {
-	var categories []model.Categorie
+func (r *CategoriesRepo) GetAll() ([]model.Category, error) {
+	var categories []model.Category
 
 	rows, err := r.db.Query("SELECT * FROM categories")
 	if err != nil {
@@ -24,19 +24,19 @@ func (r *CategoriesRepo) GetAll() ([]model.Categorie, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var categorie model.Categorie
-		err = rows.Scan(&categorie.ID, &categorie.Name)
+		var category model.Category
+		err = rows.Scan(&category.ID, &category.Name)
 		if err != nil {
 			return categories, err
 		}
-		categories = append(categories, categorie)
+		categories = append(categories, category)
 	}
 
 	return categories, rows.Err()
 }
 
-func (r *CategoriesRepo) GetByID(categoryID int) (model.Categorie, error) {
-	var category model.Categorie
+func (r *CategoriesRepo) GetByID(categoryID int) (model.Category, error) {
+	var category model.Category
 
 	row := r.db.QueryRow("SELECT id, name FROM categories WHERE id = $1", categoryID)
 	err := row.Scan(&category.ID, &category.Name)
