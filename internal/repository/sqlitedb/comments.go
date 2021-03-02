@@ -2,7 +2,6 @@ package sqlitedb
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -39,7 +38,7 @@ func (r *CommentsRepo) Delete(userID, commentID int) error {
 
 	n, err := res.RowsAffected()
 	if n == 0 {
-		return errors.New("comment with this id doesn't exist or you have no permissions to delete this comment")
+		return ErrDeletingComment
 	}
 
 	return err

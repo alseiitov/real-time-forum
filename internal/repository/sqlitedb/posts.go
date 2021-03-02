@@ -2,8 +2,6 @@ package sqlitedb
 
 import (
 	"database/sql"
-	"errors"
-	"fmt"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -104,7 +102,7 @@ func (r *PostsRepo) Delete(userID, postID int) error {
 
 	n, err := res.RowsAffected()
 	if n == 0 {
-		return errors.New("post with this id doesn't exist or you have no permissions to delete this post")
+		return ErrDeletingPost
 	}
 
 	return err
@@ -125,10 +123,14 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 		if err != nil {
 			return posts, err
 		}
+
+		post.Categories, err = r.getPostCategories(post.ID)
+		if err != nil {
+			return posts, err
+		}
+
 		posts = append(posts, post)
 	}
-
-	fmt.Println(posts)
 
 	return posts, nil
 }

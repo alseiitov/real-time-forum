@@ -22,6 +22,9 @@ func (r *UsersRepo) Create(user model.User) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(&user.Username, user.FirstName, user.LastName, user.Age, user.Gender, user.Email, user.Password, user.Role, user.Avatar)
+	if isAlreadyExistError(err) {
+		return ErrUserAlreadyExist
+	}
 
 	return err
 }
@@ -31,6 +34,10 @@ func (r *UsersRepo) GetByCredentials(usernameOrEmail, password string) (model.Us
 
 	row := r.db.QueryRow("SELECT id, role FROM users WHERE (username = $1 OR email = $1) AND (password = $2)", usernameOrEmail, password)
 	err := row.Scan(&user.ID, &user.Role)
+
+	if isNotExistError(err) {
+		return user, ErrUserWrongPassword
+	}
 
 	return user, err
 }

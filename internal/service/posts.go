@@ -28,7 +28,7 @@ type CreatePostInput struct {
 	Title      string
 	Data       string
 	Image      string
-	Categories []model.Categorie
+	Categories []int
 }
 
 func (s *PostsService) Create(input CreatePostInput) (int, error) {
@@ -37,13 +37,18 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 		return 0, err
 	}
 
+	categories := model.CategoriesFromInts(input.Categories)
+	if len(categories) > 3 {
+		return 0, ErrTooManyCategories
+	}
+
 	post := model.Post{
 		UserID:     input.UserID,
 		Title:      input.Title,
 		Data:       input.Data,
 		Date:       time.Now(),
 		Image:      imageName,
-		Categories: input.Categories,
+		Categories: categories,
 	}
 
 	id, err := s.repo.Create(post)

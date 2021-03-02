@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/alseiitov/real-time-forum/internal/model"
-
 	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/service"
 	"github.com/alseiitov/validator"
@@ -69,7 +67,7 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 		Title:      input.Title,
 		Data:       input.Data,
 		Image:      input.Image,
-		Categories: model.CategorieFromInts(input.Categories),
+		Categories: input.Categories,
 	})
 
 	if err != nil {

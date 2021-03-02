@@ -1,7 +1,6 @@
 package sqlitedb
 
 import (
-	"errors"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -27,7 +26,7 @@ func (r *UsersRepo) DeleteSession(userID int, refreshToken string) error {
 	}
 
 	if n == 0 {
-		return errors.New("refresh token is invalid or already used")
+		return ErrSessionNotFound
 	}
 	return err
 }

@@ -6,7 +6,7 @@ type Categorie struct {
 	Posts []Post `json:"posts"`
 }
 
-func CategorieFromInts(ints []int) []Categorie {
+func CategoriesFromInts(ints []int) []Categorie {
 	unique := make(map[int]bool)
 
 	for _, num := range ints {
