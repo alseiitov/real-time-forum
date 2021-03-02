@@ -1,4 +1,4 @@
-package sqlitedb
+package repository
 
 import (
 	"database/sql"
@@ -37,6 +37,19 @@ func (r *UsersRepo) GetByCredentials(usernameOrEmail, password string) (model.Us
 
 	if isNotExistError(err) {
 		return user, ErrUserWrongPassword
+	}
+
+	return user, err
+}
+
+func (r *UsersRepo) GetByID(userID int) (model.User, error) {
+	var user model.User
+
+	row := r.db.QueryRow("SELECT id, username, first_name, last_name, age, gender, role, avatar FROM users WHERE id = $1", userID)
+	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Age, &user.Gender, &user.Role, &user.Avatar)
+
+	if isNotExistError(err) {
+		return user, ErrUserNotExist
 	}
 
 	return user, err

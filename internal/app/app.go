@@ -13,7 +13,7 @@ import (
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/internal/server"
 	"github.com/alseiitov/real-time-forum/internal/service"
-	"github.com/alseiitov/real-time-forum/pkg/database/sqlite"
+	"github.com/alseiitov/real-time-forum/pkg/database"
 )
 
 func Run(configPath *string) {
@@ -22,7 +22,7 @@ func Run(configPath *string) {
 		log.Fatalln(err)
 	}
 
-	db, err := sqlite.ConnectDB(
+	db, err := database.ConnectDB(
 		config.GetDBDriver(),
 		config.GetDBPath(),
 		config.GetDBFileName(),

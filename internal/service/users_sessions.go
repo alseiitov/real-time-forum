@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/alseiitov/real-time-forum/internal/repository"
+
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
 
@@ -22,6 +24,9 @@ func (s *UsersService) RefreshTokens(input UsersRefreshTokensInput) (Tokens, err
 
 	err := s.repo.DeleteSession(sub, input.RefreshToken)
 	if err != nil {
+		if err == repository.ErrSessionNotFound {
+			return Tokens{}, ErrSessionNotFound
+		}
 		return Tokens{}, err
 	}
 

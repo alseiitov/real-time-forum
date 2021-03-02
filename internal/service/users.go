@@ -55,6 +55,9 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 
 	err := s.repo.Create(user)
 	if err != nil {
+		if err == repository.ErrUserAlreadyExist {
+			return ErrUserAlreadyExist
+		}
 		return err
 	}
 
@@ -71,8 +74,23 @@ func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
 
 	user, err := s.repo.GetByCredentials(input.UsernameOrEmail, password)
 	if err != nil {
+		if err == repository.ErrUserWrongPassword {
+			return Tokens{}, ErrUserWrongPassword
+		}
 		return Tokens{}, err
 	}
 
 	return s.setSession(user.ID, user.Role)
+}
+
+func (s *UsersService) GetByID(userID int) (model.User, error) {
+	user, err := s.repo.GetByID(userID)
+	if err != nil {
+		if err == repository.ErrUserNotExist {
+			return user, ErrUserNotExist
+		}
+		return user, err
+	}
+
+	return user, nil
 }

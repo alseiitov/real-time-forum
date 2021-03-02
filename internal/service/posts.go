@@ -1,7 +1,6 @@
 package service
 
 import (
-	"path/filepath"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -61,7 +60,7 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 		return post, err
 	}
 
-	imgBase64, err := image.ReadImage(filepath.Join(s.imagesDir, post.Image))
+	imgBase64, err := image.ReadImage(s.imagesDir, post.Image)
 	if err != nil {
 		return post, err
 	}

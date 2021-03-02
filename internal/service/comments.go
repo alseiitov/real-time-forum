@@ -1,7 +1,6 @@
 package service
 
 import (
-	"path/filepath"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -57,7 +56,7 @@ func (s *CommentsService) GetCommentsByPostID(postID int) ([]model.Comment, erro
 	}
 
 	for i := range comments {
-		imgBase64, err := image.ReadImage(filepath.Join(s.imagesDir, comments[i].Image))
+		imgBase64, err := image.ReadImage(s.imagesDir, comments[i].Image)
 		if err != nil {
 			return nil, err
 		}

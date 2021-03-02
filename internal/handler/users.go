@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/alseiitov/real-time-forum/internal/service"
 
@@ -43,7 +44,11 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 	})
 
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		if err == service.ErrUserAlreadyExist {
+			ctx.WriteError(http.StatusConflict, err.Error())
+			return
+		}
+		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -79,6 +84,10 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 	})
 
 	if err != nil {
+		if err == service.ErrUserWrongPassword {
+			ctx.WriteError(http.StatusUnauthorized, err.Error())
+			return
+		}
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -92,7 +101,24 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 }
 
 func (h *Handler) getUser(ctx *gorouter.Context) {
+	userIDParam, _ := ctx.GetParam("user_id")
+	userID, err := strconv.Atoi(userIDParam)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
 
+	user, err := h.usersService.GetByID(userID)
+	if err != nil {
+		if err == service.ErrUserNotExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+			return
+		}
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.WriteJSON(http.StatusOK, user)
 }
 
 func (h *Handler) updateUser(ctx *gorouter.Context) {
@@ -123,7 +149,12 @@ func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 	})
 
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		if err == service.ErrSessionNotFound {
+			ctx.WriteError(http.StatusUnauthorized, err.Error())
+			return
+		}
+
+		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return
 	}
 

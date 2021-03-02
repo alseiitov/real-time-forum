@@ -9,7 +9,7 @@
             "path": "./database",
             "fileName": "forum.db",
             "imagesDir": "./database/images",
-            "schemesDir": "./internal/repository/sqlitedb/schema"
+            "schemesDir": "./internal/repository/schema"
         },
         "auth": {
             "accessTokenTTL": 99999999999,

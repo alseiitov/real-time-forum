@@ -39,8 +39,12 @@ func SaveAndGetName(base64string, path string) (string, error) {
 	return newImageName, nil
 }
 
-func ReadImage(name string) (string, error) {
-	data, err := ioutil.ReadFile(name)
+func ReadImage(path, name string) (string, error) {
+	if name == "" {
+		return "", nil
+	}
+
+	data, err := ioutil.ReadFile(filepath.Join(path, name))
 	if err != nil {
 		return "", err
 	}

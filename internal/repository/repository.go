@@ -4,12 +4,12 @@ import (
 	"database/sql"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
-	"github.com/alseiitov/real-time-forum/internal/repository/sqlitedb"
 )
 
 type Users interface {
 	Create(user model.User) error
 	GetByCredentials(usernameOrEmail, password string) (model.User, error)
+	GetByID(userID int) (model.User, error)
 	SetSession(session model.Session) error
 	DeleteSession(userID int, refreshToken string) error
 	DeleteExpiredSessions() error
@@ -42,9 +42,9 @@ type Repositories struct {
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
-		Users:      sqlitedb.NewUserRepo(db),
-		Categories: sqlitedb.NewCategoriesRepo(db),
-		Posts:      sqlitedb.NewPostsRepo(db),
-		Comments:   sqlitedb.NewCommentsRepo(db),
+		Users:      NewUserRepo(db),
+		Categories: NewCategoriesRepo(db),
+		Posts:      NewPostsRepo(db),
+		Comments:   NewCommentsRepo(db),
 	}
 }

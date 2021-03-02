@@ -36,7 +36,7 @@ func (h *Handler) Init(r *gorouter.Router) {
 		h.cors(h.identify(model.Roles.Guest, h.usersSignIn)))
 
 	r.GET("/api/users/:user_id",
-		h.cors(h.identify(model.Roles.User, h.getUser)))
+		h.cors(h.identify(model.Roles.Guest, h.getUser)))
 
 	// r.PATCH("/api/users/:id",
 	// 	h.cors(h.updateUser))

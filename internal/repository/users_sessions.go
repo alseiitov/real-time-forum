@@ -1,4 +1,4 @@
-package sqlitedb
+package repository
 
 import (
 	"time"
