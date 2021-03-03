@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/alseiitov/real-time-forum/internal/service"
 
@@ -101,8 +100,7 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 }
 
 func (h *Handler) getUser(ctx *gorouter.Context) {
-	userIDParam, _ := ctx.GetParam("user_id")
-	userID, err := strconv.Atoi(userIDParam)
+	userID, err := ctx.GetIntParam("user_id")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return

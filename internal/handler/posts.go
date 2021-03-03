@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/service"
@@ -10,8 +9,7 @@ import (
 )
 
 func (h *Handler) getPost(ctx *gorouter.Context) {
-	postIDParam, _ := ctx.GetParam("post_id")
-	postID, err := strconv.Atoi(postIDParam)
+	postID, err := ctx.GetIntParam("post_id")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -45,8 +43,7 @@ type createPostResponse struct {
 
 func (h *Handler) createPost(ctx *gorouter.Context) {
 	var input createPostInput
-	sub, _ := ctx.GetParam("sub")
-	userID, err := strconv.Atoi(sub)
+	userID, err := ctx.GetIntParam("sub")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -80,15 +77,13 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 }
 
 func (h *Handler) deletePost(ctx *gorouter.Context) {
-	sub, _ := ctx.GetParam("sub")
-	userID, err := strconv.Atoi(sub)
+	userID, err := ctx.GetIntParam("sub")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	postIDParam, _ := ctx.GetParam("post_id")
-	postID, err := strconv.Atoi(postIDParam)
+	postID, err := ctx.GetIntParam("post_id")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return

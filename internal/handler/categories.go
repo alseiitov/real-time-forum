@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/alseiitov/gorouter"
 )
@@ -18,15 +17,13 @@ func (h *Handler) getAllCategories(ctx *gorouter.Context) {
 }
 
 func (h *Handler) getCategoryPage(ctx *gorouter.Context) {
-	categoryIDParam, _ := ctx.GetParam("category_id")
-	categoryID, err := strconv.Atoi(categoryIDParam)
+	categoryID, err := ctx.GetIntParam("category_id")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	pageParam, _ := ctx.GetParam("page")
-	page, err := strconv.Atoi(pageParam)
+	page, err := ctx.GetIntParam("page")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return

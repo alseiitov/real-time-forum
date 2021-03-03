@@ -27,6 +27,7 @@ func NewHandler(usersService service.Users, categoriesService service.Categories
 
 func (h *Handler) Init(r *gorouter.Router) {
 	//
+	//
 	// Users handlers
 
 	r.POST("/api/users/sign-up",
@@ -38,12 +39,10 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.GET("/api/users/:user_id",
 		h.cors(h.identify(model.Roles.Guest, h.getUser)))
 
-	// r.PATCH("/api/users/:id",
-	// 	h.cors(h.updateUser))
-
 	r.POST("/api/auth/refresh",
 		h.cors(h.usersRefreshTokens))
 
+	//
 	//
 	// Posts handlers
 
@@ -53,12 +52,10 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.POST("/api/posts",
 		h.cors(h.identify(model.Roles.User, h.createPost)))
 
-	// r.PATCH("/api/posts/:id",
-	// 	h.cors(h.updatePost))
-
 	r.DELETE("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.User, h.deletePost)))
 
+	//
 	//
 	// Categories handlers
 
@@ -68,6 +65,7 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.GET("/api/categories/:category_id/:page",
 		h.cors(h.identify(model.Roles.Guest, h.getCategoryPage)))
 
+	//
 	//
 	//Comments handlers
 

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/service"
@@ -22,8 +21,7 @@ type createCommentResponse struct {
 func (h *Handler) createComment(ctx *gorouter.Context) {
 	var input createCommentInput
 
-	sub, _ := ctx.GetParam("sub")
-	userID, err := strconv.Atoi(sub)
+	userID, err := ctx.GetIntParam("sub")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -55,15 +53,13 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 }
 
 func (h *Handler) deleteComment(ctx *gorouter.Context) {
-	sub, _ := ctx.GetParam("sub")
-	userID, err := strconv.Atoi(sub)
+	userID, err := ctx.GetIntParam("sub")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	commentIDParam, _ := ctx.GetParam("comment_id")
-	commentID, err := strconv.Atoi(commentIDParam)
+	commentID, err := ctx.GetIntParam("comment_id")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
