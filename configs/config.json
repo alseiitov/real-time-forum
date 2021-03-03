@@ -1,29 +1,30 @@
 {
-    "backend": {
-        "server": {
-            "host": "localhost",
-            "port": "8081"
-        },
-        "database": {
-            "driver": "sqlite3",
-            "path": "./database",
-            "fileName": "forum.db",
-            "imagesDir": "./database/images",
-            "schemesDir": "./internal/repository/schema"
-        },
-        "auth": {
-            "accessTokenTTL": 99999999999,
-            "refreshTokenTTL": 43200
-        }
+    "api": {
+        "host": "localhost",
+        "port": "8081"
     },
-    "frontend": {
-        "server": {
-            "port": "8080"
-        }
+
+    "client": {
+        "port": "8080"
     },
+
+    "database": {
+        "driver": "sqlite3",
+        "path": "./database",
+        "fileName": "forum.db",
+        "imagesDir": "./database/images",
+        "schemesDir": "./internal/repository/schema"
+    },
+
+    "auth": {
+        "accessTokenTTL": 99999999999,
+        "refreshTokenTTL": 43200
+    },
+
     "forum": {
         "defaultMaleAvatar": "default-male-avatar.jpg",
         "defaultFemaleAvatar": "default-female-avatar.jpg",
-        "postsForPage": 20
+        "postsForPage": 20,
+        "postsModerationIsEnabled": true
     }
 }

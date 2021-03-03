@@ -9,23 +9,28 @@ import (
 )
 
 type Conf struct {
-	Backend  backend  `json:"backend"`
-	Frontend frontend `json:"frontend"`
-	Forum    forum    `json:"forum"`
+	API      API      `json:"api"`
+	Client   Client   `json:"client"`
+	Database Database `json:"database"`
+	Auth     Auth     `json:"auth"`
+	Forum    Forum    `json:"forum"`
 }
 
-type backend struct {
-	Server   backendServer `json:"server"`
-	Database database      `json:"database"`
-	Auth     auth          `json:"auth"`
+type API struct {
+	Host string `json:"host"`
+	Port string `json:"port"`
 }
 
-type auth struct {
+type Auth struct {
 	AccessTokenTTL  int `json:"accessTokenTTL"`
 	RefreshTokenTTL int `json:"refreshTokenTTL"`
 }
 
-type database struct {
+type Client struct {
+	Port string `json:"port"`
+}
+
+type Database struct {
 	Driver     string `json:"driver"`
 	Path       string `json:"path"`
 	FileName   string `json:"fileName"`
@@ -33,31 +38,36 @@ type database struct {
 	SchemesDir string `json:"schemesDir"`
 }
 
-type backendServer struct {
-	Host string `json:"host"`
-	Port string `json:"port"`
+type Forum struct {
+	DefaultMaleAvatar        string `json:"defaultMaleAvatar"`
+	DefaultFemaleAvatar      string `json:"defaultFemaleAvatar"`
+	PostsForPage             int    `json:"postsForPage"`
+	PostsModerationIsEnabled bool   `json:"postsModerationIsEnabled"`
 }
 
-type frontend struct {
-	Server frontendServer `json:"server"`
-}
+func NewConfig(confPath string) (*Conf, error) {
+	var config Conf
 
-type frontendServer struct {
-	Port string `json:"port"`
-}
+	file, err := os.Open(confPath)
+	if err != nil {
+		return nil, err
+	}
 
-type forum struct {
-	DefaultMaleAvatar   string `json:"defaultMaleAvatar"`
-	DefaultFemaleAvatar string `json:"defaultFemaleAvatar"`
-	PostsForPage        int    `json:"postsForPage"`
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
 
 func (c *Conf) GetBackendPort() string {
-	return c.Backend.Server.Port
+	return c.API.Port
 }
 
 func (c *Conf) GetBackendAdress() string {
-	host := c.Backend.Server.Host
+	host := c.API.Host
 	port := c.GetBackendPort()
 	if host == "localhost" || host == "127.0.0.1" {
 		return fmt.Sprintf("%s:%s", host, port)
@@ -66,36 +76,36 @@ func (c *Conf) GetBackendAdress() string {
 }
 
 func (c *Conf) GetFrontendPort() string {
-	return c.Frontend.Server.Port
+	return c.Client.Port
 }
 
 func (c *Conf) GetDBFileName() string {
-	return c.Backend.Database.FileName
+	return c.Database.FileName
 }
 
 func (c *Conf) GetDBPath() string {
-	return c.Backend.Database.Path
+	return c.Database.Path
 }
 
 func (c *Conf) GetDBSchemesDir() string {
-	return c.Backend.Database.SchemesDir
+	return c.Database.SchemesDir
 }
 
 func (c *Conf) GetImagesDir() string {
-	return c.Backend.Database.ImagesDir
+	return c.Database.ImagesDir
 }
 
 func (c *Conf) GetDBDriver() string {
-	return c.Backend.Database.Driver
+	return c.Database.Driver
 }
 
 func (c *Conf) GetTokenTTLs() (time.Duration, time.Duration, error) {
-	accessTokenTTL := minutesToDuration(c.Backend.Auth.AccessTokenTTL)
+	accessTokenTTL := minutesToDuration(c.Auth.AccessTokenTTL)
 	if accessTokenTTL == 0 {
 		return 0, 0, errors.New("accessTokenTTL cannot be empty")
 	}
 
-	refreshTokenTTL := minutesToDuration(c.Backend.Auth.RefreshTokenTTL)
+	refreshTokenTTL := minutesToDuration(c.Auth.RefreshTokenTTL)
 	if refreshTokenTTL == 0 {
 		return 0, 0, errors.New("refreshTokenTTL cannot be empty")
 	}
@@ -113,24 +123,4 @@ func (c *Conf) GetPostsForPage() int {
 
 func minutesToDuration(m int) time.Duration {
 	return time.Duration(int(time.Minute) * m)
-}
-
-func NewConfig(confPath string) (*Conf, error) {
-	file, err := os.Open(confPath)
-	if err != nil {
-		return nil, err
-	}
-	decoder := json.NewDecoder(file)
-	var config Conf
-	err = decoder.Decode(&config)
-	if err != nil {
-		return nil, err
-	}
-	if config.Backend.Server.Port == "" {
-		config.Backend.Server.Port = "8081"
-	}
-	if config.Frontend.Server.Port == "" {
-		config.Frontend.Server.Port = "8080"
-	}
-	return &config, nil
 }
