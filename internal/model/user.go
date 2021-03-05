@@ -15,27 +15,3 @@ type User struct {
 	Role       int       `json:"role,omitempty"`
 	Avatar     string    `json:"avatar,omitempty"`
 }
-
-type roles struct {
-	Guest         int
-	User          int
-	Moderator     int
-	Administrator int
-}
-
-var Roles = roles{
-	Guest:         1,
-	User:          2,
-	Moderator:     3,
-	Administrator: 4,
-}
-
-type gender struct {
-	Male   int
-	Female int
-}
-
-var Gender = gender{
-	Male:   1,
-	Female: 2,
-}

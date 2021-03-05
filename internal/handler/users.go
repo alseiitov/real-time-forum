@@ -10,13 +10,17 @@ import (
 )
 
 type usersSignUpInput struct {
-	Username  string `json:"username" validator:"required,username,min=2,max=64"`
-	FirstName string `json:"firstName" validator:"required,min=2,max=64"`
-	LastName  string `json:"lastName" validator:"required,min=2,max=64"`
-	Age       int    `json:"age" validator:"required,min=12,max=110"`
-	Gender    int    `json:"gender" validator:"min=1,max=2"`
-	Email     string `json:"email" validator:"required,email,max=64"`
-	Password  string `json:"password" validator:"required,password,min=7,max=64"`
+	Username  string `json:"username" 		validator:"required,username,min=2,max=64"`
+	FirstName string `json:"firstName" 		validator:"required,min=2,max=64"`
+	LastName  string `json:"lastName" 		validator:"required,min=2,max=64"`
+	Age       int    `json:"age" 			validator:"required,min=12,max=110"`
+	Gender    int    `json:"gender" 			validator:"min=1,max=2"`
+	Email     string `json:"email" 			validator:"required,email,max=64"`
+	Password  string `json:"password" 		validator:"required,password,min=7,max=64"`
+}
+
+type usersSignUpResponse struct {
+	UserID int `json:"userID"`
 }
 
 func (h *Handler) usersSignUp(ctx *gorouter.Context) {
@@ -51,12 +55,12 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 		return
 	}
 
-	ctx.ResponseWriter.WriteHeader(http.StatusCreated)
+	ctx.WriteHeader(http.StatusCreated)
 }
 
 type usersSignInInput struct {
-	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64"`
-	Password        string `json:"password" validator:"required,password,min=7,max=64"`
+	UsernameOrEmail string `json:"usernameOrEmail" 	validator:"required,max=64"`
+	Password        string `json:"password" 		validator:"required,password,min=7,max=64"`
 }
 
 type tokenResponse struct {
@@ -124,8 +128,8 @@ func (h *Handler) updateUser(ctx *gorouter.Context) {
 }
 
 type usersRefreshTokensInput struct {
-	AccessToken  string `json:"accessToken" validator:"required"`
-	RefreshToken string `json:"refreshToken" validator:"required"`
+	AccessToken  string `json:"accessToken"		validator:"required"`
+	RefreshToken string `json:"refreshToken"	validator:"required"`
 }
 
 func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
@@ -162,4 +166,20 @@ func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 	}
 
 	ctx.WriteJSON(http.StatusOK, resp)
+}
+
+func (h *Handler) requestModerator(ctx *gorouter.Context) {
+	userID, err := ctx.GetIntParam("sub")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.usersService.RequestModerator(userID)
+	if err != nil {
+		ctx.WriteError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.WriteHeader(http.StatusCreated)
 }

@@ -42,6 +42,8 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.POST("/api/auth/refresh",
 		h.cors(h.usersRefreshTokens))
 
+	r.POST("/api/users/request-moderator",
+		h.cors(h.identify(model.Roles.User, h.requestModerator)))
 	//
 	//
 	// Posts handlers
@@ -74,5 +76,9 @@ func (h *Handler) Init(r *gorouter.Router) {
 
 	r.DELETE("/api/comments/:comment_id",
 		h.cors(h.identify(model.Roles.User, h.deleteComment)))
+
+	//
+	//
+	//admin handlers
 
 }

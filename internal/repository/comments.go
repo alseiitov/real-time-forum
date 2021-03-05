@@ -31,7 +31,7 @@ func (r *CommentsRepo) Create(comment model.Comment) (int, error) {
 }
 
 func (r *CommentsRepo) Delete(userID, commentID int) error {
-	res, err := r.db.Exec("DELETE FROM comments WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", commentID, userID, model.Roles.Administrator)
+	res, err := r.db.Exec("DELETE FROM comments WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", commentID, userID, model.Roles.Admin)
 	if err != nil {
 		return err
 	}

@@ -22,6 +22,7 @@ func (r *UsersRepo) Create(user model.User) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(user.Username, user.FirstName, user.LastName, user.Age, user.Gender, user.Email, user.Password, user.Role, user.Avatar, user.Registered)
+
 	if isAlreadyExistError(err) {
 		return ErrUserAlreadyExist
 	}
@@ -53,4 +54,10 @@ func (r *UsersRepo) GetByID(userID int) (model.User, error) {
 	}
 
 	return user, err
+}
+
+func (r *UsersRepo) CreateModeratorRequest(userID int) error {
+	_, err := r.db.Exec("INSERT INTO moderator_requests (user_id) VALUES ($1)", userID)
+
+	return err
 }

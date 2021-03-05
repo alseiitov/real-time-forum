@@ -13,6 +13,7 @@ type Users interface {
 	SetSession(session model.Session) error
 	DeleteSession(userID int, refreshToken string) error
 	DeleteExpiredSessions() error
+	CreateModeratorRequest(userID int) error
 }
 
 type Categories interface {

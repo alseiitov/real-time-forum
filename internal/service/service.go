@@ -14,6 +14,7 @@ type Users interface {
 	SignIn(input UsersSignInInput) (Tokens, error)
 	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
 	GetByID(userID int) (model.User, error)
+	RequestModerator(userID int) error
 	DeleteExpiredSessions()
 }
 

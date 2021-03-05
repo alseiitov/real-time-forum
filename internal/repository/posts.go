@@ -95,7 +95,7 @@ func (r *PostsRepo) getPostCategories(postID int) ([]model.Category, error) {
 }
 
 func (r *PostsRepo) Delete(userID, postID int) error {
-	res, err := r.db.Exec("DELETE FROM posts WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", postID, userID, model.Roles.Administrator)
+	res, err := r.db.Exec("DELETE FROM posts WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", postID, userID, model.Roles.Admin)
 	if err != nil {
 		return err
 	}

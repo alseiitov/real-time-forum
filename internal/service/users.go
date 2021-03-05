@@ -70,14 +70,12 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 	}
 
 	err := s.repo.Create(user)
-	if err != nil {
-		if err == repository.ErrUserAlreadyExist {
-			return ErrUserAlreadyExist
-		}
-		return err
+
+	if err == repository.ErrUserAlreadyExist {
+		return ErrUserAlreadyExist
 	}
 
-	return nil
+	return err
 }
 
 type UsersSignInInput struct {
@@ -116,4 +114,8 @@ func (s *UsersService) GetByID(userID int) (model.User, error) {
 	user.Avatar = avatarBase64
 
 	return user, nil
+}
+
+func (s *UsersService) RequestModerator(userID int) error {
+	return s.repo.CreateModeratorRequest(userID)
 }
