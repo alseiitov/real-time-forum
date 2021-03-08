@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/repository"
@@ -52,14 +51,4 @@ func (s *UsersService) setSession(userID, role int) (Tokens, error) {
 	}
 
 	return tokens, s.repo.SetSession(session)
-}
-
-func (s *UsersService) DeleteExpiredSessions() {
-	for {
-		err := s.repo.DeleteExpiredSessions()
-		if err != nil {
-			log.Println(err.Error())
-		}
-		time.Sleep(time.Minute * 10)
-	}
 }

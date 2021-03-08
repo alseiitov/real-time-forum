@@ -6,12 +6,14 @@ import (
 )
 
 type CategoriesService struct {
-	repo repository.Categories
+	repo         repository.Categories
+	postsService Posts
 }
 
-func NewCategoriesService(repo repository.Categories) *CategoriesService {
+func NewCategoriesService(repo repository.Categories, postsService Posts) *CategoriesService {
 	return &CategoriesService{
-		repo: repo,
+		repo:         repo,
+		postsService: postsService,
 	}
 }
 
@@ -20,5 +22,14 @@ func (s *CategoriesService) GetAll() ([]model.Category, error) {
 }
 
 func (s *CategoriesService) GetByID(categoryID int, page int) (model.Category, error) {
-	return s.repo.GetByID(categoryID)
+	var category model.Category
+
+	category, err := s.repo.GetByID(categoryID)
+	if err != nil {
+		return category, err
+	}
+
+	category.Posts, err = s.postsService.GetPostsByCategoryID(categoryID, page)
+
+	return category, err
 }

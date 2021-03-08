@@ -9,15 +9,19 @@ import (
 
 type Handler struct {
 	usersService      service.Users
+	moderatorsService service.Moderators
+	adminsService     service.Admins
 	categoriesService service.Categories
 	postsService      service.Posts
 	commentsService   service.Comments
 	tokenManager      auth.TokenManager
 }
 
-func NewHandler(usersService service.Users, categoriesService service.Categories, postsService service.Posts, commentsService service.Comments, tokenManager auth.TokenManager) *Handler {
+func NewHandler(usersService service.Users, moderatorsService service.Moderators, adminsService service.Admins, categoriesService service.Categories, postsService service.Posts, commentsService service.Comments, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
 		usersService:      usersService,
+		moderatorsService: moderatorsService,
+		adminsService:     adminsService,
 		categoriesService: categoriesService,
 		postsService:      postsService,
 		commentsService:   commentsService,
@@ -42,7 +46,7 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.POST("/api/auth/refresh",
 		h.cors(h.usersRefreshTokens))
 
-	r.POST("/api/users/request-moderator",
+	r.POST("/api/moderators/requesters",
 		h.cors(h.identify(model.Roles.User, h.requestModerator)))
 	//
 	//
@@ -80,5 +84,12 @@ func (h *Handler) Init(r *gorouter.Router) {
 	//
 	//
 	//admin handlers
+	r.GET("/api/moderators/requesters",
+		h.cors(h.identify(model.Roles.Admin, h.getRequestsForModerator)))
 
+	r.POST("/api/moderators/requesters/:requester_id/accept",
+		h.cors(h.identify(model.Roles.Admin, h.AcceptRequestForModerator)))
+
+	r.POST("/api/moderators/requesters/:requester_id/decline",
+		h.cors(h.identify(model.Roles.Admin, h.DeclineRequestForModerator)))
 }

@@ -115,7 +115,3 @@ func (s *UsersService) GetByID(userID int) (model.User, error) {
 
 	return user, nil
 }
-
-func (s *UsersService) RequestModerator(userID int) error {
-	return s.repo.CreateModeratorRequest(userID)
-}

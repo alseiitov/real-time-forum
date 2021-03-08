@@ -12,8 +12,17 @@ type Users interface {
 	GetByID(userID int) (model.User, error)
 	SetSession(session model.Session) error
 	DeleteSession(userID int, refreshToken string) error
-	DeleteExpiredSessions() error
+}
+
+type Moderators interface {
+}
+
+type Admins interface {
 	CreateModeratorRequest(userID int) error
+	DeleteModeratorRequest(userID int) error
+	GetModeratorRequesters() ([]model.User, error)
+
+	UpdateUserRole(userID, role int) error
 }
 
 type Categories interface {
@@ -36,6 +45,8 @@ type Comments interface {
 
 type Repositories struct {
 	Users      Users
+	Moderators Moderators
+	Admins     Admins
 	Categories Categories
 	Posts      Posts
 	Comments   Comments
@@ -44,6 +55,8 @@ type Repositories struct {
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
 		Users:      NewUserRepo(db),
+		Moderators: NewModeatorsRepo(db),
+		Admins:     NewAdminsRepo(db),
 		Categories: NewCategoriesRepo(db),
 		Posts:      NewPostsRepo(db),
 		Comments:   NewCommentsRepo(db),

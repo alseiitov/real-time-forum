@@ -12,10 +12,23 @@ import (
 type Users interface {
 	SignUp(input UsersSignUpInput) error
 	SignIn(input UsersSignInInput) (Tokens, error)
-	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
 	GetByID(userID int) (model.User, error)
-	RequestModerator(userID int) error
-	DeleteExpiredSessions()
+
+	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
+}
+
+type Moderators interface {
+}
+
+type Admins interface {
+	CreateModeratorRequest(userID int) error
+	DeleteModeratorRequest(userID int) error
+	GetModeratorRequesters() ([]model.User, error)
+
+	AcceptRequestForModerator(userID int) error
+	DeclineRequestForModerator(userID int) error
+
+	UpdateUserRole(userID int, role int) error
 }
 
 type Categories interface {
@@ -38,6 +51,8 @@ type Comments interface {
 
 type Services struct {
 	Users      Users
+	Moderators Moderators
+	Admins     Admins
 	Categories Categories
 	Posts      Posts
 	Comments   Comments
@@ -56,10 +71,19 @@ type ServicesDeps struct {
 }
 
 func NewServices(deps ServicesDeps) *Services {
+	commentsService := NewCommentsService(deps.Repos.Comments, deps.ImagesDir)
+	postsService := NewPostsService(deps.Repos.Posts, commentsService, deps.ImagesDir, deps.PostsForPage)
+	categoriesService := NewCategoriesService(deps.Repos.Categories, postsService)
+	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar)
+	moderatorsService := NewModeratorsService(deps.Repos.Moderators)
+	adminsService := NewAdminsService(deps.Repos.Admins, usersService)
+
 	return &Services{
-		Users:      NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar),
-		Categories: NewCategoriesService(deps.Repos.Categories),
-		Posts:      NewPostsService(deps.Repos.Posts, deps.ImagesDir, deps.PostsForPage),
-		Comments:   NewCommentsService(deps.Repos.Comments, deps.ImagesDir),
+		Users:      usersService,
+		Moderators: moderatorsService,
+		Admins:     adminsService,
+		Categories: categoriesService,
+		Posts:      postsService,
+		Comments:   commentsService,
 	}
 }

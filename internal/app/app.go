@@ -22,15 +22,17 @@ func Run(configPath *string) {
 		log.Fatalln(err)
 	}
 
-	db, err := database.ConnectDB(
-		config.GetDBDriver(),
-		config.GetDBPath(),
-		config.GetDBFileName(),
-		config.GetDBSchemesDir(),
-	)
+	dbDriver := config.GetDBDriver()
+	dbPath := config.GetDBPath()
+	dbFileName := config.GetDBFileName()
+	dbSchemesDir := config.GetDBSchemesDir()
+
+	db, err := database.ConnectDB(dbDriver, dbPath, dbFileName, dbSchemesDir)
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	go repository.DeleteExpiredSessions(db)
 
 	repos := repository.NewRepositories(db)
 
@@ -67,11 +69,9 @@ func Run(configPath *string) {
 		DefaultFemaleAvatar: defaultFemaleAvatar,
 	})
 
-	go services.Users.DeleteExpiredSessions()
-
 	router := gorouter.NewRouter()
 
-	handler := handler.NewHandler(services.Users, services.Categories, services.Posts, services.Comments, tokenManager)
+	handler := handler.NewHandler(services.Users, services.Moderators, services.Admins, services.Categories, services.Posts, services.Comments, tokenManager)
 	handler.Init(router)
 
 	server := server.NewServer(config, router)

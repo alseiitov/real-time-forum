@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"time"
-
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
 
@@ -28,10 +26,5 @@ func (r *UsersRepo) DeleteSession(userID int, refreshToken string) error {
 	if n == 0 {
 		return ErrSessionNotFound
 	}
-	return err
-}
-
-func (r *UsersRepo) DeleteExpiredSessions() error {
-	_, err := r.db.Exec("DELETE FROM sessions WHERE expires_at < $1", time.Now())
 	return err
 }

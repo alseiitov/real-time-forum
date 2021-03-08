@@ -21,20 +21,14 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 		return
 	}
 
-	post.Comments, err = h.commentsService.GetCommentsByPostID(postID)
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
 	ctx.WriteJSON(http.StatusOK, &post)
 }
 
 type createPostInput struct {
-	Title      string `json:"title" 		validator:"required,min=2, max=64"`
-	Data       string `json:"data" 			validator:"required,min=2, max=512"`
+	Title      string `json:"title"			validator:"required,min=2, max=64"`
+	Data       string `json:"data"			validator:"required,min=2, max=512"`
 	Image      string `json:"image"`
-	Categories []int  `json:"categories" 	validator:"required,min=1"`
+	Categories []int  `json:"categories"	validator:"required,min=1"`
 }
 
 type createPostResponse struct {
@@ -94,4 +88,6 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
+
+	ctx.WriteHeader(http.StatusNoContent)
 }

@@ -18,13 +18,13 @@ type Conf struct {
 }
 
 type API struct {
-	Host string `json:"host" validator:"required"`
-	Port string `json:"port" validator:"required"`
+	Host string `json:"host"	validator:"required"`
+	Port string `json:"port"	validator:"required"`
 }
 
 type Auth struct {
-	AccessTokenTTL  int `json:"accessTokenTTL" validator:"required"`
-	RefreshTokenTTL int `json:"refreshTokenTTL" validator:"required"`
+	AccessTokenTTL  int `json:"accessTokenTTL"	validator:"required"`
+	RefreshTokenTTL int `json:"refreshTokenTTL"	validator:"required"`
 }
 
 type Client struct {
@@ -32,17 +32,17 @@ type Client struct {
 }
 
 type Database struct {
-	Driver     string `json:"driver" validator:"required"`
-	Path       string `json:"path" validator:"required"`
-	FileName   string `json:"fileName" validator:"required"`
-	ImagesDir  string `json:"imagesDir" validator:"required"`
-	SchemesDir string `json:"schemesDir" validator:"required"`
+	Driver     string `json:"driver"		validator:"required"`
+	Path       string `json:"path"			validator:"required"`
+	FileName   string `json:"fileName"		validator:"required"`
+	ImagesDir  string `json:"imagesDir"		validator:"required"`
+	SchemesDir string `json:"schemesDir"	validator:"required"`
 }
 
 type Forum struct {
-	DefaultMaleAvatar        string `json:"defaultMaleAvatar" validator:"required"`
-	DefaultFemaleAvatar      string `json:"defaultFemaleAvatar" validator:"required"`
-	PostsForPage             int    `json:"postsForPage" validator:"required"`
+	DefaultMaleAvatar        string `json:"defaultMaleAvatar"	validator:"required"`
+	DefaultFemaleAvatar      string `json:"defaultFemaleAvatar"	validator:"required"`
+	PostsForPage             int    `json:"postsForPage"		validator:"required"`
 	PostsModerationIsEnabled bool   `json:"postsModerationIsEnabled"`
 }
 

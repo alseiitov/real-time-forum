@@ -9,16 +9,18 @@ import (
 )
 
 type PostsService struct {
-	repo         repository.Posts
-	imagesDir    string
-	postsForPage int
+	repo            repository.Posts
+	commentsService Comments
+	imagesDir       string
+	postsForPage    int
 }
 
-func NewPostsService(repo repository.Posts, imagesDir string, postsForPage int) *PostsService {
+func NewPostsService(repo repository.Posts, commentsService Comments, imagesDir string, postsForPage int) *PostsService {
 	return &PostsService{
-		repo:         repo,
-		imagesDir:    imagesDir,
-		postsForPage: postsForPage,
+		repo:            repo,
+		commentsService: commentsService,
+		imagesDir:       imagesDir,
+		postsForPage:    postsForPage,
 	}
 }
 
@@ -60,13 +62,17 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 		return post, err
 	}
 
-	imgBase64, err := image.ReadImage(s.imagesDir, post.Image)
+	post.Comments, err = s.commentsService.GetCommentsByPostID(postID)
 	if err != nil {
 		return post, err
 	}
 
-	post.Image = imgBase64
-	return post, nil
+	post.Image, err = image.ReadImage(s.imagesDir, post.Image)
+	if err != nil {
+		return post, err
+	}
+
+	return post, err
 }
 
 func (s *PostsService) Delete(userID, postID int) error {

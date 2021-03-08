@@ -10,13 +10,13 @@ import (
 )
 
 type usersSignUpInput struct {
-	Username  string `json:"username" 		validator:"required,username,min=2,max=64"`
-	FirstName string `json:"firstName" 		validator:"required,min=2,max=64"`
-	LastName  string `json:"lastName" 		validator:"required,min=2,max=64"`
-	Age       int    `json:"age" 			validator:"required,min=12,max=110"`
-	Gender    int    `json:"gender" 			validator:"min=1,max=2"`
-	Email     string `json:"email" 			validator:"required,email,max=64"`
-	Password  string `json:"password" 		validator:"required,password,min=7,max=64"`
+	Username  string `json:"username"		validator:"required,username,min=2,max=64"`
+	FirstName string `json:"firstName"		validator:"required,min=2,max=64"`
+	LastName  string `json:"lastName"		validator:"required,min=2,max=64"`
+	Age       int    `json:"age"			validator:"required,min=12,max=110"`
+	Gender    int    `json:"gender"			validator:"min=1,max=2"`
+	Email     string `json:"email"			validator:"required,email,max=64"`
+	Password  string `json:"password"		validator:"required,password,min=7,max=64"`
 }
 
 type usersSignUpResponse struct {
@@ -59,8 +59,8 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 }
 
 type usersSignInInput struct {
-	UsernameOrEmail string `json:"usernameOrEmail" 	validator:"required,max=64"`
-	Password        string `json:"password" 		validator:"required,password,min=7,max=64"`
+	UsernameOrEmail string `json:"usernameOrEmail"	validator:"required,max=64"`
+	Password        string `json:"password"			validator:"required,password,min=7,max=64"`
 }
 
 type tokenResponse struct {
@@ -175,7 +175,7 @@ func (h *Handler) requestModerator(ctx *gorouter.Context) {
 		return
 	}
 
-	err = h.usersService.RequestModerator(userID)
+	err = h.adminsService.CreateModeratorRequest(userID)
 	if err != nil {
 		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return

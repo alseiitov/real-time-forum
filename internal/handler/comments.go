@@ -9,8 +9,8 @@ import (
 )
 
 type createCommentInput struct {
-	PostID int    `json:"postID" 	validator:"required"`
-	Data   string `json:"data" 		validator:"required,min=2,max=128"`
+	PostID int    `json:"postID"	validator:"required"`
+	Data   string `json:"data"		validator:"required,min=2,max=128"`
 	Image  string
 }
 

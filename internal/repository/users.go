@@ -55,9 +55,3 @@ func (r *UsersRepo) GetByID(userID int) (model.User, error) {
 
 	return user, err
 }
-
-func (r *UsersRepo) CreateModeratorRequest(userID int) error {
-	_, err := r.db.Exec("INSERT INTO moderator_requests (user_id) VALUES ($1)", userID)
-
-	return err
-}
