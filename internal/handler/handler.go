@@ -78,7 +78,7 @@ func (h *Handler) Init(r *gorouter.Router) {
 	//
 	//Comments handlers
 
-	r.POST("/api/comments",
+	r.POST("/api/posts/:post_id/comments",
 		h.cors(h.identify(model.Roles.User, h.createComment)))
 
 	r.DELETE("/api/comments/:comment_id",

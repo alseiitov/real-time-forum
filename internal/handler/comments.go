@@ -9,9 +9,8 @@ import (
 )
 
 type createCommentInput struct {
-	PostID int    `json:"postID"		validator:"required"`
-	Data   string `json:"data"			validator:"required,min=2,max=128"`
-	Image  string
+	Data  string `json:"data"			validator:"required,min=2,max=128"`
+	Image string
 }
 
 type createCommentResponse struct {
@@ -22,6 +21,12 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 	var input createCommentInput
 
 	userID, err := ctx.GetIntParam("sub")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	postID, err := ctx.GetIntParam("post_id")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -39,7 +44,7 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 
 	newCommentID, err := h.commentsService.Create(service.CreateCommentInput{
 		UserID: userID,
-		PostID: input.PostID,
+		PostID: postID,
 		Data:   input.Data,
 		Image:  input.Image,
 	})
