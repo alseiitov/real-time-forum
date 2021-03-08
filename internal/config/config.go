@@ -32,17 +32,18 @@ type Client struct {
 }
 
 type Database struct {
-	Driver     string `json:"driver"		validator:"required"`
-	Path       string `json:"path"			validator:"required"`
-	FileName   string `json:"fileName"		validator:"required"`
-	ImagesDir  string `json:"imagesDir"		validator:"required"`
-	SchemesDir string `json:"schemesDir"	validator:"required"`
+	Driver     string `json:"driver"			validator:"required"`
+	Path       string `json:"path"				validator:"required"`
+	FileName   string `json:"fileName"			validator:"required"`
+	ImagesDir  string `json:"imagesDir"			validator:"required"`
+	SchemesDir string `json:"schemesDir"		validator:"required"`
 }
 
 type Forum struct {
 	DefaultMaleAvatar        string `json:"defaultMaleAvatar"	validator:"required"`
 	DefaultFemaleAvatar      string `json:"defaultFemaleAvatar"	validator:"required"`
 	PostsForPage             int    `json:"postsForPage"		validator:"required"`
+	CommentsForPage          int    `json:"commentsForPage"		validator:"required"`
 	PostsModerationIsEnabled bool   `json:"postsModerationIsEnabled"`
 }
 
@@ -118,6 +119,10 @@ func (c *Conf) GetDefaultAvatars() (string, string) {
 
 func (c *Conf) GetPostsForPage() int {
 	return c.Forum.PostsForPage
+}
+
+func (c *Conf) GetCommentsForPage() int {
+	return c.Forum.CommentsForPage
 }
 
 func minutesToDuration(m int) time.Duration {

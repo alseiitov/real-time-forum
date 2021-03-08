@@ -62,11 +62,6 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 		return post, err
 	}
 
-	post.Comments, err = s.commentsService.GetCommentsByPostID(postID)
-	if err != nil {
-		return post, err
-	}
-
 	post.Image, err = image.ReadImage(s.imagesDir, post.Image)
 	if err != nil {
 		return post, err

@@ -9,14 +9,16 @@ import (
 )
 
 type CommentsService struct {
-	repo      repository.Comments
-	imagesDir string
+	repo            repository.Comments
+	commentsForPage int
+	imagesDir       string
 }
 
-func NewCommentsService(repo repository.Comments, imagesDir string) *CommentsService {
+func NewCommentsService(repo repository.Comments, commentsForPage int, imagesDir string) *CommentsService {
 	return &CommentsService{
-		repo:      repo,
-		imagesDir: imagesDir,
+		repo:            repo,
+		commentsForPage: commentsForPage,
+		imagesDir:       imagesDir,
 	}
 }
 
@@ -49,8 +51,10 @@ func (s *CommentsService) Delete(userID, postID int) error {
 	return s.repo.Delete(userID, postID)
 }
 
-func (s *CommentsService) GetCommentsByPostID(postID int) ([]model.Comment, error) {
-	comments, err := s.repo.GetCommentsByPostID(postID)
+func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Comment, error) {
+	offset := (page - 1) * s.commentsForPage
+
+	comments, err := s.repo.GetCommentsByPostID(postID, s.commentsForPage, offset)
 	if err != nil {
 		return nil, err
 	}

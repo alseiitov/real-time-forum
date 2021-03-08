@@ -9,8 +9,8 @@ import (
 )
 
 type createCommentInput struct {
-	PostID int    `json:"postID"	validator:"required"`
-	Data   string `json:"data"		validator:"required,min=2,max=128"`
+	PostID int    `json:"postID"		validator:"required"`
+	Data   string `json:"data"			validator:"required,min=2,max=128"`
 	Image  string
 }
 
@@ -70,4 +70,26 @@ func (h *Handler) deleteComment(ctx *gorouter.Context) {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
+}
+
+func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
+	postID, err := ctx.GetIntParam("post_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	page, err := ctx.GetIntParam("page")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	comments, err := h.commentsService.GetCommentsByPostID(postID, page)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.WriteJSON(http.StatusOK, &comments)
 }

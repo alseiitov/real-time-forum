@@ -46,7 +46,7 @@ type Posts interface {
 type Comments interface {
 	Create(input CreateCommentInput) (int, error)
 	Delete(userID, postID int) error
-	GetCommentsByPostID(postID int) ([]model.Comment, error)
+	GetCommentsByPostID(postID int, page int) ([]model.Comment, error)
 }
 
 type Services struct {
@@ -68,10 +68,11 @@ type ServicesDeps struct {
 	DefaultMaleAvatar   string
 	DefaultFemaleAvatar string
 	PostsForPage        int
+	CommentsForPage     int
 }
 
 func NewServices(deps ServicesDeps) *Services {
-	commentsService := NewCommentsService(deps.Repos.Comments, deps.ImagesDir)
+	commentsService := NewCommentsService(deps.Repos.Comments, deps.CommentsForPage, deps.ImagesDir)
 	postsService := NewPostsService(deps.Repos.Posts, commentsService, deps.ImagesDir, deps.PostsForPage)
 	categoriesService := NewCategoriesService(deps.Repos.Categories, postsService)
 	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar)

@@ -54,8 +54,10 @@ func Run(configPath *string) {
 	}
 
 	imagesDir := config.GetImagesDir()
-	postsForPage := config.GetPostsForPage()
 	defaultMaleAvatar, defaultFemaleAvatar := config.GetDefaultAvatars()
+
+	postsForPage := config.GetPostsForPage()
+	commentsForPage := config.GetCommentsForPage()
 
 	services := service.NewServices(service.ServicesDeps{
 		Repos:               repos,
@@ -64,9 +66,10 @@ func Run(configPath *string) {
 		AccessTokenTTL:      accessTokenTTL,
 		RefreshTokenTTL:     refreshTokenTTL,
 		ImagesDir:           imagesDir,
-		PostsForPage:        postsForPage,
 		DefaultMaleAvatar:   defaultMaleAvatar,
 		DefaultFemaleAvatar: defaultFemaleAvatar,
+		PostsForPage:        postsForPage,
+		CommentsForPage:     commentsForPage,
 	})
 
 	router := gorouter.NewRouter()

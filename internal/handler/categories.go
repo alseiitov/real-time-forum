@@ -35,11 +35,5 @@ func (h *Handler) getCategoryPage(ctx *gorouter.Context) {
 		return
 	}
 
-	category.Posts, err = h.postsService.GetPostsByCategoryID(categoryID, page)
-	if err != nil {
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
-		return
-	}
-
 	ctx.WriteJSON(http.StatusOK, category)
 }

@@ -44,10 +44,10 @@ func (r *CommentsRepo) Delete(userID, commentID int) error {
 	return err
 }
 
-func (r *CommentsRepo) GetCommentsByPostID(postID int) ([]model.Comment, error) {
+func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([]model.Comment, error) {
 	var comments []model.Comment
 
-	rows, err := r.db.Query("SELECT * FROM comments WHERE post_id = $1", postID)
+	rows, err := r.db.Query("SELECT * FROM comments WHERE post_id = $1 LIMIT $2 OFFSET $3", postID, limit, offset)
 	if err != nil {
 		return comments, err
 	}

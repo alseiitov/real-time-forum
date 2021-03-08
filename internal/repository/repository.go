@@ -40,7 +40,7 @@ type Posts interface {
 type Comments interface {
 	Create(comment model.Comment) (int, error)
 	Delete(userID, commentID int) error
-	GetCommentsByPostID(postID int) ([]model.Comment, error)
+	GetCommentsByPostID(postID int, limit int, offset int) ([]model.Comment, error)
 }
 
 type Repositories struct {
