@@ -11,7 +11,7 @@ type User struct {
 	Gender     int       `json:"gender,omitempty"`
 	Email      string    `json:"email,omitempty"`
 	Password   string    `json:"password,omitempty"`
-	Registered time.Time `json:"registered"`
+	Registered time.Time `json:"registered,omitempty"`
 	Role       int       `json:"role,omitempty"`
 	Avatar     string    `json:"avatar,omitempty"`
 }

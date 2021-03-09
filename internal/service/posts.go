@@ -9,18 +9,20 @@ import (
 )
 
 type PostsService struct {
-	repo            repository.Posts
-	commentsService Comments
-	imagesDir       string
-	postsForPage    int
+	repo                        repository.Posts
+	commentsService             Comments
+	imagesDir                   string
+	postsForPage                int
+	postsPreModerationIsEnabled bool
 }
 
-func NewPostsService(repo repository.Posts, commentsService Comments, imagesDir string, postsForPage int) *PostsService {
+func NewPostsService(repo repository.Posts, commentsService Comments, imagesDir string, postsForPage int, postsPreModerationIsEnabled bool) *PostsService {
 	return &PostsService{
-		repo:            repo,
-		commentsService: commentsService,
-		imagesDir:       imagesDir,
-		postsForPage:    postsForPage,
+		repo:                        repo,
+		commentsService:             commentsService,
+		imagesDir:                   imagesDir,
+		postsForPage:                postsForPage,
+		postsPreModerationIsEnabled: postsPreModerationIsEnabled,
 	}
 }
 
@@ -50,6 +52,12 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 		Date:       time.Now(),
 		Image:      imageName,
 		Categories: categories,
+	}
+
+	if s.postsPreModerationIsEnabled {
+		post.Status = model.PostStatus.Pending
+	} else {
+		post.Status = model.PostStatus.Approved
 	}
 
 	id, err := s.repo.Create(post)

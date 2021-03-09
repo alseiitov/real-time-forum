@@ -20,14 +20,14 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 		return 0, err
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO posts (user_id, title, data, date, image) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := tx.Prepare("INSERT INTO posts (status, user_id, title, data, date, image) VALUES (?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		tx.Rollback()
 		return 0, err
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(&post.UserID, &post.Title, &post.Data, &post.Date, &post.Image)
+	res, err := stmt.Exec(&post.Status, &post.UserID, &post.Title, &post.Data, &post.Date, &post.Image)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
@@ -59,7 +59,7 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
 	var post model.Post
 
-	row := r.db.QueryRow("SELECT * FROM posts WHERE id = $1", postID)
+	row := r.db.QueryRow("SELECT id, user_id, title, data, date, image FROM posts WHERE id = $1", postID)
 	err := row.Scan(&post.ID, &post.UserID, &post.Title, &post.Data, &post.Date, &post.Image)
 	if err != nil {
 		return post, err

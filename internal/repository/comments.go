@@ -15,13 +15,13 @@ func NewCommentsRepo(db *sql.DB) *CommentsRepo {
 }
 
 func (r *CommentsRepo) Create(comment model.Comment) (int, error) {
-	stmt, err := r.db.Prepare("INSERT INTO comments (user_id, post_id, data, image, date) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := r.db.Prepare("INSERT INTO comments (status, user_id, post_id, data, image, date) VALUES (?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(&comment.UserID, &comment.PostID, &comment.Data, &comment.Image, &comment.Date)
+	res, err := stmt.Exec(&comment.Status, &comment.UserID, &comment.PostID, &comment.Data, &comment.Image, &comment.Date)
 	if err != nil {
 		return 0, err
 	}
@@ -47,7 +47,7 @@ func (r *CommentsRepo) Delete(userID, commentID int) error {
 func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([]model.Comment, error) {
 	var comments []model.Comment
 
-	rows, err := r.db.Query("SELECT * FROM comments WHERE post_id = $1 LIMIT $2 OFFSET $3", postID, limit, offset)
+	rows, err := r.db.Query("SELECT id, user_id, post_id, data, image, date FROM comments WHERE post_id = $1 LIMIT $2 OFFSET $3", postID, limit, offset)
 	if err != nil {
 		return comments, err
 	}

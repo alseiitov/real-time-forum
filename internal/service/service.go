@@ -59,21 +59,23 @@ type Services struct {
 }
 
 type ServicesDeps struct {
-	Repos               *repository.Repositories
-	Hasher              hash.PasswordHasher
-	TokenManager        auth.TokenManager
-	AccessTokenTTL      time.Duration
-	RefreshTokenTTL     time.Duration
-	ImagesDir           string
-	DefaultMaleAvatar   string
-	DefaultFemaleAvatar string
-	PostsForPage        int
-	CommentsForPage     int
+	Repos                          *repository.Repositories
+	Hasher                         hash.PasswordHasher
+	TokenManager                   auth.TokenManager
+	AccessTokenTTL                 time.Duration
+	RefreshTokenTTL                time.Duration
+	ImagesDir                      string
+	DefaultMaleAvatar              string
+	DefaultFemaleAvatar            string
+	PostsForPage                   int
+	CommentsForPage                int
+	PostsPreModerationIsEnabled    bool
+	CommentsPreModerationIsEnabled bool
 }
 
 func NewServices(deps ServicesDeps) *Services {
-	commentsService := NewCommentsService(deps.Repos.Comments, deps.CommentsForPage, deps.ImagesDir)
-	postsService := NewPostsService(deps.Repos.Posts, commentsService, deps.ImagesDir, deps.PostsForPage)
+	commentsService := NewCommentsService(deps.Repos.Comments, deps.CommentsForPage, deps.ImagesDir, deps.CommentsPreModerationIsEnabled)
+	postsService := NewPostsService(deps.Repos.Posts, commentsService, deps.ImagesDir, deps.PostsForPage, deps.PostsPreModerationIsEnabled)
 	categoriesService := NewCategoriesService(deps.Repos.Categories, postsService)
 	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar)
 	moderatorsService := NewModeratorsService(deps.Repos.Moderators)

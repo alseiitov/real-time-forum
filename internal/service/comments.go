@@ -9,16 +9,18 @@ import (
 )
 
 type CommentsService struct {
-	repo            repository.Comments
-	commentsForPage int
-	imagesDir       string
+	repo                           repository.Comments
+	commentsForPage                int
+	imagesDir                      string
+	commentsPreModerationIsEnabled bool
 }
 
-func NewCommentsService(repo repository.Comments, commentsForPage int, imagesDir string) *CommentsService {
+func NewCommentsService(repo repository.Comments, commentsForPage int, imagesDir string, commentsPreModerationIsEnabled bool) *CommentsService {
 	return &CommentsService{
-		repo:            repo,
-		commentsForPage: commentsForPage,
-		imagesDir:       imagesDir,
+		repo:                           repo,
+		commentsForPage:                commentsForPage,
+		imagesDir:                      imagesDir,
+		commentsPreModerationIsEnabled: commentsPreModerationIsEnabled,
 	}
 }
 
@@ -41,6 +43,12 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 		Data:   input.Data,
 		Image:  imageName,
 		Date:   time.Now(),
+	}
+
+	if s.commentsPreModerationIsEnabled {
+		comment.Status = model.CommentStatus.Pending
+	} else {
+		comment.Status = model.CommentStatus.Approved
 	}
 
 	id, err := s.repo.Create(comment)

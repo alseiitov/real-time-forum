@@ -40,11 +40,12 @@ type Database struct {
 }
 
 type Forum struct {
-	DefaultMaleAvatar        string `json:"defaultMaleAvatar"	validator:"required"`
-	DefaultFemaleAvatar      string `json:"defaultFemaleAvatar"	validator:"required"`
-	PostsForPage             int    `json:"postsForPage"		validator:"required"`
-	CommentsForPage          int    `json:"commentsForPage"		validator:"required"`
-	PostsModerationIsEnabled bool   `json:"postsModerationIsEnabled"`
+	DefaultMaleAvatar              string `json:"defaultMaleAvatar"		validator:"required"`
+	DefaultFemaleAvatar            string `json:"defaultFemaleAvatar"	validator:"required"`
+	PostsForPage                   int    `json:"postsForPage"			validator:"required"`
+	CommentsForPage                int    `json:"commentsForPage"		validator:"required"`
+	PostsPreModerationIsEnabled    bool   `json:"postsPreModerationIsEnabled"`
+	CommentsPreModerationIsEnabled bool   `json:"commentsPreModerationIsEnabled"`
 }
 
 func NewConfig(confPath string) (*Conf, error) {
@@ -69,60 +70,68 @@ func NewConfig(confPath string) (*Conf, error) {
 	return &config, nil
 }
 
-func (c *Conf) GetBackendPort() string {
+func (c *Conf) BackendPort() string {
 	return c.API.Port
 }
 
-func (c *Conf) GetBackendAdress() string {
+func (c *Conf) BackendAdress() string {
 	host := c.API.Host
-	port := c.GetBackendPort()
+	port := c.BackendPort()
 	if host == "localhost" || host == "127.0.0.1" {
 		return fmt.Sprintf("%s:%s", host, port)
 	}
 	return host
 }
 
-func (c *Conf) GetFrontendPort() string {
+func (c *Conf) FrontendPort() string {
 	return c.Client.Port
 }
 
-func (c *Conf) GetDBFileName() string {
+func (c *Conf) DBFileName() string {
 	return c.Database.FileName
 }
 
-func (c *Conf) GetDBPath() string {
+func (c *Conf) DBPath() string {
 	return c.Database.Path
 }
 
-func (c *Conf) GetDBSchemesDir() string {
+func (c *Conf) DBSchemesDir() string {
 	return c.Database.SchemesDir
 }
 
-func (c *Conf) GetImagesDir() string {
+func (c *Conf) ImagesDir() string {
 	return c.Database.ImagesDir
 }
 
-func (c *Conf) GetDBDriver() string {
+func (c *Conf) DBDriver() string {
 	return c.Database.Driver
 }
 
-func (c *Conf) GetTokenTTLs() (time.Duration, time.Duration, error) {
+func (c *Conf) TokenTTLs() (time.Duration, time.Duration, error) {
 	accessTokenTTL := minutesToDuration(c.Auth.AccessTokenTTL)
 	refreshTokenTTL := minutesToDuration(c.Auth.RefreshTokenTTL)
 
 	return accessTokenTTL, refreshTokenTTL, nil
 }
 
-func (c *Conf) GetDefaultAvatars() (string, string) {
+func (c *Conf) DefaultAvatars() (string, string) {
 	return c.Forum.DefaultMaleAvatar, c.Forum.DefaultFemaleAvatar
 }
 
-func (c *Conf) GetPostsForPage() int {
+func (c *Conf) PostsForPage() int {
 	return c.Forum.PostsForPage
 }
 
-func (c *Conf) GetCommentsForPage() int {
+func (c *Conf) CommentsForPage() int {
 	return c.Forum.CommentsForPage
+}
+
+func (c *Conf) PostsPreModerationIsEnabled() bool {
+	return c.Forum.PostsPreModerationIsEnabled
+}
+
+func (c *Conf) CommentsPreModerationIsEnabled() bool {
+	return c.Forum.CommentsPreModerationIsEnabled
 }
 
 func minutesToDuration(m int) time.Duration {

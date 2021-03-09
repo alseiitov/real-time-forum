@@ -26,6 +26,7 @@
         "defaultFemaleAvatar": "default-female-avatar.jpg",
         "postsForPage": 20,
         "commentsForPage": 5,
-        "postsModerationIsEnabled": true
+        "postsPreModerationIsEnabled": true,
+        "commentsPreModerationIsEnabled": true
     }
 }
