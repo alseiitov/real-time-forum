@@ -10,14 +10,16 @@ import (
 
 type CommentsService struct {
 	repo                           repository.Comments
+	notificationsService           Notifications
 	commentsForPage                int
 	imagesDir                      string
 	commentsPreModerationIsEnabled bool
 }
 
-func NewCommentsService(repo repository.Comments, commentsForPage int, imagesDir string, commentsPreModerationIsEnabled bool) *CommentsService {
+func NewCommentsService(repo repository.Comments, notificationsService Notifications, commentsForPage int, imagesDir string, commentsPreModerationIsEnabled bool) *CommentsService {
 	return &CommentsService{
 		repo:                           repo,
+		notificationsService:           notificationsService,
 		commentsForPage:                commentsForPage,
 		imagesDir:                      imagesDir,
 		commentsPreModerationIsEnabled: commentsPreModerationIsEnabled,
@@ -32,6 +34,7 @@ type CreateCommentInput struct {
 }
 
 func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
+	// Create comment
 	imageName, err := image.SaveAndGetName(input.Image, s.imagesDir)
 	if err != nil {
 		return 0, err
@@ -52,6 +55,21 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 	}
 
 	id, err := s.repo.Create(comment)
+	if err != nil {
+		return 0, err
+	}
+
+	// Create notification for post author
+	notification := model.Notification{
+		RecipientID:  input.UserID,
+		SenderID:     input.UserID,
+		ActivityType: model.NotificationActivities.PostCommented,
+		ObjectID:     input.PostID,
+		Date:         time.Now(),
+		Status:       model.NotificationStatus.Unread,
+	}
+
+	err = s.notificationsService.Create(notification)
 	return id, err
 }
 

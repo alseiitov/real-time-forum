@@ -43,22 +43,28 @@ type Comments interface {
 	GetCommentsByPostID(postID int, limit int, offset int) ([]model.Comment, error)
 }
 
+type Notifications interface {
+	Create(notification model.Notification) error
+}
+
 type Repositories struct {
-	Users      Users
-	Moderators Moderators
-	Admins     Admins
-	Categories Categories
-	Posts      Posts
-	Comments   Comments
+	Users         Users
+	Moderators    Moderators
+	Admins        Admins
+	Categories    Categories
+	Posts         Posts
+	Comments      Comments
+	Notifications Notifications
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
-		Users:      NewUserRepo(db),
-		Moderators: NewModeatorsRepo(db),
-		Admins:     NewAdminsRepo(db),
-		Categories: NewCategoriesRepo(db),
-		Posts:      NewPostsRepo(db),
-		Comments:   NewCommentsRepo(db),
+		Users:         NewUserRepo(db),
+		Moderators:    NewModeatorsRepo(db),
+		Admins:        NewAdminsRepo(db),
+		Categories:    NewCategoriesRepo(db),
+		Posts:         NewPostsRepo(db),
+		Comments:      NewCommentsRepo(db),
+		Notifications: NewNotificationsRepo(db),
 	}
 }

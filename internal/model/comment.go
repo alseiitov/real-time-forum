@@ -12,16 +12,14 @@ type Comment struct {
 	Date   time.Time `json:"date,omitempty"`
 }
 
-type commentStatus struct {
+var CommentStatus = struct {
 	Approved   int
 	Pending    int
 	Irrelevant int
 	Obscene    int
 	Illegal    int
 	Insulting  int
-}
-
-var CommentStatus = &commentStatus{
+}{
 	Approved:   1,
 	Pending:    2,
 	Irrelevant: 3,

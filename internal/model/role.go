@@ -1,13 +1,11 @@
 package model
 
-type roles struct {
+var Roles = struct {
 	Guest     int
 	User      int
 	Moderator int
 	Admin     int
-}
-
-var Roles = roles{
+}{
 	Guest:     1,
 	User:      2,
 	Moderator: 3,

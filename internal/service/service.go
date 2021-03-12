@@ -49,13 +49,18 @@ type Comments interface {
 	GetCommentsByPostID(postID int, page int) ([]model.Comment, error)
 }
 
+type Notifications interface {
+	Create(notification model.Notification) error
+}
+
 type Services struct {
-	Users      Users
-	Moderators Moderators
-	Admins     Admins
-	Categories Categories
-	Posts      Posts
-	Comments   Comments
+	Users         Users
+	Moderators    Moderators
+	Admins        Admins
+	Categories    Categories
+	Posts         Posts
+	Comments      Comments
+	Notifications Notifications
 }
 
 type ServicesDeps struct {
@@ -74,7 +79,8 @@ type ServicesDeps struct {
 }
 
 func NewServices(deps ServicesDeps) *Services {
-	commentsService := NewCommentsService(deps.Repos.Comments, deps.CommentsForPage, deps.ImagesDir, deps.CommentsPreModerationIsEnabled)
+	notificationsService := NewNotificationsService(deps.Repos.Notifications)
+	commentsService := NewCommentsService(deps.Repos.Comments, notificationsService, deps.CommentsForPage, deps.ImagesDir, deps.CommentsPreModerationIsEnabled)
 	postsService := NewPostsService(deps.Repos.Posts, commentsService, deps.ImagesDir, deps.PostsForPage, deps.PostsPreModerationIsEnabled)
 	categoriesService := NewCategoriesService(deps.Repos.Categories, postsService)
 	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar)
@@ -82,11 +88,12 @@ func NewServices(deps ServicesDeps) *Services {
 	adminsService := NewAdminsService(deps.Repos.Admins, usersService)
 
 	return &Services{
-		Users:      usersService,
-		Moderators: moderatorsService,
-		Admins:     adminsService,
-		Categories: categoriesService,
-		Posts:      postsService,
-		Comments:   commentsService,
+		Users:         usersService,
+		Moderators:    moderatorsService,
+		Admins:        adminsService,
+		Categories:    categoriesService,
+		Posts:         postsService,
+		Comments:      commentsService,
+		Notifications: notificationsService,
 	}
 }

@@ -14,16 +14,14 @@ type Post struct {
 	Comments   []Comment  `json:"comments,omitempty"`
 }
 
-type postStatus struct {
+var PostStatus = struct {
 	Approved   int
 	Pending    int
 	Irrelevant int
 	Obscene    int
 	Illegal    int
 	Insulting  int
-}
-
-var PostStatus = &postStatus{
+}{
 	Approved:   1,
 	Pending:    2,
 	Irrelevant: 3,
