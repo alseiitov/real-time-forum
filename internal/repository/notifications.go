@@ -24,13 +24,13 @@ func (r *NotificationsRepo) Create(n model.Notification) error {
 		return nil
 	}
 
-	stmt, err := r.db.Prepare(`INSERT INTO notifications (recipient_id, sender_id, activity_type, object_id, date, status) VALUES ($1, $2, $3, $4, $5, $6)`)
+	stmt, err := r.db.Prepare(`INSERT INTO notifications (recipient_id, sender_id, activity_type, object_id, date, message, status) VALUES ($1, $2, $3, $4, $5, $6, $7)`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(&recipientID, &n.SenderID, &n.ActivityType, &n.ObjectID, &n.Date, &n.Status)
+	_, err = stmt.Exec(&recipientID, &n.SenderID, &n.ActivityType, &n.ObjectID, &n.Date, &n.Message, &n.Status)
 	if err != nil {
 		return err
 	}
@@ -39,6 +39,10 @@ func (r *NotificationsRepo) Create(n model.Notification) error {
 }
 
 func (r *NotificationsRepo) getRecipientID(n model.Notification) (int, error) {
+	if n.RecipientID != 0 {
+		return n.RecipientID, nil
+	}
+
 	var query string
 	var id int
 

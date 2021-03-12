@@ -11,14 +11,15 @@ import (
 )
 
 type UsersService struct {
-	repo                repository.Users
-	hasher              hash.PasswordHasher
-	tokenManager        auth.TokenManager
-	accessTokenTTL      time.Duration
-	refreshTokenTTL     time.Duration
-	imagesDir           string
-	defaultMaleAvatar   string
-	defaultFemaleAvatar string
+	repo                 repository.Users
+	notificationsService Notifications
+	hasher               hash.PasswordHasher
+	tokenManager         auth.TokenManager
+	accessTokenTTL       time.Duration
+	refreshTokenTTL      time.Duration
+	imagesDir            string
+	defaultMaleAvatar    string
+	defaultFemaleAvatar  string
 }
 
 func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager, accessTokenTTL time.Duration, refreshTokenTTL time.Duration, imagesDir, defaultMaleAvatar, defaultFemaleAvatar string) *UsersService {
@@ -114,4 +115,8 @@ func (s *UsersService) GetByID(userID int) (model.User, error) {
 	user.Avatar = avatarBase64
 
 	return user, nil
+}
+
+func (s *UsersService) CreateModeratorRequest(userID int) error {
+	return s.repo.CreateModeratorRequest(userID)
 }

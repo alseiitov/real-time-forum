@@ -15,18 +15,17 @@ type Users interface {
 	GetByID(userID int) (model.User, error)
 
 	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
+
+	CreateModeratorRequest(userID int) error
 }
 
 type Moderators interface {
 }
 
 type Admins interface {
-	CreateModeratorRequest(userID int) error
-	DeleteModeratorRequest(userID int) error
-	GetModeratorRequesters() ([]model.User, error)
-
-	AcceptRequestForModerator(userID int) error
-	DeclineRequestForModerator(userID int) error
+	GetModeratorRequests() ([]model.ModeratorRequest, error)
+	AcceptRequestForModerator(adminID, requestID int) error
+	DeclineRequestForModerator(adminID, requestID int, message string) error
 
 	UpdateUserRole(userID int, role int) error
 }
@@ -85,7 +84,7 @@ func NewServices(deps ServicesDeps) *Services {
 	categoriesService := NewCategoriesService(deps.Repos.Categories, postsService)
 	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar)
 	moderatorsService := NewModeratorsService(deps.Repos.Moderators)
-	adminsService := NewAdminsService(deps.Repos.Admins, usersService)
+	adminsService := NewAdminsService(deps.Repos.Admins, notificationsService, usersService)
 
 	return &Services{
 		Users:         usersService,

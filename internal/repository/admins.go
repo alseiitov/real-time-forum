@@ -14,38 +14,47 @@ func NewAdminsRepo(db *sql.DB) *AdminsRepo {
 	return &AdminsRepo{db: db}
 }
 
-func (r *AdminsRepo) CreateModeratorRequest(userID int) error {
-	_, err := r.db.Exec("INSERT INTO moderator_requests (user_id) VALUES ($1)", userID)
+func (r *AdminsRepo) DeleteModeratorRequest(requestID int) error {
+	_, err := r.db.Exec("DELETE FROM moderator_requests WHERE (id = $1)", requestID)
 
 	return err
 }
 
-func (r *AdminsRepo) DeleteModeratorRequest(userID int) error {
-	_, err := r.db.Exec("DELETE FROM moderator_requests WHERE (user_id = $1)", userID)
+func (r *AdminsRepo) GetModeratorRequests() ([]model.ModeratorRequest, error) {
+	var requests []model.ModeratorRequest
 
-	return err
-}
-
-func (r *AdminsRepo) GetModeratorRequesters() ([]model.User, error) {
-	var users []model.User
-
-	rows, err := r.db.Query("SELECT id, username, first_name, last_name FROM users WHERE (id IN (SELECT user_id FROM moderator_requests))")
+	rows, err := r.db.Query("SELECT id FROM moderator_requests")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var user model.User
-		err = rows.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName)
+		var requestID int
+
+		err = rows.Scan(&requestID)
 		if err != nil {
 			return nil, err
 		}
 
-		users = append(users, user)
+		request, err := r.GetModeratorRequestByID(requestID)
+		if err != nil {
+			return nil, err
+		}
+
+		requests = append(requests, request)
 	}
 
-	return users, nil
+	return requests, nil
+}
+
+func (r *AdminsRepo) GetModeratorRequestByID(requestID int) (model.ModeratorRequest, error) {
+	var request model.ModeratorRequest
+
+	row := r.db.QueryRow("SELECT id, username, first_name, last_name FROM users WHERE (id = (SELECT user_id FROM moderator_requests WHERE id = $1))", requestID)
+	err := row.Scan(&request.User.ID, &request.User.Username, &request.User.FirstName, &request.User.LastName)
+
+	return request, err
 }
 
 func (r *AdminsRepo) UpdateUserRole(userID, role int) error {

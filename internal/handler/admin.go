@@ -7,23 +7,29 @@ import (
 )
 
 func (h *Handler) getRequestsForModerator(ctx *gorouter.Context) {
-	requesters, err := h.adminsService.GetModeratorRequesters()
+	requests, err := h.adminsService.GetModeratorRequests()
 	if err != nil {
 		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	ctx.WriteJSON(http.StatusOK, &requesters)
+	ctx.WriteJSON(http.StatusOK, &requests)
 }
 
 func (h *Handler) AcceptRequestForModerator(ctx *gorouter.Context) {
-	requesterID, err := ctx.GetIntParam("requester_id")
+	adminID, err := ctx.GetIntParam("sub")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = h.adminsService.AcceptRequestForModerator(requesterID)
+	requestID, err := ctx.GetIntParam("request_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.adminsService.AcceptRequestForModerator(adminID, requestID)
 	if err != nil {
 		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return
@@ -32,14 +38,32 @@ func (h *Handler) AcceptRequestForModerator(ctx *gorouter.Context) {
 	ctx.WriteHeader(http.StatusOK)
 }
 
+type DeclineRequestForModeratorInput struct {
+	Message string `json:"message`
+}
+
 func (h *Handler) DeclineRequestForModerator(ctx *gorouter.Context) {
-	requesterID, err := ctx.GetIntParam("requester_id")
+	var input DeclineRequestForModeratorInput
+
+	adminID, err := ctx.GetIntParam("sub")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = h.adminsService.DeclineRequestForModerator(requesterID)
+	requestID, err := ctx.GetIntParam("request_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = ctx.ReadBody(&input)
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err = h.adminsService.DeclineRequestForModerator(adminID, requestID, input.Message)
 	if err != nil {
 		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return

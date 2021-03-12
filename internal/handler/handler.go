@@ -46,7 +46,7 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.POST("/api/auth/refresh",
 		h.cors(h.usersRefreshTokens))
 
-	r.POST("/api/moderators/requesters",
+	r.POST("/api/moderators/requests",
 		h.cors(h.identify(model.Roles.User, h.requestModerator)))
 	//
 	//
@@ -87,12 +87,12 @@ func (h *Handler) Init(r *gorouter.Router) {
 	//
 	//
 	//admin handlers
-	r.GET("/api/moderators/requesters",
+	r.GET("/api/moderators/requests",
 		h.cors(h.identify(model.Roles.Admin, h.getRequestsForModerator)))
 
-	r.POST("/api/moderators/requesters/:requester_id/accept",
+	r.POST("/api/moderators/requests/:request_id/accept",
 		h.cors(h.identify(model.Roles.Admin, h.AcceptRequestForModerator)))
 
-	r.POST("/api/moderators/requesters/:requester_id/decline",
+	r.POST("/api/moderators/requests/:request_id/decline",
 		h.cors(h.identify(model.Roles.Admin, h.DeclineRequestForModerator)))
 }

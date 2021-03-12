@@ -10,18 +10,20 @@ type Users interface {
 	Create(user model.User) error
 	GetByCredentials(usernameOrEmail, password string) (model.User, error)
 	GetByID(userID int) (model.User, error)
+
 	SetSession(session model.Session) error
 	DeleteSession(userID int, refreshToken string) error
+
+	CreateModeratorRequest(userID int) error
 }
 
 type Moderators interface {
 }
 
 type Admins interface {
-	CreateModeratorRequest(userID int) error
-	DeleteModeratorRequest(userID int) error
-	GetModeratorRequesters() ([]model.User, error)
-
+	GetModeratorRequests() ([]model.ModeratorRequest, error)
+	GetModeratorRequestByID(requestID int) (model.ModeratorRequest, error)
+	DeleteModeratorRequest(requestID int) error
 	UpdateUserRole(userID, role int) error
 }
 

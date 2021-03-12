@@ -175,7 +175,7 @@ func (h *Handler) requestModerator(ctx *gorouter.Context) {
 		return
 	}
 
-	err = h.adminsService.CreateModeratorRequest(userID)
+	err = h.usersService.CreateModeratorRequest(userID)
 	if err != nil {
 		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return
