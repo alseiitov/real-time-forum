@@ -47,6 +47,7 @@ type Comments interface {
 
 type Notifications interface {
 	Create(notification model.Notification) error
+	GetNotifications(userID int) ([]model.Notification, error)
 }
 
 type Repositories struct {

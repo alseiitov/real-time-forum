@@ -49,7 +49,7 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([
 
 	rows, err := r.db.Query("SELECT id, user_id, post_id, data, image, date FROM comments WHERE post_id = $1 LIMIT $2 OFFSET $3", postID, limit, offset)
 	if err != nil {
-		return comments, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -57,7 +57,7 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([
 		var comment model.Comment
 		err = rows.Scan(&comment.ID, &comment.UserID, &comment.PostID, &comment.Data, &comment.Image, &comment.Date)
 		if err != nil {
-			return comments, err
+			return nil, err
 		}
 		comments = append(comments, comment)
 	}

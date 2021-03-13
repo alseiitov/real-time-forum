@@ -19,7 +19,7 @@ func (r *CategoriesRepo) GetAll() ([]model.Category, error) {
 
 	rows, err := r.db.Query("SELECT * FROM categories")
 	if err != nil {
-		return categories, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -27,7 +27,7 @@ func (r *CategoriesRepo) GetAll() ([]model.Category, error) {
 		var category model.Category
 		err = rows.Scan(&category.ID, &category.Name)
 		if err != nil {
-			return categories, err
+			return nil, err
 		}
 		categories = append(categories, category)
 	}

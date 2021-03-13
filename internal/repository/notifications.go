@@ -14,6 +14,27 @@ func NewNotificationsRepo(db *sql.DB) *NotificationsRepo {
 	return &NotificationsRepo{db: db}
 }
 
+func (r *NotificationsRepo) GetNotifications(userID int) ([]model.Notification, error) {
+	var notifications []model.Notification
+
+	rows, err := r.db.Query("SELECT * FROM notifications WHERE recipient_id = $1", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var notification model.Notification
+		err = rows.Scan(&notification.ID, &notification.RecipientID, &notification.SenderID, &notification.ActivityType, &notification.ObjectID, &notification.Date, &notification.Message, &notification.Status)
+		if err != nil {
+			return nil, err
+		}
+		notifications = append(notifications, notification)
+	}
+
+	return notifications, rows.Err()
+}
+
 func (r *NotificationsRepo) Create(n model.Notification) error {
 	recipientID, err := r.getRecipientID(n)
 	if err != nil {

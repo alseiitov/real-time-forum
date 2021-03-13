@@ -15,6 +15,10 @@ func NewNotificationsService(repo repository.Notifications) *NotificationsServic
 	}
 }
 
+func (s *NotificationsService) GetNotifications(userID int) ([]model.Notification, error) {
+	return s.repo.GetNotifications(userID)
+}
+
 func (s *NotificationsService) Create(notification model.Notification) error {
 	return s.repo.Create(notification)
 }

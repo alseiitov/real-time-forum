@@ -8,24 +8,26 @@ import (
 )
 
 type Handler struct {
-	usersService      service.Users
-	moderatorsService service.Moderators
-	adminsService     service.Admins
-	categoriesService service.Categories
-	postsService      service.Posts
-	commentsService   service.Comments
-	tokenManager      auth.TokenManager
+	usersService         service.Users
+	moderatorsService    service.Moderators
+	adminsService        service.Admins
+	categoriesService    service.Categories
+	postsService         service.Posts
+	commentsService      service.Comments
+	notificationsService service.Notifications
+	tokenManager         auth.TokenManager
 }
 
-func NewHandler(usersService service.Users, moderatorsService service.Moderators, adminsService service.Admins, categoriesService service.Categories, postsService service.Posts, commentsService service.Comments, tokenManager auth.TokenManager) *Handler {
+func NewHandler(usersService service.Users, moderatorsService service.Moderators, adminsService service.Admins, categoriesService service.Categories, postsService service.Posts, commentsService service.Comments, notificationsService service.Notifications, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
-		usersService:      usersService,
-		moderatorsService: moderatorsService,
-		adminsService:     adminsService,
-		categoriesService: categoriesService,
-		postsService:      postsService,
-		commentsService:   commentsService,
-		tokenManager:      tokenManager,
+		usersService:         usersService,
+		moderatorsService:    moderatorsService,
+		adminsService:        adminsService,
+		categoriesService:    categoriesService,
+		postsService:         postsService,
+		commentsService:      commentsService,
+		notificationsService: notificationsService,
+		tokenManager:         tokenManager,
 	}
 }
 
@@ -48,6 +50,9 @@ func (h *Handler) Init(r *gorouter.Router) {
 
 	r.POST("/api/moderators/requests",
 		h.cors(h.identify(model.Roles.User, h.requestModerator)))
+
+	r.GET("/api/notifications",
+		h.cors(h.identify(model.Roles.User, h.getNotifications)))
 	//
 	//
 	// Posts handlers

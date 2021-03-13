@@ -78,7 +78,7 @@ func (r *PostsRepo) getPostCategories(postID int) ([]model.Category, error) {
 
 	rows, err := r.db.Query("SELECT id, name FROM categories WHERE id IN (SELECT category_id FROM posts_categories WHERE post_id = $1)", postID)
 	if err != nil {
-		return categories, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -86,7 +86,7 @@ func (r *PostsRepo) getPostCategories(postID int) ([]model.Category, error) {
 		var category model.Category
 		err = rows.Scan(&category.ID, &category.Name)
 		if err != nil {
-			return categories, err
+			return nil, err
 		}
 		categories = append(categories, category)
 	}
@@ -113,7 +113,7 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 
 	rows, err := r.db.Query("SELECT id, user_id, title, date FROM posts WHERE (id IN (SELECT post_id from posts_categories WHERE category_id = $1 LIMIT $2 OFFSET $3))", categoryID, limit, offset)
 	if err != nil {
-		return posts, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -121,12 +121,12 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 		var post model.Post
 		err = rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Date)
 		if err != nil {
-			return posts, err
+			return nil, err
 		}
 
 		post.Categories, err = r.getPostCategories(post.ID)
 		if err != nil {
-			return posts, err
+			return nil, err
 		}
 
 		posts = append(posts, post)

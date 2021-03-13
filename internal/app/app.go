@@ -85,7 +85,7 @@ func Run(configPath *string) {
 	// Prepare router
 	router := gorouter.NewRouter()
 
-	handler := handler.NewHandler(services.Users, services.Moderators, services.Admins, services.Categories, services.Posts, services.Comments, tokenManager)
+	handler := handler.NewHandler(services.Users, services.Moderators, services.Admins, services.Categories, services.Posts, services.Comments, services.Notifications, tokenManager)
 	handler.Init(router)
 
 	// Run server

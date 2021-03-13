@@ -49,6 +49,7 @@ type Comments interface {
 }
 
 type Notifications interface {
+	GetNotifications(userID int) ([]model.Notification, error)
 	Create(notification model.Notification) error
 }
 
