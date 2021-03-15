@@ -33,9 +33,8 @@ func NewHandler(usersService service.Users, moderatorsService service.Moderators
 
 func (h *Handler) Init(r *gorouter.Router) {
 	//
-	//
 	// Users handlers
-
+	//
 	r.POST("/api/users/sign-up",
 		h.cors(h.identify(model.Roles.Guest, h.usersSignUp)))
 
@@ -53,10 +52,10 @@ func (h *Handler) Init(r *gorouter.Router) {
 
 	r.GET("/api/notifications",
 		h.cors(h.identify(model.Roles.User, h.getNotifications)))
-	//
+
 	//
 	// Posts handlers
-
+	//
 	r.GET("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.Guest, h.getPost)))
 
@@ -69,10 +68,12 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.DELETE("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.User, h.deletePost)))
 
-	//
+	// r.POST("/api/posts/:post_id/likes",
+	// 	h.cors(h.identify(model.Roles.User, h.l)))
+
 	//
 	// Categories handlers
-
+	//
 	r.GET("/api/categories",
 		h.cors(h.identify(model.Roles.Guest, h.getAllCategories)))
 
@@ -80,9 +81,8 @@ func (h *Handler) Init(r *gorouter.Router) {
 		h.cors(h.identify(model.Roles.Guest, h.getCategoryPage)))
 
 	//
+	// Comments handlers
 	//
-	//Comments handlers
-
 	r.POST("/api/posts/:post_id/comments",
 		h.cors(h.identify(model.Roles.User, h.createComment)))
 
@@ -90,14 +90,12 @@ func (h *Handler) Init(r *gorouter.Router) {
 		h.cors(h.identify(model.Roles.User, h.deleteComment)))
 
 	//
+	// Admins handlers
 	//
-	//admin handlers
 	r.GET("/api/moderators/requests",
 		h.cors(h.identify(model.Roles.Admin, h.getRequestsForModerator)))
 
-	r.POST("/api/moderators/requests/:request_id/accept",
-		h.cors(h.identify(model.Roles.Admin, h.AcceptRequestForModerator)))
+	r.POST("/api/moderators/requests/:request_id",
+		h.cors(h.identify(model.Roles.Admin, h.RequestForModeratorAction)))
 
-	r.POST("/api/moderators/requests/:request_id/decline",
-		h.cors(h.identify(model.Roles.Admin, h.DeclineRequestForModerator)))
 }

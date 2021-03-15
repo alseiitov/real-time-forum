@@ -50,6 +50,7 @@ func (r *AdminsRepo) GetModeratorRequests() ([]model.ModeratorRequest, error) {
 
 func (r *AdminsRepo) GetModeratorRequestByID(requestID int) (model.ModeratorRequest, error) {
 	var request model.ModeratorRequest
+	request.ID = requestID
 
 	row := r.db.QueryRow("SELECT id, username, first_name, last_name FROM users WHERE (id = (SELECT user_id FROM moderator_requests WHERE id = $1))", requestID)
 	err := row.Scan(&request.User.ID, &request.User.Username, &request.User.FirstName, &request.User.LastName)

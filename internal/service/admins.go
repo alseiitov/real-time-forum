@@ -87,7 +87,7 @@ func (s *AdminsService) DeclineRequestForModerator(adminID, requestID int, messa
 		return err
 	}
 
-	return s.DeleteModeratorRequest(request.ID)
+	return s.DeleteModeratorRequest(requestID)
 }
 
 func (s *AdminsService) UpdateUserRole(userID int, role int) error {
