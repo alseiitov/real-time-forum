@@ -83,11 +83,47 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 		return
 	}
 
-	err = h.postsService.Delete(userID, postID)
-	if err != nil {
+	if err = h.postsService.Delete(userID, postID); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	ctx.WriteHeader(http.StatusNoContent)
+}
+
+type likePostInput struct {
+	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+}
+
+func (h *Handler) likePost(ctx *gorouter.Context) {
+	var input likePostInput
+
+	userID, err := ctx.GetIntParam("sub")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	postID, err := ctx.GetIntParam("post_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = ctx.ReadBody(&input); err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = validator.Validate(input); err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = h.postsService.LikePost(postID, userID, input.LikeType); err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.WriteHeader(http.StatusOK)
 }

@@ -36,8 +36,7 @@ func (h *Handler) RequestForModeratorAction(ctx *gorouter.Context) {
 		return
 	}
 
-	err = ctx.ReadBody(&input)
-	if err != nil {
+	if err = ctx.ReadBody(&input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}

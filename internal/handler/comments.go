@@ -70,11 +70,12 @@ func (h *Handler) deleteComment(ctx *gorouter.Context) {
 		return
 	}
 
-	err = h.commentsService.Delete(userID, commentID)
-	if err != nil {
+	if err = h.commentsService.Delete(userID, commentID); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
+
+	ctx.WriteHeader(http.StatusNoContent)
 }
 
 func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {

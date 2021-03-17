@@ -37,6 +37,7 @@ type Posts interface {
 	GetByID(postID int) (model.Post, error)
 	Delete(userID int, postID int) error
 	GetPostsByCategoryID(categoryID int, limit int, offset int) ([]model.Post, error)
+	LikePost(like model.PostLike) error
 }
 
 type Comments interface {

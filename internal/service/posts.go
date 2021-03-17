@@ -11,15 +11,17 @@ import (
 type PostsService struct {
 	repo                        repository.Posts
 	commentsService             Comments
+	notificationsService        Notifications
 	imagesDir                   string
 	postsForPage                int
 	postsPreModerationIsEnabled bool
 }
 
-func NewPostsService(repo repository.Posts, commentsService Comments, imagesDir string, postsForPage int, postsPreModerationIsEnabled bool) *PostsService {
+func NewPostsService(repo repository.Posts, commentsService Comments, notificationsService Notifications, imagesDir string, postsForPage int, postsPreModerationIsEnabled bool) *PostsService {
 	return &PostsService{
 		repo:                        repo,
 		commentsService:             commentsService,
+		notificationsService:        notificationsService,
 		imagesDir:                   imagesDir,
 		postsForPage:                postsForPage,
 		postsPreModerationIsEnabled: postsPreModerationIsEnabled,
@@ -85,4 +87,20 @@ func (s *PostsService) Delete(userID, postID int) error {
 func (s *PostsService) GetPostsByCategoryID(categoryID int, page int) ([]model.Post, error) {
 	offset := (page - 1) * s.postsForPage
 	return s.repo.GetPostsByCategoryID(categoryID, s.postsForPage, offset)
+}
+
+func (s *PostsService) LikePost(postID, userID, likeType int) error {
+	like := model.PostLike{
+		PostID:   postID,
+		UserID:   userID,
+		LikeType: likeType,
+	}
+
+	if err := s.repo.LikePost(like); err != nil {
+		return err
+	}
+
+	// TODO: send notification to post author
+
+	return nil
 }

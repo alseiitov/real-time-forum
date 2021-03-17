@@ -68,8 +68,8 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.DELETE("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.User, h.deletePost)))
 
-	// r.POST("/api/posts/:post_id/likes",
-	// 	h.cors(h.identify(model.Roles.User, h.l)))
+	r.POST("/api/posts/:post_id/likes",
+		h.cors(h.identify(model.Roles.User, h.likePost)))
 
 	//
 	// Categories handlers

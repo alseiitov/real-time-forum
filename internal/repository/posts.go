@@ -134,3 +134,40 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 
 	return posts, nil
 }
+
+func (r *PostsRepo) LikePost(like model.PostLike) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// Get old like to comapare with new one
+	var oldLike model.PostLike
+	row := tx.QueryRow("SELECT id, post_id, user_id, type FROM posts_likes WHERE post_id = $1 AND user_id = $2", like.PostID, like.UserID)
+	err = row.Scan(&oldLike.ID, &oldLike.PostID, &oldLike.UserID, &oldLike.LikeType)
+
+	if err != nil && err != sql.ErrNoRows {
+		tx.Rollback()
+		return err
+	}
+
+	// Delete old like if user already like this post
+	if err == nil {
+		_, err := tx.Exec("DELETE FROM posts_likes WHERE id = $1", oldLike.ID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// Create new like if user didn't like this post or if type of new like and old like are not the same
+	if err == sql.ErrNoRows || like.LikeType != oldLike.LikeType {
+		_, err = tx.Exec("INSERT into posts_likes (post_id, user_id, type) VALUES ($1, $2, $3)", like.PostID, like.UserID, like.LikeType)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
