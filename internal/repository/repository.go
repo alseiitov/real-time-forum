@@ -44,6 +44,7 @@ type Comments interface {
 	Create(comment model.Comment) (int, error)
 	Delete(userID, commentID int) error
 	GetCommentsByPostID(postID int, limit int, offset int) ([]model.Comment, error)
+	LikeComment(like model.CommentLike) error
 }
 
 type Notifications interface {

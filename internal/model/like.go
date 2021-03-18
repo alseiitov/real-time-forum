@@ -8,6 +8,7 @@ type PostLike struct {
 }
 
 type CommentLike struct {
+	ID        int
 	CommentID int
 	UserID    int
 	LikeType  int

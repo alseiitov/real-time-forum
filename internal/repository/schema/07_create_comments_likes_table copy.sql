@@ -1,4 +1,5 @@
 CREATE TABLE comments_likes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   comment_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   type TEXT NOT NULL,

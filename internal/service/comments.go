@@ -95,3 +95,19 @@ func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Com
 
 	return comments, nil
 }
+
+func (s *CommentsService) LikeComment(comentID, userID, likeType int) error {
+	like := model.CommentLike{
+		CommentID: comentID,
+		UserID:    userID,
+		LikeType:  likeType,
+	}
+
+	if err := s.repo.LikeComment(like); err != nil {
+		return err
+	}
+
+	// TODO: send notification to comment author
+
+	return nil
+}

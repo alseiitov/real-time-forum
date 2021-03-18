@@ -9,8 +9,9 @@ import (
 )
 
 type createCommentInput struct {
-	Data  string `json:"data"			validator:"required,min=2,max=128"`
-	Image string
+	PostID int    `json:"postID" validator:"required,min=1"`
+	Data   string `json:"data" validator:"required,min=2,max=128"`
+	Image  string `json:"image"`
 }
 
 type createCommentResponse struct {
@@ -21,12 +22,6 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 	var input createCommentInput
 
 	userID, err := ctx.GetIntParam("sub")
-	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	postID, err := ctx.GetIntParam("post_id")
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
@@ -44,7 +39,7 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 
 	newCommentID, err := h.commentsService.Create(service.CreateCommentInput{
 		UserID: userID,
-		PostID: postID,
+		PostID: input.PostID,
 		Data:   input.Data,
 		Image:  input.Image,
 	})
@@ -78,24 +73,66 @@ func (h *Handler) deleteComment(ctx *gorouter.Context) {
 	ctx.WriteHeader(http.StatusNoContent)
 }
 
+type getCommentsOfPostInput struct {
+	PostID int `json:"postID" validator:"required,min=1"`
+	Page   int `json:"page" validator:"required,min=1"`
+}
+
 func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
-	postID, err := ctx.GetIntParam("post_id")
-	if err != nil {
+	var input getCommentsOfPostInput
+
+	if err := ctx.ReadBody(&input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	page, err := ctx.GetIntParam("page")
-	if err != nil {
+	if err := validator.Validate(input); err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
-	comments, err := h.commentsService.GetCommentsByPostID(postID, page)
+	comments, err := h.commentsService.GetCommentsByPostID(input.PostID, input.Page)
 	if err != nil {
 		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	ctx.WriteJSON(http.StatusOK, &comments)
+}
+
+type likeCommentInput struct {
+	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+}
+
+func (h *Handler) likeComment(ctx *gorouter.Context) {
+	var input likeCommentInput
+
+	userID, err := ctx.GetIntParam("sub")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	commentID, err := ctx.GetIntParam("comment_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = ctx.ReadBody(&input); err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = validator.Validate(input); err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if err = h.commentsService.LikeComment(commentID, userID, input.LikeType); err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.WriteHeader(http.StatusOK)
 }

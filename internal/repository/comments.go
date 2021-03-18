@@ -64,3 +64,40 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([
 
 	return comments, rows.Err()
 }
+
+func (r *CommentsRepo) LikeComment(like model.CommentLike) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	// Get old like to comapare with new one
+	var oldLike model.CommentLike
+	row := tx.QueryRow("SELECT id, comment_id, user_id, type FROM comments_likes WHERE comment_id = $1 AND user_id = $2", like.CommentID, like.UserID)
+	err = row.Scan(&oldLike.ID, &oldLike.CommentID, &oldLike.UserID, &oldLike.LikeType)
+
+	if err != nil && err != sql.ErrNoRows {
+		tx.Rollback()
+		return err
+	}
+
+	// Delete old like if user already like this post
+	if err == nil {
+		_, err := tx.Exec("DELETE FROM comments_likes WHERE id = $1", oldLike.ID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// Create new like if user didn't like this comment or if type of new like and old like are not the same
+	if err == sql.ErrNoRows || like.LikeType != oldLike.LikeType {
+		_, err = tx.Exec("INSERT into comments_likes (comment_id, user_id, type) VALUES ($1, $2, $3)", like.CommentID, like.UserID, like.LikeType)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
+}

@@ -59,9 +59,6 @@ func (h *Handler) Init(r *gorouter.Router) {
 	r.GET("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.Guest, h.getPost)))
 
-	r.GET("/api/posts/:post_id/comments/:page",
-		h.cors(h.identify(model.Roles.Guest, h.getCommentsOfPost)))
-
 	r.POST("/api/posts",
 		h.cors(h.identify(model.Roles.User, h.createPost)))
 
@@ -83,8 +80,14 @@ func (h *Handler) Init(r *gorouter.Router) {
 	//
 	// Comments handlers
 	//
-	r.POST("/api/posts/:post_id/comments",
+	r.GET("/api/comments",
+		h.cors(h.identify(model.Roles.Guest, h.getCommentsOfPost)))
+
+	r.POST("/api/comments",
 		h.cors(h.identify(model.Roles.User, h.createComment)))
+
+	r.POST("/api/comments/:comment_id/likes",
+		h.cors(h.identify(model.Roles.User, h.likeComment)))
 
 	r.DELETE("/api/comments/:comment_id",
 		h.cors(h.identify(model.Roles.User, h.deleteComment)))
