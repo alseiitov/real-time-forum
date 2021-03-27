@@ -7,7 +7,6 @@ import (
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
 
-	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/config"
 	"github.com/alseiitov/real-time-forum/internal/handler"
 	"github.com/alseiitov/real-time-forum/internal/repository"
@@ -82,13 +81,11 @@ func Run(configPath *string) {
 		CommentsPreModerationIsEnabled: commentsPreModerationIsEnabled,
 	})
 
-	// Prepare router
-	router := gorouter.NewRouter()
-
-	handler := handler.NewHandler(services.Users, services.Moderators, services.Admins, services.Categories, services.Posts, services.Comments, services.Notifications, tokenManager)
-	handler.Init(router)
+	// Prepare handler
+	handler := handler.NewHandler(services, tokenManager)
+	handler.Init()
 
 	// Run server
-	server := server.NewServer(config, router)
+	server := server.NewServer(config, handler.Router)
 	log.Fatalln(server.Run())
 }

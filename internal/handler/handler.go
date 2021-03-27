@@ -8,6 +8,7 @@ import (
 )
 
 type Handler struct {
+	Router               *gorouter.Router
 	usersService         service.Users
 	moderatorsService    service.Moderators
 	adminsService        service.Admins
@@ -18,23 +19,31 @@ type Handler struct {
 	tokenManager         auth.TokenManager
 }
 
-func NewHandler(usersService service.Users, moderatorsService service.Moderators, adminsService service.Admins, categoriesService service.Categories, postsService service.Posts, commentsService service.Comments, notificationsService service.Notifications, tokenManager auth.TokenManager) *Handler {
+func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Handler {
 	return &Handler{
-		usersService:         usersService,
-		moderatorsService:    moderatorsService,
-		adminsService:        adminsService,
-		categoriesService:    categoriesService,
-		postsService:         postsService,
-		commentsService:      commentsService,
-		notificationsService: notificationsService,
+		Router:               gorouter.NewRouter(),
+		usersService:         services.Users,
+		moderatorsService:    services.Moderators,
+		adminsService:        services.Admins,
+		categoriesService:    services.Categories,
+		postsService:         services.Posts,
+		commentsService:      services.Comments,
+		notificationsService: services.Notifications,
 		tokenManager:         tokenManager,
 	}
 }
 
-func (h *Handler) Init(r *gorouter.Router) {
-	//
-	// Users handlers
-	//
+func (h *Handler) Init() {
+	h.initUsersHandlers()
+	h.initPostsHandlers()
+	h.initCategoriesHandlers()
+	h.initCommentsHandlers()
+	h.initAdminsHandlers()
+}
+
+func (h *Handler) initUsersHandlers() {
+	r := h.Router
+
 	r.POST("/api/users/sign-up",
 		h.cors(h.identify(model.Roles.Guest, h.usersSignUp)))
 
@@ -52,10 +61,11 @@ func (h *Handler) Init(r *gorouter.Router) {
 
 	r.GET("/api/notifications",
 		h.cors(h.identify(model.Roles.User, h.getNotifications)))
+}
 
-	//
-	// Posts handlers
-	//
+func (h *Handler) initPostsHandlers() {
+	r := h.Router
+
 	r.GET("/api/posts/:post_id",
 		h.cors(h.identify(model.Roles.Guest, h.getPost)))
 
@@ -67,19 +77,21 @@ func (h *Handler) Init(r *gorouter.Router) {
 
 	r.POST("/api/posts/:post_id/likes",
 		h.cors(h.identify(model.Roles.User, h.likePost)))
+}
 
-	//
-	// Categories handlers
-	//
+func (h *Handler) initCategoriesHandlers() {
+	r := h.Router
+
 	r.GET("/api/categories",
 		h.cors(h.identify(model.Roles.Guest, h.getAllCategories)))
 
 	r.GET("/api/categories/:category_id/:page",
 		h.cors(h.identify(model.Roles.Guest, h.getCategoryPage)))
+}
 
-	//
-	// Comments handlers
-	//
+func (h *Handler) initCommentsHandlers() {
+	r := h.Router
+
 	r.GET("/api/comments",
 		h.cors(h.identify(model.Roles.Guest, h.getCommentsOfPost)))
 
@@ -91,14 +103,14 @@ func (h *Handler) Init(r *gorouter.Router) {
 
 	r.DELETE("/api/comments/:comment_id",
 		h.cors(h.identify(model.Roles.User, h.deleteComment)))
+}
 
-	//
-	// Admins handlers
-	//
+func (h *Handler) initAdminsHandlers() {
+	r := h.Router
+
 	r.GET("/api/moderators/requests",
 		h.cors(h.identify(model.Roles.Admin, h.getRequestsForModerator)))
 
 	r.POST("/api/moderators/requests/:request_id",
 		h.cors(h.identify(model.Roles.Admin, h.RequestForModeratorAction)))
-
 }
