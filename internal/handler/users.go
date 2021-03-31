@@ -10,18 +10,29 @@ import (
 )
 
 type usersSignUpInput struct {
-	Username  string `json:"username"		validator:"required,username,min=2,max=64"`
-	FirstName string `json:"firstName"		validator:"required,min=2,max=64"`
-	LastName  string `json:"lastName"		validator:"required,min=2,max=64"`
-	Age       int    `json:"age"			validator:"required,min=12,max=110"`
-	Gender    int    `json:"gender"			validator:"min=1,max=2"`
-	Email     string `json:"email"			validator:"required,email,max=64"`
-	Password  string `json:"password"		validator:"required,password,min=7,max=64"`
+	Username  string `json:"username" validator:"required,username,min=2,max=64"`
+	FirstName string `json:"firstName" validator:"required,min=2,max=64"`
+	LastName  string `json:"lastName" validator:"required,min=2,max=64"`
+	Age       int    `json:"age" validator:"required,min=12,max=110"`
+	Gender    int    `json:"gender" validator:"min=1,max=2"`
+	Email     string `json:"email" validator:"required,email,max=64"`
+	Password  string `json:"password" validator:"required,password,min=7,max=64"`
 }
 
 type usersSignUpResponse struct {
 	UserID int `json:"userID"`
 }
+
+// @Summary Users SignUp
+// @Tags users
+// @Description create user account
+// @ModuleID usersSignUp
+// @Accept  json
+// @Produce  json
+// @Param input body usersSignUpInput true "sign up info"
+// @Success 201
+// @Failure default {object} gorouter.Error
+// @Router /users/sign-up [post]
 
 func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 	var input usersSignUpInput
@@ -59,14 +70,25 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 }
 
 type usersSignInInput struct {
-	UsernameOrEmail string `json:"usernameOrEmail"		validator:"required,max=64"`
-	Password        string `json:"password"				validator:"required,password,min=7,max=64"`
+	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64"`
+	Password        string `json:"password" validator:"required,password,min=7,max=64"`
 }
 
 type tokenResponse struct {
 	AccessToken  string `json:"accessToken"`
 	RefreshToken string `json:"refreshToken"`
 }
+
+// @Summary Users SignIn
+// @Tags users
+// @Description sign in
+// @ModuleID usersSignIn
+// @Accept  json
+// @Produce  json
+// @Param input body usersSignInInput true "sign in info"
+// @Success 200 {object} tokenResponse
+// @Failure default {object} gorouter.Error
+// @Router /users/sign-in [post]
 
 func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 	var input usersSignInInput
@@ -128,8 +150,8 @@ func (h *Handler) updateUser(ctx *gorouter.Context) {
 }
 
 type usersRefreshTokensInput struct {
-	AccessToken  string `json:"accessToken"		validator:"required"`
-	RefreshToken string `json:"refreshToken"	validator:"required"`
+	AccessToken  string `json:"accessToken" validator:"required"`
+	RefreshToken string `json:"refreshToken" validator:"required"`
 }
 
 func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {

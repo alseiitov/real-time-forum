@@ -1,0 +1,132 @@
+basePath: /api
+definitions:
+  github.com_alseiitov_real-time-forum_internal_handler.tokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.usersSignInInput:
+    properties:
+      password:
+        type: string
+      usernameOrEmail:
+        type: string
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.usersSignUpInput:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      firstName:
+        type: string
+      gender:
+        type: integer
+      lastName:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  gorouter.Error:
+    properties:
+      error:
+        type: string
+    type: object
+  internal_handler.tokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  internal_handler.usersSignInInput:
+    properties:
+      password:
+        type: string
+      usernameOrEmail:
+        type: string
+    type: object
+  internal_handler.usersSignUpInput:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      firstName:
+        type: string
+      gender:
+        type: integer
+      lastName:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: API Server for real-time-forum project
+  title: real-time-forum API
+  version: "1.0"
+paths:
+  /users/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: sign in
+      parameters:
+      - description: sign in info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.usersSignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.tokenResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      summary: Users SignIn
+      tags:
+      - users
+  /users/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: create user account
+      parameters:
+      - description: sign up info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.usersSignUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ""
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      summary: Users SignUp
+      tags:
+      - users
+securityDefinitions:
+  UsersAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

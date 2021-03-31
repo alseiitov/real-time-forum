@@ -1,10 +1,14 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/alseiitov/gorouter"
+	_ "github.com/alseiitov/real-time-forum/docs"
 	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/service"
 	"github.com/alseiitov/real-time-forum/pkg/auth"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Handler struct {
@@ -39,6 +43,15 @@ func (h *Handler) Init() {
 	h.initCategoriesHandlers()
 	h.initCommentsHandlers()
 	h.initAdminsHandlers()
+
+	r := h.Router
+	r.GET("/swagger/*", wrapHandler(httpSwagger.Handler(httpSwagger.URL("http://localhost:8081/swagger/doc.json"))))
+}
+
+func wrapHandler(h http.Handler) gorouter.Handler {
+	return func(ctx *gorouter.Context) {
+		h.ServeHTTP(ctx.ResponseWriter, ctx.Request)
+	}
 }
 
 func (h *Handler) initUsersHandlers() {

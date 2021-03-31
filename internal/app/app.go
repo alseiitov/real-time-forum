@@ -15,6 +15,17 @@ import (
 	"github.com/alseiitov/real-time-forum/pkg/database"
 )
 
+// @title real-time-forum API
+// @version 1.0
+// @description API Server for real-time-forum project
+
+// @host localhost:8081
+// @BasePath /api
+
+// @securityDefinitions.apikey UsersAuth
+// @in header
+// @name Authorization
+
 func Run(configPath *string) {
 	// Get forum config
 	config, err := config.NewConfig(*configPath)

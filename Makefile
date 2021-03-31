@@ -29,3 +29,6 @@ endif
 	 
 lint:
 	 golangci-lint run
+
+swagger:
+	swag init --parseDependency -g internal/app/app.go 
