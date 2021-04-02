@@ -105,10 +105,10 @@ func (h *Handler) initCategoriesHandlers() {
 func (h *Handler) initCommentsHandlers() {
 	r := h.Router
 
-	r.GET("/api/comments",
+	r.GET("/api/posts/:post_id/comments/:page",
 		h.cors(h.identify(model.Roles.Guest, h.getCommentsOfPost)))
 
-	r.POST("/api/comments",
+	r.POST("/api/posts/:post_id/comments",
 		h.cors(h.identify(model.Roles.User, h.createComment)))
 
 	r.POST("/api/comments/:comment_id/likes",

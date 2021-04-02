@@ -97,6 +97,7 @@ func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Com
 }
 
 func (s *CommentsService) LikeComment(comentID, userID, likeType int) error {
+
 	like := model.CommentLike{
 		CommentID: comentID,
 		UserID:    userID,

@@ -22,7 +22,7 @@ import (
 // @host localhost:8081
 // @BasePath /api
 
-// @securityDefinitions.apikey UsersAuth
+// @securityDefinitions.apikey Auth
 // @in header
 // @name Authorization
 

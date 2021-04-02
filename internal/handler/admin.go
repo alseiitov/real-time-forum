@@ -4,7 +4,19 @@ import (
 	"net/http"
 
 	"github.com/alseiitov/gorouter"
+	_ "github.com/alseiitov/real-time-forum/internal/model"
 )
+
+// @Summary Get list of requests for moderator role
+// @Security Auth
+// @Tags admins
+// @ModuleID getRequestsForModerator
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []model.ModeratorRequest
+// @Failure 400,401,403,404,500 {object} gorouter.Error
+// @Failure default {object} gorouter.Error
+// @Router /moderators/requests [GET]
 
 func (h *Handler) getRequestsForModerator(ctx *gorouter.Context) {
 	requests, err := h.adminsService.GetModeratorRequests()
@@ -20,6 +32,19 @@ type RequestForModeratorActionInput struct {
 	Action  string `json:"action"`
 	Message string `json:"message"`
 }
+
+// @Summary Accept or decline request for moderator role
+// @Security Auth
+// @Tags admins
+// @ModuleID getRequestsForModerator
+// @Accept  json
+// @Produce  json
+// @Param request_id path int true "ID of request"
+// @Param input body RequestForModeratorActionInput true "action 'accept' to accept or 'decline' to decline""
+// @Success 200 {string} string "ok"
+// @Failure 400,401,403,404,500 {object} gorouter.Error
+// @Failure default {object} gorouter.Error
+// @Router /moderators/requests/{request_id} [POST]
 
 func (h *Handler) RequestForModeratorAction(ctx *gorouter.Context) {
 	var input RequestForModeratorActionInput
@@ -47,7 +72,7 @@ func (h *Handler) RequestForModeratorAction(ctx *gorouter.Context) {
 	case "decline":
 		err = h.adminsService.DeclineRequestForModerator(adminID, requestID, input.Message)
 	default:
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		ctx.WriteError(http.StatusBadRequest, "invalid action")
 		return
 	}
 

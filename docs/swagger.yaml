@@ -1,6 +1,60 @@
 basePath: /api
 definitions:
+  github.com_alseiitov_real-time-forum_internal_handler.RequestForModeratorActionInput:
+    properties:
+      action:
+        type: string
+      message:
+        type: string
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.createCommentInput:
+    properties:
+      data:
+        type: string
+      image:
+        type: string
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.createCommentResponse:
+    properties:
+      commentID:
+        type: integer
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.createPostInput:
+    properties:
+      categories:
+        items:
+          type: integer
+        type: array
+      data:
+        type: string
+      image:
+        type: string
+      title:
+        type: string
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.createPostResponse:
+    properties:
+      postID:
+        type: integer
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.likeCommentInput:
+    properties:
+      likeType:
+        type: integer
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.likePostInput:
+    properties:
+      likeType:
+        type: integer
+    type: object
   github.com_alseiitov_real-time-forum_internal_handler.tokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  github.com_alseiitov_real-time-forum_internal_handler.usersRefreshTokensInput:
     properties:
       accessToken:
         type: string
@@ -36,7 +90,61 @@ definitions:
       error:
         type: string
     type: object
+  internal_handler.RequestForModeratorActionInput:
+    properties:
+      action:
+        type: string
+      message:
+        type: string
+    type: object
+  internal_handler.createCommentInput:
+    properties:
+      data:
+        type: string
+      image:
+        type: string
+    type: object
+  internal_handler.createCommentResponse:
+    properties:
+      commentID:
+        type: integer
+    type: object
+  internal_handler.createPostInput:
+    properties:
+      categories:
+        items:
+          type: integer
+        type: array
+      data:
+        type: string
+      image:
+        type: string
+      title:
+        type: string
+    type: object
+  internal_handler.createPostResponse:
+    properties:
+      postID:
+        type: integer
+    type: object
+  internal_handler.likeCommentInput:
+    properties:
+      likeType:
+        type: integer
+    type: object
+  internal_handler.likePostInput:
+    properties:
+      likeType:
+        type: integer
+    type: object
   internal_handler.tokenResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
+  internal_handler.usersRefreshTokensInput:
     properties:
       accessToken:
         type: string
@@ -67,6 +175,91 @@ definitions:
       username:
         type: string
     type: object
+  model.Category:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      posts:
+        items:
+          $ref: '#/definitions/model.Post'
+        type: array
+    type: object
+  model.Comment:
+    properties:
+      data:
+        type: string
+      date:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      postID:
+        type: integer
+      status:
+        type: integer
+      userID:
+        type: integer
+    type: object
+  model.ModeratorRequest:
+    properties:
+      id:
+        type: integer
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.Post:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/model.Category'
+        type: array
+      comments:
+        items:
+          $ref: '#/definitions/model.Comment'
+        type: array
+      data:
+        type: string
+      date:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+      userID:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      age:
+        type: integer
+      avatar:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      gender:
+        type: integer
+      id:
+        type: integer
+      lastName:
+        type: string
+      password:
+        type: string
+      registered:
+        type: string
+      role:
+        type: integer
+      username:
+        type: string
+    type: object
 host: localhost:8081
 info:
   contact: {}
@@ -74,11 +267,684 @@ info:
   title: real-time-forum API
   version: "1.0"
 paths:
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: tokens input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.usersRefreshTokensInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handler.tokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      summary: Refresh tokens
+      tags:
+      - users
+  /categories:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/model.Category'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get list of all categories
+      tags:
+      - categories
+  /categories/{category_id}/{page}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of category
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      - description: page number
+        in: path
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get list of N posts of category page
+      tags:
+      - categories
+  /comments/{comment_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of comment
+        in: path
+        name: comment_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Delete comment
+      tags:
+      - comments
+  /comments/{comment_id}/likes:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of comment
+        in: path
+        name: comment_id
+        required: true
+        type: integer
+      - description: 'like type: 1 - like, 2 - dislike'
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likeCommentInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Like of dislike comment
+      tags:
+      - comments
+  /moderators/requests:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.ModeratorRequest'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get list of requests for moderator role
+      tags:
+      - admins
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Request moderator role
+      tags:
+      - users
+  /moderators/requests/{request_id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of request
+        in: path
+        name: request_id
+        required: true
+        type: integer
+      - description: action 'accept' to accept or 'decline' to decline
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.RequestForModeratorActionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Accept or decline request for moderator role
+      tags:
+      - admins
+  /posts:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: post input data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Create post
+      tags:
+      - posts
+  /posts/{post_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of post
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Delete post
+      tags:
+      - posts
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of post
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Post'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get post by ID
+      tags:
+      - posts
+  /posts/{post_id}/comments:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of post
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - description: comment input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createCommentInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createCommentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Create comment
+      tags:
+      - comments
+  /posts/{post_id}/comments/{page}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of post
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - description: page number
+        in: path
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Comment'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get page with N comments of post
+      tags:
+      - comments
+  /posts/{post_id}/likes:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 'like type: 1 - like, 2 - dislike'
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likePostInput'
+      - description: ID of post
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Like or dislike post
+      tags:
+      - posts
+  /users/{user_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of user
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get user by ID
+      tags:
+      - users
   /users/sign-in:
     post:
       consumes:
       - application/json
-      description: sign in
       parameters:
       - description: sign in info
         in: body
@@ -93,18 +959,33 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/internal_handler.tokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
         default:
           description: ""
           schema:
             $ref: '#/definitions/gorouter.Error'
-      summary: Users SignIn
+      summary: Sign in
       tags:
       - users
   /users/sign-up:
     post:
       consumes:
       - application/json
-      description: create user account
       parameters:
       - description: sign up info
         in: body
@@ -116,16 +997,34 @@ paths:
       - application/json
       responses:
         "201":
-          description: ""
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
         default:
           description: ""
           schema:
             $ref: '#/definitions/gorouter.Error'
-      summary: Users SignUp
+      summary: Sign up
       tags:
       - users
 securityDefinitions:
-  UsersAuth:
+  Auth:
     in: header
     name: Authorization
     type: apiKey
