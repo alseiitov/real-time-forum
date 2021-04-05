@@ -10,16 +10,6 @@ import (
 	"github.com/alseiitov/validator"
 )
 
-type usersSignUpInput struct {
-	Username  string `json:"username" validator:"required,username,min=2,max=64"`
-	FirstName string `json:"firstName" validator:"required,min=2,max=64"`
-	LastName  string `json:"lastName" validator:"required,min=2,max=64"`
-	Age       int    `json:"age" validator:"required,min=12,max=110"`
-	Gender    int    `json:"gender" validator:"min=1,max=2"`
-	Email     string `json:"email" validator:"required,email,max=64"`
-	Password  string `json:"password" validator:"required,password,min=7,max=64"`
-}
-
 // @Summary Sign up
 // @Tags users
 // @ModuleID usersSignUp
@@ -30,6 +20,16 @@ type usersSignUpInput struct {
 // @Failure 400,404,409,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /users/sign-up [post]
+
+type usersSignUpInput struct {
+	Username  string `json:"username" validator:"required,username,min=2,max=64"`
+	FirstName string `json:"firstName" validator:"required,min=2,max=64"`
+	LastName  string `json:"lastName" validator:"required,min=2,max=64"`
+	Age       int    `json:"age" validator:"required,min=12,max=110"`
+	Gender    int    `json:"gender" validator:"min=1,max=2"`
+	Email     string `json:"email" validator:"required,email,max=64"`
+	Password  string `json:"password" validator:"required,password,min=7,max=64"`
+}
 
 func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 	var input usersSignUpInput
@@ -57,23 +57,13 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 	if err != nil {
 		if err == service.ErrUserAlreadyExist {
 			ctx.WriteError(http.StatusConflict, err.Error())
-			return
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
 		}
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	ctx.WriteHeader(http.StatusCreated)
-}
-
-type usersSignInInput struct {
-	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64"`
-	Password        string `json:"password" validator:"required,password,min=7,max=64"`
-}
-
-type tokenResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
 }
 
 // @Summary Sign in
@@ -86,6 +76,16 @@ type tokenResponse struct {
 // @Failure 400,401,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /users/sign-in [post]
+
+type usersSignInInput struct {
+	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64"`
+	Password        string `json:"password" validator:"required,password,min=7,max=64"`
+}
+
+type tokenResponse struct {
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+}
 
 func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 	var input usersSignInInput
@@ -108,9 +108,9 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 	if err != nil {
 		if err == service.ErrUserWrongPassword {
 			ctx.WriteError(http.StatusUnauthorized, err.Error())
-			return
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
 		}
-		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -143,24 +143,15 @@ func (h *Handler) getUser(ctx *gorouter.Context) {
 
 	user, err := h.usersService.GetByID(userID)
 	if err != nil {
-		if err == service.ErrUserNotExist {
+		if err == service.ErrUserDoesNotExist {
 			ctx.WriteError(http.StatusNotFound, err.Error())
-			return
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
 		}
-		ctx.WriteError(http.StatusBadRequest, err.Error())
 		return
 	}
 
 	ctx.WriteJSON(http.StatusOK, user)
-}
-
-func (h *Handler) updateUser(ctx *gorouter.Context) {
-
-}
-
-type usersRefreshTokensInput struct {
-	AccessToken  string `json:"accessToken" validator:"required"`
-	RefreshToken string `json:"refreshToken" validator:"required"`
 }
 
 // @Summary Refresh tokens
@@ -173,6 +164,11 @@ type usersRefreshTokensInput struct {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /auth/refresh [POST]
+
+type usersRefreshTokensInput struct {
+	AccessToken  string `json:"accessToken" validator:"required"`
+	RefreshToken string `json:"refreshToken" validator:"required"`
+}
 
 func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 	var input usersRefreshTokensInput
@@ -195,10 +191,9 @@ func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 	if err != nil {
 		if err == service.ErrSessionNotFound {
 			ctx.WriteError(http.StatusUnauthorized, err.Error())
-			return
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
 		}
-
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -230,7 +225,11 @@ func (h *Handler) requestModerator(ctx *gorouter.Context) {
 
 	err = h.usersService.CreateModeratorRequest(userID)
 	if err != nil {
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
+		if err == service.ErrModeratorRequestAlreadyExist {
+			ctx.WriteError(http.StatusConflict, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 

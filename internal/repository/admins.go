@@ -16,6 +16,9 @@ func NewAdminsRepo(db *sql.DB) *AdminsRepo {
 
 func (r *AdminsRepo) DeleteModeratorRequest(requestID int) error {
 	_, err := r.db.Exec("DELETE FROM moderator_requests WHERE (id = $1)", requestID)
+	if err == sql.ErrNoRows {
+		return ErrNoRows
+	}
 
 	return err
 }
@@ -54,6 +57,9 @@ func (r *AdminsRepo) GetModeratorRequestByID(requestID int) (model.ModeratorRequ
 
 	row := r.db.QueryRow("SELECT id, username, first_name, last_name FROM users WHERE (id = (SELECT user_id FROM moderator_requests WHERE id = $1))", requestID)
 	err := row.Scan(&request.User.ID, &request.User.Username, &request.User.FirstName, &request.User.LastName)
+	if err == sql.ErrNoRows {
+		return request, ErrNoRows
+	}
 
 	return request, err
 }

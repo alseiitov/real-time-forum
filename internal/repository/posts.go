@@ -49,6 +49,9 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 		_, err = stmt.Exec(&id, &category.ID)
 		if err != nil {
 			tx.Rollback()
+			if isForeignKeyConstraintError(err) {
+				return 0, ErrForeignKeyConstraint
+			}
 			return 0, err
 		}
 	}
@@ -62,6 +65,9 @@ func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
 	row := r.db.QueryRow("SELECT id, user_id, title, data, date, image FROM posts WHERE id = $1", postID)
 	err := row.Scan(&post.ID, &post.UserID, &post.Title, &post.Data, &post.Date, &post.Image)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return post, ErrNoRows
+		}
 		return post, err
 	}
 
@@ -95,14 +101,17 @@ func (r *PostsRepo) getPostCategories(postID int) ([]model.Category, error) {
 }
 
 func (r *PostsRepo) Delete(userID, postID int) error {
-	res, err := r.db.Exec("DELETE FROM posts WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", postID, userID, model.Roles.Admin)
+	res, err := r.db.Exec("DELETE FROM posts WHERE id=$1 AND user_id=$2", postID, userID)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return ErrNoRows
+		}
 		return err
 	}
 
 	n, err := res.RowsAffected()
 	if n == 0 {
-		return ErrDeletingPost
+		return ErrNoRows
 	}
 
 	return err
@@ -165,6 +174,9 @@ func (r *PostsRepo) LikePost(like model.PostLike) error {
 		_, err = tx.Exec("INSERT into posts_likes (post_id, user_id, type) VALUES ($1, $2, $3)", like.PostID, like.UserID, like.LikeType)
 		if err != nil {
 			tx.Rollback()
+			if isForeignKeyConstraintError(err) {
+				return ErrForeignKeyConstraint
+			}
 			return err
 		}
 	}

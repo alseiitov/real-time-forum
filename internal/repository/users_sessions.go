@@ -24,7 +24,7 @@ func (r *UsersRepo) DeleteSession(userID int, refreshToken string) error {
 	}
 
 	if n == 0 {
-		return ErrSessionNotFound
+		return ErrNoRows
 	}
 	return err
 }

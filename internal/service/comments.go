@@ -56,10 +56,14 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 
 	id, err := s.repo.Create(comment)
 	if err != nil {
+		if err == repository.ErrForeignKeyConstraint {
+			return 0, ErrPostDoesntExist
+		}
 		return 0, err
 	}
 
 	// Create notification for post author
+	// TODO: fix recipientID
 	notification := model.Notification{
 		RecipientID:  input.UserID,
 		SenderID:     input.UserID,
@@ -74,7 +78,12 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 }
 
 func (s *CommentsService) Delete(userID, postID int) error {
-	return s.repo.Delete(userID, postID)
+	err := s.repo.Delete(userID, postID)
+	if err == repository.ErrNoRows {
+		return ErrDeletingComment
+	}
+
+	return err
 }
 
 func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Comment, error) {
@@ -82,6 +91,9 @@ func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Com
 
 	comments, err := s.repo.GetCommentsByPostID(postID, s.commentsForPage, offset)
 	if err != nil {
+		if err == repository.ErrNoRows {
+			return nil, ErrPostDoesntExist
+		}
 		return nil, err
 	}
 
@@ -105,6 +117,9 @@ func (s *CommentsService) LikeComment(comentID, userID, likeType int) error {
 	}
 
 	if err := s.repo.LikeComment(like); err != nil {
+		if err == repository.ErrForeignKeyConstraint {
+			return ErrCommentDoesntExist
+		}
 		return err
 	}
 

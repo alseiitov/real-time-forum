@@ -598,7 +598,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostInput"
+                            "$ref": "#/definitions/internal_handler.createPostInput"
                         }
                     }
                 ],
@@ -606,7 +606,7 @@ var doc = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostResponse"
+                            "$ref": "#/definitions/internal_handler.createPostResponse"
                         }
                     },
                     "400": {
@@ -959,7 +959,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likePostInput"
+                            "$ref": "#/definitions/internal_handler.likePostInput"
                         }
                     },
                     {

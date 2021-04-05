@@ -40,9 +40,10 @@ func (r *CategoriesRepo) GetByID(categoryID int) (model.Category, error) {
 
 	row := r.db.QueryRow("SELECT id, name FROM categories WHERE id = $1", categoryID)
 	err := row.Scan(&category.ID, &category.Name)
-	if err != nil {
-		return category, err
+
+	if isNoRowsError(err) {
+		return category, ErrNoRows
 	}
 
-	return category, nil
+	return category, err
 }

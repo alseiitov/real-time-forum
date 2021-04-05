@@ -630,14 +630,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostInput'
+          $ref: '#/definitions/internal_handler.createPostInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostResponse'
+            $ref: '#/definitions/internal_handler.createPostResponse'
         "400":
           description: Bad Request
           schema:
@@ -861,7 +861,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likePostInput'
+          $ref: '#/definitions/internal_handler.likePostInput'
       - description: ID of post
         in: path
         name: post_id

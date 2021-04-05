@@ -63,12 +63,19 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 	}
 
 	id, err := s.repo.Create(post)
+	if err == repository.ErrForeignKeyConstraint {
+		return 0, ErrCategoryDoesntExist
+	}
+
 	return id, err
 }
 
 func (s *PostsService) GetByID(postID int) (model.Post, error) {
 	post, err := s.repo.GetByID(postID)
 	if err != nil {
+		if err == repository.ErrNoRows {
+			return post, ErrPostDoesntExist
+		}
 		return post, err
 	}
 
@@ -81,7 +88,12 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 }
 
 func (s *PostsService) Delete(userID, postID int) error {
-	return s.repo.Delete(userID, postID)
+	err := s.repo.Delete(userID, postID)
+	if err == repository.ErrNoRows {
+		return ErrDeletingPost
+	}
+
+	return err
 }
 
 func (s *PostsService) GetPostsByCategoryID(categoryID int, page int) ([]model.Post, error) {
@@ -97,6 +109,9 @@ func (s *PostsService) LikePost(postID, userID, likeType int) error {
 	}
 
 	if err := s.repo.LikePost(like); err != nil {
+		if err == repository.ErrForeignKeyConstraint {
+			return ErrPostDoesntExist
+		}
 		return err
 	}
 

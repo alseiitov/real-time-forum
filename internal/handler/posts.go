@@ -30,22 +30,15 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 
 	post, err := h.postsService.GetByID(postID)
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		if err == service.ErrPostDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
 	ctx.WriteJSON(http.StatusOK, &post)
-}
-
-type createPostInput struct {
-	Title      string `json:"title" validator:"required,min=2, max=64"`
-	Data       string `json:"data" validator:"required,min=2, max=512"`
-	Image      string `json:"image"`
-	Categories []int  `json:"categories" validator:"required,min=1"`
-}
-
-type createPostResponse struct {
-	PostID int `json:"postID"`
 }
 
 // @Summary Create post
@@ -59,6 +52,17 @@ type createPostResponse struct {
 // @Failure 400,401,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts [POST]
+
+type createPostInput struct {
+	Title      string `json:"title" validator:"required,min=2, max=64"`
+	Data       string `json:"data" validator:"required,min=2, max=512"`
+	Image      string `json:"image"`
+	Categories []int  `json:"categories" validator:"required,min=1"`
+}
+
+type createPostResponse struct {
+	PostID int `json:"postID"`
+}
 
 func (h *Handler) createPost(ctx *gorouter.Context) {
 	var input createPostInput
@@ -87,7 +91,13 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 	})
 
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		if err == service.ErrCategoryDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else if err == service.ErrTooManyCategories {
+			ctx.WriteError(http.StatusBadRequest, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -121,15 +131,15 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 	}
 
 	if err = h.postsService.Delete(userID, postID); err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		if err == service.ErrDeletingPost {
+			ctx.WriteError(http.StatusBadRequest, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
 	ctx.WriteHeader(http.StatusNoContent)
-}
-
-type likePostInput struct {
-	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
 }
 
 // @Summary Like or dislike post
@@ -144,6 +154,10 @@ type likePostInput struct {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id}/likes [POST]
+
+type likePostInput struct {
+	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+}
 
 func (h *Handler) likePost(ctx *gorouter.Context) {
 	var input likePostInput
@@ -170,8 +184,13 @@ func (h *Handler) likePost(ctx *gorouter.Context) {
 		return
 	}
 
-	if err = h.postsService.LikePost(postID, userID, input.LikeType); err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+	err = h.postsService.LikePost(postID, userID, input.LikeType)
+	if err != nil {
+		if err == service.ErrPostDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 

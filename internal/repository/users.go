@@ -24,7 +24,7 @@ func (r *UsersRepo) Create(user model.User) error {
 	_, err = stmt.Exec(user.Username, user.FirstName, user.LastName, user.Age, user.Gender, user.Email, user.Password, user.Role, user.Avatar, user.Registered)
 
 	if isAlreadyExistError(err) {
-		return ErrUserAlreadyExist
+		return ErrAlreadyExist
 	}
 
 	return err
@@ -36,8 +36,8 @@ func (r *UsersRepo) GetByCredentials(usernameOrEmail, password string) (model.Us
 	row := r.db.QueryRow("SELECT id, role FROM users WHERE (username = $1 OR email = $1) AND (password = $2)", usernameOrEmail, password)
 	err := row.Scan(&user.ID, &user.Role)
 
-	if isNotExistError(err) {
-		return user, ErrUserWrongPassword
+	if isNoRowsError(err) {
+		return user, ErrNoRows
 	}
 
 	return user, err
@@ -49,8 +49,8 @@ func (r *UsersRepo) GetByID(userID int) (model.User, error) {
 	row := r.db.QueryRow("SELECT id, username, first_name, last_name, age, gender, role, avatar, registered FROM users WHERE id = $1", userID)
 	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Age, &user.Gender, &user.Role, &user.Avatar, &user.Registered)
 
-	if isNotExistError(err) {
-		return user, ErrUserNotExist
+	if isNoRowsError(err) {
+		return user, ErrNoRows
 	}
 
 	return user, err
@@ -58,6 +58,10 @@ func (r *UsersRepo) GetByID(userID int) (model.User, error) {
 
 func (r *UsersRepo) CreateModeratorRequest(userID int) error {
 	_, err := r.db.Exec("INSERT INTO moderator_requests (user_id) VALUES ($1)", userID)
+
+	if isAlreadyExistError(err) {
+		return ErrAlreadyExist
+	}
 
 	return err
 }

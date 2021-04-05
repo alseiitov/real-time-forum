@@ -72,7 +72,7 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 
 	err := s.repo.Create(user)
 
-	if err == repository.ErrUserAlreadyExist {
+	if err == repository.ErrAlreadyExist {
 		return ErrUserAlreadyExist
 	}
 
@@ -89,7 +89,7 @@ func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
 
 	user, err := s.repo.GetByCredentials(input.UsernameOrEmail, password)
 	if err != nil {
-		if err == repository.ErrUserWrongPassword {
+		if err == repository.ErrNoRows {
 			return Tokens{}, ErrUserWrongPassword
 		}
 		return Tokens{}, err
@@ -101,8 +101,8 @@ func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
 func (s *UsersService) GetByID(userID int) (model.User, error) {
 	user, err := s.repo.GetByID(userID)
 	if err != nil {
-		if err == repository.ErrUserNotExist {
-			return user, ErrUserNotExist
+		if err == repository.ErrNoRows {
+			return user, ErrUserDoesNotExist
 		}
 		return user, err
 	}
@@ -118,5 +118,10 @@ func (s *UsersService) GetByID(userID int) (model.User, error) {
 }
 
 func (s *UsersService) CreateModeratorRequest(userID int) error {
-	return s.repo.CreateModeratorRequest(userID)
+	err := s.repo.CreateModeratorRequest(userID)
+	if err == repository.ErrAlreadyExist {
+		return ErrModeratorRequestAlreadyExist
+	}
+
+	return err
 }

@@ -28,6 +28,9 @@ func (s *AdminsService) GetModeratorRequests() ([]model.ModeratorRequest, error)
 func (s *AdminsService) AcceptRequestForModerator(adminID, requestID int) error {
 	request, err := s.repo.GetModeratorRequestByID(requestID)
 	if err != nil {
+		if err == repository.ErrNoRows {
+			return ErrModeratorRequestDoesntExist
+		}
 		return err
 	}
 
@@ -36,27 +39,12 @@ func (s *AdminsService) AcceptRequestForModerator(adminID, requestID int) error 
 		return err
 	}
 
-	now := time.Now()
-
-	roleUpdatedNotification := model.Notification{
-		RecipientID:  request.User.ID,
-		SenderID:     adminID,
-		ActivityType: model.NotificationActivities.RoleUpdated,
-		Date:         now,
-		Status:       model.NotificationStatus.Unread,
-	}
-
 	requestAcceptedNotification := model.Notification{
 		RecipientID:  request.User.ID,
 		SenderID:     adminID,
 		ActivityType: model.NotificationActivities.ModeratorRequestAccepted,
-		Date:         now,
+		Date:         time.Now(),
 		Status:       model.NotificationStatus.Unread,
-	}
-
-	err = s.notificationsService.Create(roleUpdatedNotification)
-	if err != nil {
-		return err
 	}
 
 	err = s.notificationsService.Create(requestAcceptedNotification)
@@ -70,6 +58,9 @@ func (s *AdminsService) AcceptRequestForModerator(adminID, requestID int) error 
 func (s *AdminsService) DeclineRequestForModerator(adminID, requestID int, message string) error {
 	request, err := s.repo.GetModeratorRequestByID(requestID)
 	if err != nil {
+		if err == repository.ErrNoRows {
+			return ErrModeratorRequestDoesntExist
+		}
 		return err
 	}
 
@@ -91,7 +82,19 @@ func (s *AdminsService) DeclineRequestForModerator(adminID, requestID int, messa
 }
 
 func (s *AdminsService) UpdateUserRole(userID int, role int) error {
-	return s.repo.UpdateUserRole(userID, role)
+	err := s.repo.UpdateUserRole(userID, role)
+	if err != nil {
+		return err
+	}
+
+	roleUpdatedNotification := model.Notification{
+		RecipientID:  userID,
+		ActivityType: model.NotificationActivities.RoleUpdated,
+		Date:         time.Now(),
+		Status:       model.NotificationStatus.Unread,
+	}
+
+	return s.notificationsService.Create(roleUpdatedNotification)
 }
 
 func (s *AdminsService) DeleteModeratorRequest(userID int) error {

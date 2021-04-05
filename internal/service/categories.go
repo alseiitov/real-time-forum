@@ -26,6 +26,9 @@ func (s *CategoriesService) GetByID(categoryID int, page int) (model.Category, e
 
 	category, err := s.repo.GetByID(categoryID)
 	if err != nil {
+		if err == repository.ErrNoRows {
+			return category, ErrCategoryDoesntExist
+		}
 		return category, err
 	}
 

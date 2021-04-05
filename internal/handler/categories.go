@@ -5,6 +5,7 @@ import (
 
 	"github.com/alseiitov/gorouter"
 	_ "github.com/alseiitov/real-time-forum/internal/model"
+	"github.com/alseiitov/real-time-forum/internal/service"
 )
 
 // @Summary Get list of all categories
@@ -56,7 +57,11 @@ func (h *Handler) getCategoryPage(ctx *gorouter.Context) {
 
 	category, err := h.categoriesService.GetByID(categoryID, page)
 	if err != nil {
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
+		if err == service.ErrCategoryDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 

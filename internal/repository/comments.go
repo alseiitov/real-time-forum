@@ -22,7 +22,11 @@ func (r *CommentsRepo) Create(comment model.Comment) (int, error) {
 	defer stmt.Close()
 
 	res, err := stmt.Exec(&comment.Status, &comment.UserID, &comment.PostID, &comment.Data, &comment.Image, &comment.Date)
+
 	if err != nil {
+		if isForeignKeyConstraintError(err) {
+			return 0, ErrForeignKeyConstraint
+		}
 		return 0, err
 	}
 
@@ -31,14 +35,14 @@ func (r *CommentsRepo) Create(comment model.Comment) (int, error) {
 }
 
 func (r *CommentsRepo) Delete(userID, commentID int) error {
-	res, err := r.db.Exec("DELETE FROM comments WHERE (id=$1) and (user_id=$2 OR EXISTS (SELECT * FROM users WHERE id=$2 AND role=$3))", commentID, userID, model.Roles.Admin)
+	res, err := r.db.Exec("DELETE FROM comments WHERE id=$1 AND user_id=$2", commentID, userID)
 	if err != nil {
 		return err
 	}
 
 	n, err := res.RowsAffected()
 	if n == 0 {
-		return ErrDeletingComment
+		return ErrNoRows
 	}
 
 	return err
@@ -46,6 +50,12 @@ func (r *CommentsRepo) Delete(userID, commentID int) error {
 
 func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([]model.Comment, error) {
 	var comments []model.Comment
+	var postExists bool
+
+	r.db.QueryRow("SELECT EXISTS (SELECT id FROM posts WHERE id = $1)", postID).Scan(&postExists)
+	if !postExists {
+		return nil, ErrNoRows
+	}
 
 	rows, err := r.db.Query("SELECT id, user_id, post_id, data, image, date FROM comments WHERE post_id = $1 LIMIT $2 OFFSET $3", postID, limit, offset)
 	if err != nil {
@@ -95,6 +105,9 @@ func (r *CommentsRepo) LikeComment(like model.CommentLike) error {
 		_, err = tx.Exec("INSERT into comments_likes (comment_id, user_id, type) VALUES ($1, $2, $3)", like.CommentID, like.UserID, like.LikeType)
 		if err != nil {
 			tx.Rollback()
+			if isForeignKeyConstraintError(err) {
+				return ErrForeignKeyConstraint
+			}
 			return err
 		}
 	}

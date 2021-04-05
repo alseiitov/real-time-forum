@@ -23,7 +23,7 @@ func (s *UsersService) RefreshTokens(input UsersRefreshTokensInput) (Tokens, err
 
 	err := s.repo.DeleteSession(sub, input.RefreshToken)
 	if err != nil {
-		if err == repository.ErrSessionNotFound {
+		if err == repository.ErrNoRows {
 			return Tokens{}, ErrSessionNotFound
 		}
 		return Tokens{}, err

@@ -9,15 +9,6 @@ import (
 	"github.com/alseiitov/validator"
 )
 
-type createCommentInput struct {
-	Data  string `json:"data" validator:"required,min=2,max=128"`
-	Image string `json:"image"`
-}
-
-type createCommentResponse struct {
-	CommentID int `json:"commentID"`
-}
-
 // @Summary Create comment
 // @Security Auth
 // @Tags comments
@@ -30,6 +21,15 @@ type createCommentResponse struct {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id}/comments [POST]
+
+type createCommentInput struct {
+	Data  string `json:"data" validator:"required,min=2,max=128"`
+	Image string `json:"image"`
+}
+
+type createCommentResponse struct {
+	CommentID int `json:"commentID"`
+}
 
 func (h *Handler) createComment(ctx *gorouter.Context) {
 	var input createCommentInput
@@ -62,8 +62,13 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 		Data:   input.Data,
 		Image:  input.Image,
 	})
+
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		if err == service.ErrPostDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -96,8 +101,13 @@ func (h *Handler) deleteComment(ctx *gorouter.Context) {
 		return
 	}
 
-	if err = h.commentsService.Delete(userID, commentID); err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+	err = h.commentsService.Delete(userID, commentID)
+	if err != nil {
+		if err == service.ErrDeletingComment {
+			ctx.WriteError(http.StatusBadRequest, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
@@ -132,15 +142,15 @@ func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
 
 	comments, err := h.commentsService.GetCommentsByPostID(postID, page)
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		if err == service.ErrPostDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
 	ctx.WriteJSON(http.StatusOK, &comments)
-}
-
-type likeCommentInput struct {
-	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
 }
 
 // @Summary Like of dislike comment
@@ -155,6 +165,10 @@ type likeCommentInput struct {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /comments/{comment_id}/likes [POST]
+
+type likeCommentInput struct {
+	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+}
 
 func (h *Handler) likeComment(ctx *gorouter.Context) {
 	var input likeCommentInput
@@ -181,8 +195,13 @@ func (h *Handler) likeComment(ctx *gorouter.Context) {
 		return
 	}
 
-	if err = h.commentsService.LikeComment(commentID, userID, input.LikeType); err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+	err = h.commentsService.LikeComment(commentID, userID, input.LikeType)
+	if err != nil {
+		if err == service.ErrCommentDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 

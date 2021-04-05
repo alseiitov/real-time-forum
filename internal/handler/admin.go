@@ -5,6 +5,7 @@ import (
 
 	"github.com/alseiitov/gorouter"
 	_ "github.com/alseiitov/real-time-forum/internal/model"
+	"github.com/alseiitov/real-time-forum/internal/service"
 )
 
 // @Summary Get list of requests for moderator role
@@ -28,11 +29,6 @@ func (h *Handler) getRequestsForModerator(ctx *gorouter.Context) {
 	ctx.WriteJSON(http.StatusOK, &requests)
 }
 
-type RequestForModeratorActionInput struct {
-	Action  string `json:"action"`
-	Message string `json:"message"`
-}
-
 // @Summary Accept or decline request for moderator role
 // @Security Auth
 // @Tags admins
@@ -45,6 +41,11 @@ type RequestForModeratorActionInput struct {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /moderators/requests/{request_id} [POST]
+
+type RequestForModeratorActionInput struct {
+	Action  string `json:"action"`
+	Message string `json:"message"`
+}
 
 func (h *Handler) RequestForModeratorAction(ctx *gorouter.Context) {
 	var input RequestForModeratorActionInput
@@ -77,7 +78,11 @@ func (h *Handler) RequestForModeratorAction(ctx *gorouter.Context) {
 	}
 
 	if err != nil {
-		ctx.WriteError(http.StatusInternalServerError, err.Error())
+		if err == service.ErrModeratorRequestDoesntExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
