@@ -1,32 +1,24 @@
-.PHONY:
 include .env
+ENV_VARS := JWT_SIGNING_KEY=${JWT_SIGNING_KEY} PASSWORD_SALT=${PASSWORD_SALT}
+
+ifdef config-path
+	ARGS := -config-path="$(config-path)"
+endif
+
+.PHONY:
+.SILENT:
 
 build:
-	@rm -rf build
-	@mkdir build
-	@go build -o ./build/api ./cmd/api/main.go
-	@go build -o ./build/client ./cmd/client/main.go
+	rm -rf build && mkdir build
+	go build -o ./build/api ./cmd/api/main.go
+	go build -o ./build/client ./cmd/client/main.go
 
-run-api:
-ifdef config-path
-	@CGO_ENABLED=1 \
-	JWT_SIGNING_KEY=${JWT_SIGNING_KEY} \
-	PASSWORD_SALT=${PASSWORD_SALT} \
-	go run ./cmd/api/main.go -config-path="${config-path}" 
-else
-	@CGO_ENABLED=1 \
-	JWT_SIGNING_KEY=${JWT_SIGNING_KEY} \
-	PASSWORD_SALT=${PASSWORD_SALT} \
-	go run ./cmd/api/main.go
-endif
+run-api: build
+	${ENV_VARS} ./build/api ${ARGS}
 
-run-client:
-ifdef config-path
-	@go run ./cmd/client/main.go -config-path="$(config-path)"
-else
-	@go run ./cmd/client/main.go 
-endif
-	 
+run-client: build
+	${ENV_VARS} ./build/client ${ARGS}
+
 lint:
 	 golangci-lint run
 

@@ -277,14 +277,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.usersRefreshTokensInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.usersRefreshTokensInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_handler.tokenResponse'
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -450,7 +450,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likeCommentInput'
+          $ref: '#/definitions/internal_handler.likeCommentInput'
       produces:
       - application/json
       responses:
@@ -583,7 +583,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.RequestForModeratorActionInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.RequestForModeratorActionInput'
       produces:
       - application/json
       responses:
@@ -630,14 +630,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.createPostInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/internal_handler.createPostResponse'
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostResponse'
         "400":
           description: Bad Request
           schema:
@@ -761,14 +761,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createCommentInput'
+          $ref: '#/definitions/internal_handler.createCommentInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createCommentResponse'
+            $ref: '#/definitions/internal_handler.createCommentResponse'
         "400":
           description: Bad Request
           schema:
@@ -861,7 +861,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.likePostInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likePostInput'
       - description: ID of post
         in: path
         name: post_id
@@ -951,14 +951,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.usersSignInInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.usersSignInInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_handler.tokenResponse'
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -992,7 +992,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.usersSignUpInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.usersSignUpInput'
       produces:
       - application/json
       responses:
