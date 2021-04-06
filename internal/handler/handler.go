@@ -44,14 +44,9 @@ func (h *Handler) Init() {
 	h.initCommentsHandlers()
 	h.initAdminsHandlers()
 
-	r := h.Router
-	r.GET("/swagger/*", wrapHandler(httpSwagger.Handler(httpSwagger.URL("http://localhost:8081/swagger/doc.json"))))
-}
+	h.initSwaggerHandler()
+	h.initImagesFileServer()
 
-func wrapHandler(h http.Handler) gorouter.Handler {
-	return func(ctx *gorouter.Context) {
-		h.ServeHTTP(ctx.ResponseWriter, ctx.Request)
-	}
 }
 
 func (h *Handler) initUsersHandlers() {
@@ -126,4 +121,20 @@ func (h *Handler) initAdminsHandlers() {
 
 	r.POST("/api/moderators/requests/:request_id",
 		h.cors(h.identify(model.Roles.Admin, h.RequestForModeratorAction)))
+}
+
+func (h *Handler) initSwaggerHandler() {
+	r := h.Router
+
+	r.GET("/swagger/*",
+		gorouter.WrapHandler(httpSwagger.Handler(
+			httpSwagger.URL("http://localhost:8081/swagger/doc.json"))))
+}
+
+func (h *Handler) initImagesFileServer() {
+	r := h.Router
+	images := http.FileServer(http.Dir("./database/images"))
+
+	r.GET("/images/*",
+		gorouter.WrapHandler(http.StripPrefix("/images/", images)))
 }

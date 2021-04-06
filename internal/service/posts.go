@@ -37,7 +37,7 @@ type CreatePostInput struct {
 }
 
 func (s *PostsService) Create(input CreatePostInput) (int, error) {
-	imageName, err := image.SaveAndGetName(input.Image, s.imagesDir)
+	imageName, err := image.Save(input.Image, s.imagesDir)
 	if err != nil {
 		return 0, err
 	}
@@ -76,11 +76,6 @@ func (s *PostsService) GetByID(postID int) (model.Post, error) {
 		if err == repository.ErrNoRows {
 			return post, ErrPostDoesntExist
 		}
-		return post, err
-	}
-
-	post.Image, err = image.ReadImage(s.imagesDir, post.Image)
-	if err != nil {
 		return post, err
 	}
 

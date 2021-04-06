@@ -7,7 +7,6 @@ import (
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
-	"github.com/alseiitov/real-time-forum/pkg/image"
 )
 
 type UsersService struct {
@@ -106,13 +105,6 @@ func (s *UsersService) GetByID(userID int) (model.User, error) {
 		}
 		return user, err
 	}
-
-	avatarBase64, err := image.ReadImage(s.imagesDir, user.Avatar)
-	if err != nil {
-		return user, err
-	}
-
-	user.Avatar = avatarBase64
 
 	return user, nil
 }

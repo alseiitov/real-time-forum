@@ -12,6 +12,8 @@ github.com/alseiitov/gorouter v0.0.0-20210303100020-6c3f5da87789 h1:i6InU/u2/+Ct
 github.com/alseiitov/gorouter v0.0.0-20210303100020-6c3f5da87789/go.mod h1:WyzCLed9mFF2pYdG5H7Ntum0KRSF/Aoa2sgRFf60WiU=
 github.com/alseiitov/gorouter v0.0.0-20210327102115-4320a7d9fc2e h1:fBi1tTJ3RP/nPDK/Oe93C1f1Vca54UeNLC6R7czFQJ8=
 github.com/alseiitov/gorouter v0.0.0-20210327102115-4320a7d9fc2e/go.mod h1:WyzCLed9mFF2pYdG5H7Ntum0KRSF/Aoa2sgRFf60WiU=
+github.com/alseiitov/gorouter v0.0.0-20210406070104-b341ae327775 h1:jP82fNLFzXfRe1LDejmER/KOpFBeDojMYQSCkJkOzAI=
+github.com/alseiitov/gorouter v0.0.0-20210406070104-b341ae327775/go.mod h1:WyzCLed9mFF2pYdG5H7Ntum0KRSF/Aoa2sgRFf60WiU=
 github.com/alseiitov/simple-jwt v0.0.0-20210213181518-904e08f27fe8 h1:74EdZ5rwAvxwI7lVHwNgtusCh0tPIfUn+1KChmyDn5s=
 github.com/alseiitov/simple-jwt v0.0.0-20210213181518-904e08f27fe8/go.mod h1:LHJ6er+Ae4qFN4+83XY/epDBhCZFAl3/S5Tl19ccN6Y=
 github.com/alseiitov/validator v0.0.0-20210215111704-9f89d98f11f4 h1:6KJ7HRCBb7kGNCacBGMraz4qw3TUoB4QQNhH4Vp5iPo=

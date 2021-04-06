@@ -35,7 +35,7 @@ type CreateCommentInput struct {
 
 func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 	// Create comment
-	imageName, err := image.SaveAndGetName(input.Image, s.imagesDir)
+	imageName, err := image.Save(input.Image, s.imagesDir)
 	if err != nil {
 		return 0, err
 	}
@@ -95,14 +95,6 @@ func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Com
 			return nil, ErrPostDoesntExist
 		}
 		return nil, err
-	}
-
-	for i := range comments {
-		imgBase64, err := image.ReadImage(s.imagesDir, comments[i].Image)
-		if err != nil {
-			return nil, err
-		}
-		comments[i].Image = imgBase64
 	}
 
 	return comments, nil

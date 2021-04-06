@@ -65,12 +65,7 @@ func (r *AdminsRepo) GetModeratorRequestByID(requestID int) (model.ModeratorRequ
 }
 
 func (r *AdminsRepo) UpdateUserRole(userID, role int) error {
-	stmt, err := r.db.Prepare("UPDATE users SET role = ? WHERE id = ?")
-	if err != nil {
-		return err
-	}
-
-	_, err = stmt.Exec(role, userID)
+	_, err := r.db.Exec("UPDATE users SET role = ? WHERE id = ?", role, userID)
 
 	return err
 }

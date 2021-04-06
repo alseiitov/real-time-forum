@@ -3,7 +3,7 @@ module github.com/alseiitov/real-time-forum
 go 1.15
 
 require (
-	github.com/alseiitov/gorouter v0.0.0-20210327102115-4320a7d9fc2e
+	github.com/alseiitov/gorouter v0.0.0-20210406070104-b341ae327775
 	github.com/alseiitov/simple-jwt v0.0.0-20210213181518-904e08f27fe8
 	github.com/alseiitov/validator v0.0.0-20210303123905-2747bd759ac5
 	github.com/mattn/go-sqlite3 v1.14.6
