@@ -17,7 +17,7 @@ func NewNotificationsRepo(db *sql.DB) *NotificationsRepo {
 func (r *NotificationsRepo) GetNotifications(userID int) ([]model.Notification, error) {
 	var notifications []model.Notification
 
-	rows, err := r.db.Query("SELECT * FROM notifications WHERE recipient_id = $1", userID)
+	rows, err := r.db.Query(`SELECT * FROM notifications WHERE recipient_id = $1`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -25,10 +25,22 @@ func (r *NotificationsRepo) GetNotifications(userID int) ([]model.Notification, 
 
 	for rows.Next() {
 		var notification model.Notification
-		err = rows.Scan(&notification.ID, &notification.RecipientID, &notification.SenderID, &notification.ActivityType, &notification.ObjectID, &notification.Date, &notification.Message, &notification.Status)
+
+		err = rows.Scan(
+			&notification.ID,
+			&notification.RecipientID,
+			&notification.SenderID,
+			&notification.ActivityType,
+			&notification.ObjectID,
+			&notification.Date,
+			&notification.Message,
+			&notification.Status,
+		)
+
 		if err != nil {
 			return nil, err
 		}
+
 		notifications = append(notifications, notification)
 	}
 
@@ -45,13 +57,29 @@ func (r *NotificationsRepo) Create(n model.Notification) error {
 		return nil
 	}
 
-	stmt, err := r.db.Prepare(`INSERT INTO notifications (recipient_id, sender_id, activity_type, object_id, date, message, status) VALUES ($1, $2, $3, $4, $5, $6, $7)`)
+	stmt, err := r.db.Prepare(`
+		INSERT INTO 
+			notifications 
+				(recipient_id, sender_id, activity_type, object_id, date, message, status) 
+		VALUES 
+			($1, $2, $3, $4, $5, $6, $7)`,
+	)
+
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(&recipientID, &n.SenderID, &n.ActivityType, &n.ObjectID, &n.Date, &n.Message, &n.Status)
+	_, err = stmt.Exec(
+		&recipientID,
+		&n.SenderID,
+		&n.ActivityType,
+		&n.ObjectID,
+		&n.Date,
+		&n.Message,
+		&n.Status,
+	)
+
 	if err != nil {
 		return err
 	}

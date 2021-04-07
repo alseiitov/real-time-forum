@@ -15,13 +15,31 @@ func NewUserRepo(db *sql.DB) *UsersRepo {
 }
 
 func (r *UsersRepo) Create(user model.User) error {
-	stmt, err := r.db.Prepare("INSERT INTO users (username, first_name, last_name, age, gender, email, password, role, avatar, registered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+	stmt, err := r.db.Prepare(`
+		INSERT INTO 
+			users 
+				(username, first_name, last_name, age, gender, email, password, role, avatar, registered) 
+			VALUES 
+				(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+	)
+
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(user.Username, user.FirstName, user.LastName, user.Age, user.Gender, user.Email, user.Password, user.Role, user.Avatar, user.Registered)
+	_, err = stmt.Exec(
+		user.Username,
+		user.FirstName,
+		user.LastName,
+		user.Age,
+		user.Gender,
+		user.Email,
+		user.Password,
+		user.Role,
+		user.Avatar,
+		user.Registered,
+	)
 
 	if isAlreadyExistError(err) {
 		return ErrAlreadyExist
@@ -33,7 +51,19 @@ func (r *UsersRepo) Create(user model.User) error {
 func (r *UsersRepo) GetByCredentials(usernameOrEmail, password string) (model.User, error) {
 	var user model.User
 
-	row := r.db.QueryRow("SELECT id, role FROM users WHERE (username = $1 OR email = $1) AND (password = $2)", usernameOrEmail, password)
+	row := r.db.QueryRow(`
+		SELECT 
+			id, role 
+		FROM 
+			users 
+		WHERE 
+			(username = $1 OR email = $1) 
+		AND 
+			(password = $2)
+		`,
+		usernameOrEmail, password,
+	)
+
 	err := row.Scan(&user.ID, &user.Role)
 
 	if isNoRowsError(err) {
@@ -46,8 +76,27 @@ func (r *UsersRepo) GetByCredentials(usernameOrEmail, password string) (model.Us
 func (r *UsersRepo) GetByID(userID int) (model.User, error) {
 	var user model.User
 
-	row := r.db.QueryRow("SELECT id, username, first_name, last_name, age, gender, role, avatar, registered FROM users WHERE id = $1", userID)
-	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName, &user.Age, &user.Gender, &user.Role, &user.Avatar, &user.Registered)
+	row := r.db.QueryRow(`
+		SELECT 
+			id, username, first_name, last_name, age, gender, role, avatar, registered 
+		FROM 
+			users 
+		WHERE 
+			id = $1
+		`,
+		userID,
+	)
+	err := row.Scan(
+		&user.ID,
+		&user.Username,
+		&user.FirstName,
+		&user.LastName,
+		&user.Age,
+		&user.Gender,
+		&user.Role,
+		&user.Avatar,
+		&user.Registered,
+	)
 
 	if isNoRowsError(err) {
 		return user, ErrNoRows
@@ -57,7 +106,7 @@ func (r *UsersRepo) GetByID(userID int) (model.User, error) {
 }
 
 func (r *UsersRepo) CreateModeratorRequest(userID int) error {
-	_, err := r.db.Exec("INSERT INTO moderator_requests (user_id) VALUES ($1)", userID)
+	_, err := r.db.Exec(`INSERT INTO moderator_requests (user_id) VALUES ($1)`, userID)
 
 	if isAlreadyExistError(err) {
 		return ErrAlreadyExist

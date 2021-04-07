@@ -5,7 +5,13 @@ import (
 )
 
 func (r *UsersRepo) SetSession(session model.Session) error {
-	stmt, err := r.db.Prepare("INSERT INTO sessions (user_id, refresh_token, expires_at) VALUES (?, ?, ?)")
+	stmt, err := r.db.Prepare(`
+		INSERT INTO 
+			sessions (user_id, refresh_token, expires_at) 
+		VALUES 
+			(?, ?, ?)`,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -17,7 +23,21 @@ func (r *UsersRepo) SetSession(session model.Session) error {
 }
 
 func (r *UsersRepo) DeleteSession(userID int, refreshToken string) error {
-	res, err := r.db.Exec("DELETE FROM sessions WHERE user_id = $1 AND refresh_token = $2", userID, refreshToken)
+	res, err := r.db.Exec(`
+		DELETE FROM 
+			sessions 
+		WHERE 
+			user_id = $1 
+		AND 
+			refresh_token = $2
+		`,
+		userID, refreshToken,
+	)
+
+	if err != nil {
+		return err
+	}
+
 	n, err := res.RowsAffected()
 	if err != nil {
 		return err

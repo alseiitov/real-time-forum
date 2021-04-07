@@ -15,7 +15,8 @@ func NewAdminsRepo(db *sql.DB) *AdminsRepo {
 }
 
 func (r *AdminsRepo) DeleteModeratorRequest(requestID int) error {
-	_, err := r.db.Exec("DELETE FROM moderator_requests WHERE (id = $1)", requestID)
+	_, err := r.db.Exec(`
+		DELETE FROM moderator_requests WHERE (id = $1)`, requestID)
 	if err == sql.ErrNoRows {
 		return ErrNoRows
 	}
@@ -26,7 +27,7 @@ func (r *AdminsRepo) DeleteModeratorRequest(requestID int) error {
 func (r *AdminsRepo) GetModeratorRequests() ([]model.ModeratorRequest, error) {
 	var requests []model.ModeratorRequest
 
-	rows, err := r.db.Query("SELECT id FROM moderator_requests")
+	rows, err := r.db.Query(`SELECT id FROM moderator_requests`)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +56,36 @@ func (r *AdminsRepo) GetModeratorRequestByID(requestID int) (model.ModeratorRequ
 	var request model.ModeratorRequest
 	request.ID = requestID
 
-	row := r.db.QueryRow("SELECT id, username, first_name, last_name FROM users WHERE (id = (SELECT user_id FROM moderator_requests WHERE id = $1))", requestID)
-	err := row.Scan(&request.User.ID, &request.User.Username, &request.User.FirstName, &request.User.LastName)
+	row := r.db.QueryRow(`
+		SELECT
+			id,
+			username,
+			first_name,
+			last_name
+		FROM
+			users
+		WHERE
+			(
+				id = (
+					SELECT
+						user_id
+					FROM
+						moderator_requests
+					WHERE
+						id = $1
+				)
+			)
+		`,
+		requestID,
+	)
+
+	err := row.Scan(
+		&request.User.ID,
+		&request.User.Username,
+		&request.User.FirstName,
+		&request.User.LastName,
+	)
+
 	if err == sql.ErrNoRows {
 		return request, ErrNoRows
 	}

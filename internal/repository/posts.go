@@ -20,14 +20,28 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 		return 0, err
 	}
 
-	stmt, err := tx.Prepare("INSERT INTO posts (status, user_id, title, data, date, image) VALUES (?, ?, ?, ?, ?, ?)")
+	stmt, err := tx.Prepare(`
+		INSERT INTO 
+			posts (status, user_id, title, data, date, image) 
+		VALUES 
+			(?, ?, ?, ?, ?, ?)`,
+	)
+
 	if err != nil {
 		tx.Rollback()
 		return 0, err
 	}
 	defer stmt.Close()
 
-	res, err := stmt.Exec(&post.Status, &post.UserID, &post.Title, &post.Data, &post.Date, &post.Image)
+	res, err := stmt.Exec(
+		&post.Status,
+		&post.UserID,
+		&post.Title,
+		&post.Data,
+		&post.Date,
+		&post.Image,
+	)
+
 	if err != nil {
 		tx.Rollback()
 		return 0, err
@@ -40,7 +54,13 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 	}
 
 	for _, category := range post.Categories {
-		stmt, err := tx.Prepare("INSERT INTO posts_categories (post_id, category_id) VALUES (?, ?)")
+		stmt, err := tx.Prepare(`
+			INSERT INTO 
+				posts_categories (post_id, category_id) 
+			VALUES 
+				(?, ?)`,
+		)
+
 		if err != nil {
 			tx.Rollback()
 			return 0, err
@@ -62,8 +82,26 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
 	var post model.Post
 
-	row := r.db.QueryRow("SELECT id, user_id, title, data, date, image FROM posts WHERE id = $1", postID)
-	err := row.Scan(&post.ID, &post.UserID, &post.Title, &post.Data, &post.Date, &post.Image)
+	row := r.db.QueryRow(`
+		SELECT 
+			id, user_id, title, data, date, image 
+		FROM 
+			posts 
+		WHERE 
+			id = $1
+		`,
+		postID,
+	)
+
+	err := row.Scan(
+		&post.ID,
+		&post.UserID,
+		&post.Title,
+		&post.Data,
+		&post.Date,
+		&post.Image,
+	)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return post, ErrNoRows
@@ -82,7 +120,24 @@ func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
 func (r *PostsRepo) getPostCategories(postID int) ([]model.Category, error) {
 	var categories []model.Category
 
-	rows, err := r.db.Query("SELECT id, name FROM categories WHERE id IN (SELECT category_id FROM posts_categories WHERE post_id = $1)", postID)
+	rows, err := r.db.Query(`
+		SELECT 
+			id, name 
+		FROM 
+			categories 
+		WHERE 
+			id IN (
+				SELECT 
+					category_id 
+				FROM 
+					posts_categories 
+				WHERE 
+					post_id = $1
+			)
+		`,
+		postID,
+	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +156,7 @@ func (r *PostsRepo) getPostCategories(postID int) ([]model.Category, error) {
 }
 
 func (r *PostsRepo) Delete(userID, postID int) error {
-	res, err := r.db.Exec("DELETE FROM posts WHERE id=$1 AND user_id=$2", postID, userID)
+	res, err := r.db.Exec(`DELETE FROM posts WHERE id=$1 AND user_id=$2`, postID, userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ErrNoRows
@@ -120,7 +175,24 @@ func (r *PostsRepo) Delete(userID, postID int) error {
 func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) ([]model.Post, error) {
 	var posts []model.Post
 
-	rows, err := r.db.Query("SELECT id, user_id, title, date FROM posts WHERE (id IN (SELECT post_id from posts_categories WHERE category_id = $1 LIMIT $2 OFFSET $3))", categoryID, limit, offset)
+	rows, err := r.db.Query(`
+		SELECT 
+			id, user_id, title, date 
+		FROM 
+			posts 
+		WHERE (
+			id IN (
+				SELECT 
+					post_id 
+				FROM 
+					posts_categories 
+				WHERE 
+					category_id = $1 LIMIT $2 OFFSET $3
+			)
+		)`,
+		categoryID, limit, offset,
+	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +224,19 @@ func (r *PostsRepo) LikePost(like model.PostLike) error {
 
 	// Get old like to comapare with new one
 	var oldLike model.PostLike
-	row := tx.QueryRow("SELECT id, post_id, user_id, type FROM posts_likes WHERE post_id = $1 AND user_id = $2", like.PostID, like.UserID)
+	row := tx.QueryRow(`
+		SELECT 
+			id, post_id, user_id, type 
+		FROM 
+			posts_likes 
+		WHERE 
+			post_id = $1 
+		AND 
+			user_id = $2
+		`,
+		like.PostID, like.UserID,
+	)
+
 	err = row.Scan(&oldLike.ID, &oldLike.PostID, &oldLike.UserID, &oldLike.LikeType)
 
 	if err != nil && err != sql.ErrNoRows {
@@ -162,7 +246,7 @@ func (r *PostsRepo) LikePost(like model.PostLike) error {
 
 	// Delete old like if user already like this post
 	if err == nil {
-		_, err := tx.Exec("DELETE FROM posts_likes WHERE id = $1", oldLike.ID)
+		_, err := tx.Exec(`DELETE FROM posts_likes WHERE id = $1`, oldLike.ID)
 		if err != nil {
 			tx.Rollback()
 			return err
@@ -171,7 +255,15 @@ func (r *PostsRepo) LikePost(like model.PostLike) error {
 
 	// Create new like if user didn't like this post or if type of new like and old like are not the same
 	if err == sql.ErrNoRows || like.LikeType != oldLike.LikeType {
-		_, err = tx.Exec("INSERT into posts_likes (post_id, user_id, type) VALUES ($1, $2, $3)", like.PostID, like.UserID, like.LikeType)
+		_, err = tx.Exec(`
+			INSERT INTO 
+				posts_likes (post_id, user_id, type) 
+			VALUES 
+				($1, $2, $3)
+			`,
+			like.PostID, like.UserID, like.LikeType,
+		)
+
 		if err != nil {
 			tx.Rollback()
 			if isForeignKeyConstraintError(err) {
