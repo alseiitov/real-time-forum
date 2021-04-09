@@ -16,7 +16,8 @@ type CommentsService struct {
 	commentsPreModerationIsEnabled bool
 }
 
-func NewCommentsService(repo repository.Comments, notificationsService Notifications, commentsForPage int, imagesDir string, commentsPreModerationIsEnabled bool) *CommentsService {
+func NewCommentsService(repo repository.Comments, notificationsService Notifications, commentsForPage int,
+	imagesDir string, commentsPreModerationIsEnabled bool) *CommentsService {
 	return &CommentsService{
 		repo:                           repo,
 		notificationsService:           notificationsService,

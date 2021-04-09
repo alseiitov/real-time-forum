@@ -17,7 +17,8 @@ type PostsService struct {
 	postsPreModerationIsEnabled bool
 }
 
-func NewPostsService(repo repository.Posts, commentsService Comments, notificationsService Notifications, imagesDir string, postsForPage int, postsPreModerationIsEnabled bool) *PostsService {
+func NewPostsService(repo repository.Posts, commentsService Comments, notificationsService Notifications,
+	imagesDir string, postsForPage int, postsPreModerationIsEnabled bool) *PostsService {
 	return &PostsService{
 		repo:                        repo,
 		commentsService:             commentsService,

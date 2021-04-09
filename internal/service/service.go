@@ -82,10 +82,19 @@ type ServicesDeps struct {
 
 func NewServices(deps ServicesDeps) *Services {
 	notificationsService := NewNotificationsService(deps.Repos.Notifications)
-	commentsService := NewCommentsService(deps.Repos.Comments, notificationsService, deps.CommentsForPage, deps.ImagesDir, deps.CommentsPreModerationIsEnabled)
-	postsService := NewPostsService(deps.Repos.Posts, commentsService, notificationsService, deps.ImagesDir, deps.PostsForPage, deps.PostsPreModerationIsEnabled)
+	commentsService := NewCommentsService(
+		deps.Repos.Comments, notificationsService, deps.CommentsForPage,
+		deps.ImagesDir, deps.CommentsPreModerationIsEnabled,
+	)
+	postsService := NewPostsService(
+		deps.Repos.Posts, commentsService, notificationsService, deps.ImagesDir,
+		deps.PostsForPage, deps.PostsPreModerationIsEnabled,
+	)
 	categoriesService := NewCategoriesService(deps.Repos.Categories, postsService)
-	usersService := NewUsersService(deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar)
+	usersService := NewUsersService(
+		deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL,
+		deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar,
+	)
 	moderatorsService := NewModeratorsService(deps.Repos.Moderators)
 	adminsService := NewAdminsService(deps.Repos.Admins, notificationsService, usersService)
 

@@ -21,7 +21,8 @@ type UsersService struct {
 	defaultFemaleAvatar  string
 }
 
-func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager, accessTokenTTL time.Duration, refreshTokenTTL time.Duration, imagesDir, defaultMaleAvatar, defaultFemaleAvatar string) *UsersService {
+func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager, accessTokenTTL time.Duration,
+	refreshTokenTTL time.Duration, imagesDir, defaultMaleAvatar, defaultFemaleAvatar string) *UsersService {
 	return &UsersService{
 		repo:                repo,
 		hasher:              hasher,

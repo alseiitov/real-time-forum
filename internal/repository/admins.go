@@ -15,8 +15,7 @@ func NewAdminsRepo(db *sql.DB) *AdminsRepo {
 }
 
 func (r *AdminsRepo) DeleteModeratorRequest(requestID int) error {
-	_, err := r.db.Exec(`
-		DELETE FROM moderator_requests WHERE (id = $1)`, requestID)
+	_, err := r.db.Exec(`DELETE FROM moderator_requests WHERE (id = $1)`, requestID)
 	if err == sql.ErrNoRows {
 		return ErrNoRows
 	}
