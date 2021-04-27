@@ -18,7 +18,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	temp, err := template.ParseFiles("./web/public/index.html")
+	indexTemp, err := template.ParseFiles("./web/public/index.html")
+	chatTemp, err := template.ParseFiles("./web/public/chat.html")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -27,7 +28,15 @@ func main() {
 
 	http.Handle("/src/", http.StripPrefix("/src/", fileServer))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		err := temp.Execute(w, conf.BackendAdress())
+		err := indexTemp.Execute(w, conf.BackendAdress())
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
+	})
+
+	http.HandleFunc("/chat/", func(w http.ResponseWriter, r *http.Request) {
+		err := chatTemp.Execute(w, r.URL.String()[6:])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))

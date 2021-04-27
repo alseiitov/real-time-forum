@@ -43,6 +43,7 @@ func (h *Handler) Init() {
 	h.initCategoriesHandlers()
 	h.initCommentsHandlers()
 	h.initAdminsHandlers()
+	h.initChatHandlers()
 
 	h.initSwaggerHandler()
 	h.initImagesFileServer()
@@ -121,6 +122,13 @@ func (h *Handler) initAdminsHandlers() {
 
 	r.POST("/api/moderators/requests/:request_id",
 		h.cors(h.identify(model.Roles.Admin, h.RequestForModeratorAction)))
+}
+
+func (h *Handler) initChatHandlers() {
+	r := h.Router
+
+	r.GET("/ws/chat/:chat_id", h.identify(model.Roles.Guest, h.handleChatWebSocket))
+
 }
 
 func (h *Handler) initSwaggerHandler() {
