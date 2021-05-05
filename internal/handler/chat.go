@@ -58,6 +58,11 @@ type Client struct {
 	send chan []byte
 }
 
+type WSMessage struct {
+	Type    string `json:"type"`
+	Message string `json:"message"`
+}
+
 func newChat() *Chat {
 	return &Chat{
 		broadcast:  make(chan []byte),
@@ -158,21 +163,32 @@ func (c *Client) writePump() {
 }
 
 func (h *Handler) handleChatWebSocket(ctx *gorouter.Context) {
-
-	chatID, _ := ctx.GetStringParam("chat_id")
-	fmt.Println(chatID)
-	chat, ok := chats[chatID]
-	if !ok {
-		chat = newChat()
-		chats[chatID] = chat
-		go chat.run()
-	}
-
 	conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+
+	chatID, err := ctx.GetStringParam("chat_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+	fmt.Println(chatID)
+
+	userID, err := ctx.GetIntParam("sub")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+	fmt.Println(userID)
+
+	chat, ok := chats[chatID]
+	if !ok {
+		chat = newChat()
+		chats[chatID] = chat
+	}
+	go chat.run()
 
 	client := &Client{chat: chat, conn: conn, send: make(chan []byte, 256)}
 	client.chat.register <- client
