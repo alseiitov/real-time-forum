@@ -31,8 +31,7 @@
 
             if (window["WebSocket"]) {
                 // var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI2NDI3OTQ4NjIwIiwicm9sZSI6IjIiLCJzdWIiOiIxIn0._CjW9MV1wIoqUYcKwY8-QDA8SVy6VpqaWBdH0XXe7xw"
-                var token = "dasdas"
-
+                var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI2NDI4NTQ4NzQ4Iiwicm9sZSI6IjIiLCJzdWIiOiIyIn0.5cvJJm8UXWk4yohwAjLIFIJbXtfkZtOBErtmXO2cyA4"
                 conn = new WebSocket("ws://127.0.0.1:8081/ws/chat/{{.}}", token);
                 conn.onerror = function (evt) {
                     alert(evt.data)
@@ -47,6 +46,8 @@
                     var messages = evt.data.split('\n');
                     for (var i = 0; i < messages.length; i++) {
                         var item = document.createElement("div");
+                        
+                        console.log(decodeURI(JSON.parse(messages[i])))
                         item.innerText = messages[i];
                         appendLog(item);
                     }

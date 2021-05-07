@@ -50,11 +50,7 @@ func (h *Handler) identify(minRole int, next gorouter.Handler) gorouter.Handler 
 				return
 			}
 
-			err = conn.WriteJSON(WSMessage{Type: "error", Message: errMsg})
-			if err != nil {
-				log.Println(err)
-				return
-			}
+			conn.WriteJSON(WSEvent{Type: "error", Body: errMsg})
 			return
 		}
 		ctx.SetParam("sub", strconv.Itoa(sub))

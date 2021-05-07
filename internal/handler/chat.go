@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"bytes"
-	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/alseiitov/gorouter"
+	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/gorilla/websocket"
 )
 
@@ -17,55 +17,39 @@ const (
 	writeWait      = 10 * time.Second
 	pongWait       = 60 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
-	maxMessageSize = 512
-)
-
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
+	maxMessageSize = 2048
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  4096,
+	WriteBufferSize: 4096,
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
 }
 
 type Chat struct {
-
-	// Registered clients.
-	clients map[*Client]bool
-
-	// Inbound messages from the clients.
-	broadcast chan []byte
-
-	// Register requests from the clients.
-	register chan *Client
-
-	// Unregister requests from clients.
-	unregister chan *Client
+	clients    map[*Client]bool // Registered clients.
+	broadcast  chan WSEvent     // Inbound messages from the clients.
+	register   chan *Client     // Register requests from the clients.
+	unregister chan *Client     // Unregister requests from clients.
 }
 
 type Client struct {
+	id   int
 	chat *Chat
-
-	// The websocket connection.
-	conn *websocket.Conn
-
-	// Buffered channel of outbound messages.
-	send chan []byte
+	conn *websocket.Conn // The websocket connection.
+	send chan WSEvent    // Buffered channel of outbound messages.
 }
 
-type WSMessage struct {
-	Type    string `json:"type"`
-	Message string `json:"message"`
+type WSEvent struct {
+	Type string      `json:"type"`
+	Body interface{} `json:"body"`
 }
 
 func newChat() *Chat {
 	return &Chat{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan WSEvent),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -104,23 +88,29 @@ func (c *Client) readPump() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_, messageBytes, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.chat.broadcast <- message
+
+		msgText := strings.TrimSpace(strings.Replace(string(messageBytes), "\n", " ", -1))
+		if len(msgText) > 0 {
+			body := model.Message{
+				Message: msgText,
+				Date:    time.Now(),
+				UserID:  c.id,
+				Read:    false,
+			}
+
+			event := WSEvent{Type: "message", Body: body}
+			c.chat.broadcast <- event
+		}
 	}
 }
 
-// writePump pumps messages from the hub to the websocket connection.
-//
-// A goroutine running writePump is started for each connection. The
-// application ensures that there is at most one writer to a connection by
-// executing all writes from this goroutine.
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -129,7 +119,7 @@ func (c *Client) writePump() {
 	}()
 	for {
 		select {
-		case message, ok := <-c.send:
+		case event, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
@@ -137,21 +127,18 @@ func (c *Client) writePump() {
 				return
 			}
 
-			w, err := c.conn.NextWriter(websocket.TextMessage)
-			if err != nil {
+			if err := c.conn.WriteJSON(&event); err != nil {
+				log.Println(err)
 				return
 			}
-			w.Write(message)
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
-				w.Write(newline)
-				w.Write(<-c.send)
-			}
-
-			if err := w.Close(); err != nil {
-				return
+				if err := c.conn.WriteJSON(<-c.send); err != nil {
+					log.Println(err)
+					return
+				}
 			}
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
@@ -171,17 +158,15 @@ func (h *Handler) handleChatWebSocket(ctx *gorouter.Context) {
 
 	chatID, err := ctx.GetStringParam("chat_id")
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		conn.WriteJSON(WSEvent{Type: "error", Body: err.Error()})
 		return
 	}
-	fmt.Println(chatID)
 
 	userID, err := ctx.GetIntParam("sub")
 	if err != nil {
-		ctx.WriteError(http.StatusBadRequest, err.Error())
+		conn.WriteJSON(WSEvent{Type: "error", Body: err.Error()})
 		return
 	}
-	fmt.Println(userID)
 
 	chat, ok := chats[chatID]
 	if !ok {
@@ -190,9 +175,8 @@ func (h *Handler) handleChatWebSocket(ctx *gorouter.Context) {
 	}
 	go chat.run()
 
-	client := &Client{chat: chat, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{id: userID, chat: chat, conn: conn, send: make(chan WSEvent, 256)}
 	client.chat.register <- client
 	go client.writePump()
 	go client.readPump()
-
 }
