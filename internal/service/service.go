@@ -55,6 +55,9 @@ type Notifications interface {
 	Create(notification model.Notification) error
 }
 
+type Chats interface {
+}
+
 type Services struct {
 	Users         Users
 	Moderators    Moderators
@@ -63,6 +66,7 @@ type Services struct {
 	Posts         Posts
 	Comments      Comments
 	Notifications Notifications
+	Chats         Chats
 }
 
 type ServicesDeps struct {
@@ -95,6 +99,7 @@ func NewServices(deps ServicesDeps) *Services {
 		deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL,
 		deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar,
 	)
+	chatsService := NewChatsService(deps.Repos.Chats)
 	moderatorsService := NewModeratorsService(deps.Repos.Moderators)
 	adminsService := NewAdminsService(deps.Repos.Admins, notificationsService, usersService)
 
@@ -106,5 +111,6 @@ func NewServices(deps ServicesDeps) *Services {
 		Posts:         postsService,
 		Comments:      commentsService,
 		Notifications: notificationsService,
+		Chats:         chatsService,
 	}
 }

@@ -52,6 +52,9 @@ type Notifications interface {
 	GetNotifications(userID int) ([]model.Notification, error)
 }
 
+type Chats interface {
+}
+
 type Repositories struct {
 	Users         Users
 	Moderators    Moderators
@@ -60,6 +63,7 @@ type Repositories struct {
 	Posts         Posts
 	Comments      Comments
 	Notifications Notifications
+	Chats         Chats
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
@@ -71,5 +75,6 @@ func NewRepositories(db *sql.DB) *Repositories {
 		Posts:         NewPostsRepo(db),
 		Comments:      NewCommentsRepo(db),
 		Notifications: NewNotificationsRepo(db),
+		Chats:         NewChatsRepo(db),
 	}
 }

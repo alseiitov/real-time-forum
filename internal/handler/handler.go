@@ -127,7 +127,7 @@ func (h *Handler) initAdminsHandlers() {
 func (h *Handler) initChatHandlers() {
 	r := h.Router
 
-	r.GET("/ws/chat/:chat_id", h.identify(model.Roles.User, h.handleChatWebSocket))
+	r.GET("/ws", h.identify(model.Roles.User, h.handleWebSocket))
 
 }
 

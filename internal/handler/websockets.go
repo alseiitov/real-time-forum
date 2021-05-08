@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -11,7 +12,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var chats = map[string]*Chat{}
+var clients = make(map[int]*client)
 
 const (
 	writeWait      = 10 * time.Second
@@ -23,23 +24,13 @@ const (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  4096,
 	WriteBufferSize: 4096,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
+	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-type Chat struct {
-	clients    map[*Client]bool // Registered clients.
-	broadcast  chan WSEvent     // Inbound messages from the clients.
-	register   chan *Client     // Register requests from the clients.
-	unregister chan *Client     // Unregister requests from clients.
-}
-
-type Client struct {
-	id   int
-	chat *Chat
-	conn *websocket.Conn // The websocket connection.
-	send chan WSEvent    // Buffered channel of outbound messages.
+type client struct {
+	id        int
+	conn      *websocket.Conn
+	broadcast chan *WSEvent
 }
 
 type WSEvent struct {
@@ -47,42 +38,10 @@ type WSEvent struct {
 	Body interface{} `json:"body"`
 }
 
-func newChat() *Chat {
-	return &Chat{
-		broadcast:  make(chan WSEvent),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
-	}
-}
-
-func (c *Chat) run() {
-	for {
-		select {
-		case client := <-c.register:
-			c.clients[client] = true
-		case client := <-c.unregister:
-			if _, ok := c.clients[client]; ok {
-				delete(c.clients, client)
-				close(client.send)
-			}
-		case message := <-c.broadcast:
-			for client := range c.clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(c.clients, client)
-				}
-			}
-		}
-	}
-}
-
-func (c *Client) readPump() {
+func (c *client) readPump() {
 	defer func() {
-		c.chat.unregister <- c
 		c.conn.Close()
+		delete(clients, c.id)
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -105,13 +64,13 @@ func (c *Client) readPump() {
 				Read:    false,
 			}
 
-			event := WSEvent{Type: "message", Body: body}
-			c.chat.broadcast <- event
+			event := &WSEvent{Type: "message", Body: body}
+			c.broadcast <- event
 		}
 	}
 }
 
-func (c *Client) writePump() {
+func (c *client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -119,10 +78,9 @@ func (c *Client) writePump() {
 	}()
 	for {
 		select {
-		case event, ok := <-c.send:
+		case event, ok := <-c.broadcast:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				// The hub closed the channel.
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
@@ -133,9 +91,9 @@ func (c *Client) writePump() {
 			}
 
 			// Add queued chat messages to the current websocket message.
-			n := len(c.send)
+			n := len(c.broadcast)
 			for i := 0; i < n; i++ {
-				if err := c.conn.WriteJSON(<-c.send); err != nil {
+				if err := c.conn.WriteJSON(<-c.broadcast); err != nil {
 					log.Println(err)
 					return
 				}
@@ -149,16 +107,10 @@ func (c *Client) writePump() {
 	}
 }
 
-func (h *Handler) handleChatWebSocket(ctx *gorouter.Context) {
+func (h *Handler) handleWebSocket(ctx *gorouter.Context) {
 	conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
 	if err != nil {
 		log.Println(err)
-		return
-	}
-
-	chatID, err := ctx.GetStringParam("chat_id")
-	if err != nil {
-		conn.WriteJSON(WSEvent{Type: "error", Body: err.Error()})
 		return
 	}
 
@@ -168,15 +120,18 @@ func (h *Handler) handleChatWebSocket(ctx *gorouter.Context) {
 		return
 	}
 
-	chat, ok := chats[chatID]
+	c, ok := clients[userID]
 	if !ok {
-		chat = newChat()
-		chats[chatID] = chat
+		c = &client{id: userID, conn: conn, broadcast: make(chan *WSEvent, 1)}
+		clients[userID] = c
 	}
-	go chat.run()
-
-	client := &Client{id: userID, chat: chat, conn: conn, send: make(chan WSEvent, 256)}
-	client.chat.register <- client
-	go client.writePump()
-	go client.readPump()
+	//TODO: handle multiple connections from one user
+	go func() {
+		for {
+			fmt.Println(clients)
+			time.Sleep(2 * time.Second)
+		}
+	}()
+	go c.readPump()
+	go c.writePump()
 }

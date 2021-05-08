@@ -19,6 +19,10 @@ func main() {
 	}
 
 	indexTemp, err := template.ParseFiles("./web/public/index.html")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	chatTemp, err := template.ParseFiles("./web/public/chat.html")
 	if err != nil {
 		log.Fatalln(err)
