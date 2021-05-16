@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/repository"
+	"github.com/alseiitov/real-time-forum/pkg/auth"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -19,9 +20,12 @@ type UsersRefreshTokensInput struct {
 }
 
 func (s *UsersService) RefreshTokens(input UsersRefreshTokensInput) (Tokens, error) {
-	sub, role, _ := s.tokenManager.Parse(input.AccessToken)
+	sub, role, err := s.tokenManager.Parse(input.AccessToken)
+	if err != auth.ErrExpiredToken {
+		return Tokens{}, err
+	}
 
-	err := s.repo.DeleteSession(sub, input.RefreshToken)
+	err = s.repo.DeleteSession(sub, input.RefreshToken)
 	if err != nil {
 		if err == repository.ErrNoRows {
 			return Tokens{}, ErrSessionNotFound

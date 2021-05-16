@@ -114,7 +114,7 @@ func (m *Manager) Parse(token string) (int, int, error) {
 	tm := time.Unix(exp, 0)
 
 	if time.Now().After(tm) {
-		return -1, -1, ErrExpiredToken
+		return sub, role, ErrExpiredToken
 	}
 
 	return sub, role, nil

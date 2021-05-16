@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -33,28 +34,32 @@ func (h *Handler) identify(minRole int, next gorouter.Handler) gorouter.Handler 
 			}
 		}
 
-		sub, role, statusCode, err := h.identifyByToken(token, minRole)
-		if err != nil {
-			errMsg := err.Error()
-			// Write error to http response
-			if !isWSConn {
-				ctx.WriteError(statusCode, errMsg)
-				return
-			}
-
-			//Write error to websocket
-			conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
-			defer conn.Close()
+		if minRole > model.Roles.Guest {
+			sub, role, statusCode, err := h.identifyByToken(token, minRole)
 			if err != nil {
-				log.Println(err)
+				errMsg := err.Error()
+				// Write error to http response
+				if !isWSConn {
+					ctx.WriteError(statusCode, errMsg)
+					return
+				}
+
+				//Write error to websocket
+				conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
+				defer conn.Close()
+				if err != nil {
+					log.Println(err)
+					return
+				}
+
+				conn.WriteJSON(WSEvent{Type: "error", Body: errMsg})
 				return
 			}
-
-			conn.WriteJSON(WSEvent{Type: "error", Body: errMsg})
-			return
+			ctx.SetParam("sub", strconv.Itoa(sub))
+			ctx.SetParam("role", strconv.Itoa(role))
+			fmt.Println(sub, role)
 		}
-		ctx.SetParam("sub", strconv.Itoa(sub))
-		ctx.SetParam("role", strconv.Itoa(role))
+
 		next(ctx)
 	}
 }

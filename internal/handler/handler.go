@@ -65,7 +65,7 @@ func (h *Handler) Init() {
 		route{
 			Path:    "/api/users/:user_id",
 			Method:  "GET",
-			MinRole: model.Roles.Guest,
+			MinRole: model.Roles.User,
 			Handler: h.getUser,
 		},
 		route{
