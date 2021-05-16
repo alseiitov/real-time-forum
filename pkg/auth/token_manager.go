@@ -10,6 +10,17 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+var (
+	ErrEmptyJWTSigningKey   = errors.New("JWT_SIGNING_KEY is empty")
+	ErrEmptyAccessTokenTTL  = errors.New("empty accessTokenTTL for JWT")
+	ErrEmptyRefreshTokenTTL = errors.New("empty refreshTokenTTL for JWT")
+
+	ErrEmptySub     = errors.New("empty sub")
+	ErrEmptyRole    = errors.New("empty role")
+	ErrEmptyExp     = errors.New("empty exp")
+	ErrExpiredToken = errors.New("token has expired")
+)
+
 type TokenManager interface {
 	NewJWT(userID int, role int) (string, error)
 	NewRefreshToken() string
@@ -24,15 +35,15 @@ type Manager struct {
 
 func NewManager(jwtSigningKey string, accessTokenTTL, refreshTokenTTL time.Duration) (*Manager, error) {
 	if jwtSigningKey == "" {
-		return nil, errors.New("JWT_SIGNING_KEY is empty")
+		return nil, ErrEmptyJWTSigningKey
 	}
 
 	if accessTokenTTL == 0 {
-		return nil, errors.New("empty accessTokenTTL for JWT")
+		return nil, ErrEmptyAccessTokenTTL
 	}
 
 	if refreshTokenTTL == 0 {
-		return nil, errors.New("empty refreshTokenTTL for JWT")
+		return nil, ErrEmptyRefreshTokenTTL
 	}
 
 	return &Manager{
@@ -74,7 +85,7 @@ func (m *Manager) Parse(token string) (int, int, error) {
 
 	subData, ok := jwt.Payload("sub")
 	if !ok {
-		return -1, -1, errors.New("empty sub")
+		return -1, -1, ErrEmptySub
 	}
 	sub, err := strconv.Atoi(fmt.Sprintf("%v", subData))
 	if err != nil {
@@ -83,7 +94,7 @@ func (m *Manager) Parse(token string) (int, int, error) {
 
 	roleData, ok := jwt.Payload("role")
 	if !ok {
-		return -1, -1, errors.New("empty role")
+		return -1, -1, ErrEmptyRole
 	}
 
 	role, err := strconv.Atoi(fmt.Sprintf("%v", roleData))
@@ -93,7 +104,7 @@ func (m *Manager) Parse(token string) (int, int, error) {
 
 	expData, ok := jwt.Payload("exp")
 	if !ok {
-		return -1, -1, errors.New("empty exp")
+		return -1, -1, ErrEmptyExp
 	}
 
 	exp, err := strconv.ParseInt(fmt.Sprintf("%v", expData), 10, 64)
@@ -103,7 +114,7 @@ func (m *Manager) Parse(token string) (int, int, error) {
 	tm := time.Unix(exp, 0)
 
 	if time.Now().After(tm) {
-		return -1, -1, errors.New("token has expired")
+		return -1, -1, ErrExpiredToken
 	}
 
 	return sub, role, nil
