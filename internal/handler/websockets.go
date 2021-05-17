@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,6 +20,7 @@ const (
 	pongWait       = 60 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
 	maxMessageSize = 2048
+	tokenWait      = 60 * time.Second
 )
 
 var upgrader = websocket.Upgrader{
@@ -38,7 +40,7 @@ type WSEvent struct {
 	Body interface{} `json:"body"`
 }
 
-func (c *client) readPump() {
+func (h *Handler) clientReadPump(c *client) {
 	defer func() {
 		c.conn.Close()
 		delete(clients, c.id)
@@ -55,23 +57,53 @@ func (c *client) readPump() {
 			break
 		}
 
-		msgText := strings.TrimSpace(strings.Replace(string(messageBytes), "\n", " ", -1))
-		if len(msgText) > 0 {
-			body := model.Message{
-				Message: msgText,
-				Date:    time.Now(),
-				UserID:  c.id,
-				Read:    false,
+		var event WSEvent
+		err = json.Unmarshal(messageBytes, &event)
+		if err != nil {
+			if err := c.conn.WriteJSON(&WSEvent{Type: "error", Body: err.Error()}); err != nil {
+				log.Println(err)
+				return
 			}
+			return
+		}
 
-			event := &WSEvent{Type: "message", Body: body}
-			c.broadcast <- event
+		switch event.Type {
+		case "message":
+			if c.id != 0 {
+				msgText := strings.TrimSpace(strings.Replace(fmt.Sprintf("%s", event.Body), "\n", " ", -1))
+				if len(msgText) > 0 {
+					body := model.Message{
+						Message: msgText,
+						Date:    time.Now(),
+						UserID:  c.id,
+						Read:    false,
+					}
+					c.broadcast <- &WSEvent{Type: "message", Body: body}
+				}
+			}
+		case "token":
+			token := fmt.Sprintf("%s", event.Body)
+			sub, _, err := h.tokenManager.Parse(token)
+			if err != nil {
+				if err := c.conn.WriteJSON(&WSEvent{Type: "error", Body: err.Error()}); err != nil {
+					log.Println(err)
+					return
+				}
+				return
+			}
+			c.id = sub
+			clients[c.id] = c
+		default:
+			if err := c.conn.WriteJSON(&WSEvent{Type: "error", Body: "invalid event type"}); err != nil {
+				log.Println(err)
+				return
+			}
 		}
 	}
 }
 
-func (c *client) writePump() {
-	ticker := time.NewTicker(pingPeriod)
+func (h *Handler) clientWritePump(c *client) {
+	ticker := time.NewTicker(writeWait)
 	defer func() {
 		ticker.Stop()
 		c.conn.Close()
@@ -114,24 +146,16 @@ func (h *Handler) handleWebSocket(ctx *gorouter.Context) {
 		return
 	}
 
-	userID, err := ctx.GetIntParam("sub")
-	if err != nil {
-		conn.WriteJSON(WSEvent{Type: "error", Body: err.Error()})
-		return
-	}
-
-	c, ok := clients[userID]
-	if !ok {
-		c = &client{id: userID, conn: conn, broadcast: make(chan *WSEvent, 1)}
-		clients[userID] = c
-	}
 	//TODO: handle multiple connections from one user
+	c := &client{conn: conn, broadcast: make(chan *WSEvent, 16)}
+
+	go h.clientReadPump(c)
+	go h.clientWritePump(c)
+
 	go func() {
 		for {
 			fmt.Println(clients)
-			time.Sleep(2 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}()
-	go c.readPump()
-	go c.writePump()
 }

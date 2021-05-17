@@ -8,5 +8,5 @@ type Message struct {
 	Message string    `json:"message,omitempty"`
 	Date    time.Time `json:"date,omitempty"`
 	UserID  int       `json:"userID,omitempty"`
-	Read    bool      `json:"read,omitempty"`
+	Read    bool      `json:"read"`
 }

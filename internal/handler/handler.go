@@ -171,7 +171,7 @@ func (h *Handler) Init() {
 		route{
 			Path:    "/ws",
 			Method:  "GET",
-			MinRole: model.Roles.User,
+			MinRole: model.Roles.Guest,
 			Handler: h.handleWebSocket,
 		},
 
