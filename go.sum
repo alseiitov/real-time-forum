@@ -6,6 +6,8 @@ github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbt
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 h1:d+Bc7a5rLufV/sSk/8dngufqelfh6jnri85riMAaF/M=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
+github.com/alseiitov/dotenv v0.0.0-20210518103029-ea6c5fd639bd h1:7t8y+u5OG06nWhzyrl1tQ/0soaI3va7eBrfLDzXUpC0=
+github.com/alseiitov/dotenv v0.0.0-20210518103029-ea6c5fd639bd/go.mod h1:zm0FLZD9VTp58r1QDEjdxx5SsdiYoUwXvmvli3kgkGM=
 github.com/alseiitov/gorouter v0.0.0-20210215065905-a69369017c6a h1:stfTbsIhOdrqQz48IpH0SLUw1gmDb4DATiZYhiwC2Dc=
 github.com/alseiitov/gorouter v0.0.0-20210215065905-a69369017c6a/go.mod h1:WyzCLed9mFF2pYdG5H7Ntum0KRSF/Aoa2sgRFf60WiU=
 github.com/alseiitov/gorouter v0.0.0-20210303100020-6c3f5da87789 h1:i6InU/u2/+CtS5kEkHllq5s+kH+Hwdyb2T9NjEkSTdY=

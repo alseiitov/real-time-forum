@@ -1,28 +1,19 @@
 .PHONY: build run-api run-clent lint swagger
 .SILENT:
 
-
-include .env
-ENV_VARS := JWT_SIGNING_KEY=${JWT_SIGNING_KEY} PASSWORD_SALT=${PASSWORD_SALT}
-
-ifdef config-path
-	ARGS := -config-path="$(config-path)"
-endif
-
-
 build:
 	rm -rf build
 	go build -o ./build/api ./cmd/api/main.go
 	go build -o ./build/client ./cmd/client/main.go
 
 run-api: build
-	${ENV_VARS} ./build/api ${ARGS}
+	./build/api
 
 run-client: build
-	${ENV_VARS} ./build/client ${ARGS}
+	./build/client
 
 lint:
-	 golangci-lint run
+	golangci-lint run
 
 swagger:
 	swag init --parseDependency -g internal/app/app.go 
