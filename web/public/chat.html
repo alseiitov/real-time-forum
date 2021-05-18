@@ -24,13 +24,17 @@
                 if (!msg.value) {
                     return false;
                 }
-                conn.send(msg.value);
+                conn.send(JSON.stringify({type: "message", body: msg.value}));
                 msg.value = "";
                 return false;
             };
 
             if (window["WebSocket"]) {
-                conn = new WebSocket("ws://127.0.0.1:8081/ws");
+                conn = new WebSocket("ws://127.0.0.1:8081/ws")
+                conn.onopen = function (evt) {
+                    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI2NDI5NDEzMjk1Iiwicm9sZSI6IjIiLCJzdWIiOiIyIn0.4PNkQewpda4lOfgPElOPzEFHONMvPVakIFNOrhMjXHg"
+                    conn.send(JSON.stringify({type: "token", body: token}))
+                }
                 conn.onerror = function (evt) {
                     alert(evt.data)
                 }
@@ -40,13 +44,19 @@
                     appendLog(item);
                 };
                 conn.onmessage = function (evt) {
-                    var messages = evt.data.split('\n');
-                    for (var i = 0; i < messages.length; i++) {
-                        var item = document.createElement("div");
-                        
-                        console.log(decodeURI(JSON.parse(messages[i])))
-                        item.innerText = messages[i];
-                        appendLog(item);
+                    let obj = JSON.parse(evt.data)
+                    switch (obj.type) {
+                        case "message":
+                            var item = document.createElement("div");
+                            item.innerText = `${obj.body.userID}\n${obj.body.date}\n${obj.body.message}\n`
+                            appendLog(item);
+                            break
+                        case "error":
+                            alert(obj.body)
+                            break
+                        case "pingMessage":
+                            conn.send(JSON.stringify({type: "pongMessage"}))
+                            break
                     }
                 };
             } else {
