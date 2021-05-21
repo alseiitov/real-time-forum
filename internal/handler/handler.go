@@ -48,6 +48,8 @@ func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Han
 func (h *Handler) Init() {
 	images := http.FileServer(http.Dir("./database/images"))
 
+	go logConns()
+
 	routes := []route{
 		// User handlers
 		route{
