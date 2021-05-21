@@ -15,7 +15,7 @@ type Server struct {
 func NewServer(conf *config.Conf, router *gorouter.Router) *Server {
 	return &Server{
 		httpServer: &http.Server{
-			Addr:    ":" + conf.BackendPort(),
+			Addr:    ":" + conf.API.Port,
 			Handler: router,
 		},
 	}

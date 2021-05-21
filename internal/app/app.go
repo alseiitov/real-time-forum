@@ -34,12 +34,12 @@ func Run(configPath *string) {
 	}
 
 	// Prepare database
-	dbDriver := config.DBDriver()
-	dbPath := config.DBPath()
-	dbFileName := config.DBFileName()
-	dbSchemesDir := config.DBSchemesDir()
-
-	db, err := database.ConnectDB(dbDriver, dbPath, dbFileName, dbSchemesDir)
+	db, err := database.ConnectDB(
+		config.Database.Driver,
+		config.Database.Path,
+		config.Database.FileName,
+		config.Database.SchemesDir,
+	)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -59,7 +59,8 @@ func Run(configPath *string) {
 
 	// Prepare JWT token manager
 	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
-	accessTokenTTL, refreshTokenTTL, err := config.TokenTTLs()
+	accessTokenTTL := config.AccessTokenTTL()
+	refreshTokenTTL := config.RefreshTokenTTL()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -70,26 +71,25 @@ func Run(configPath *string) {
 	}
 
 	// Prepare services
-	imagesDir := config.ImagesDir()
-	defaultMaleAvatar, defaultFemaleAvatar := config.DefaultAvatars()
-	postsForPage := config.PostsForPage()
-	commentsForPage := config.CommentsForPage()
-	postsPreModerationIsEnabled := config.PostsPreModerationIsEnabled()
-	commentsPreModerationIsEnabled := config.CommentsPreModerationIsEnabled()
-
 	services := service.NewServices(service.ServicesDeps{
 		Repos:                          repos,
 		Hasher:                         hasher,
 		TokenManager:                   tokenManager,
 		AccessTokenTTL:                 accessTokenTTL,
 		RefreshTokenTTL:                refreshTokenTTL,
-		ImagesDir:                      imagesDir,
-		DefaultMaleAvatar:              defaultMaleAvatar,
-		DefaultFemaleAvatar:            defaultFemaleAvatar,
-		PostsForPage:                   postsForPage,
-		CommentsForPage:                commentsForPage,
-		PostsPreModerationIsEnabled:    postsPreModerationIsEnabled,
-		CommentsPreModerationIsEnabled: commentsPreModerationIsEnabled,
+		MaxConnsForUser:                config.Websocket.MaxConnsForUser,
+		MaxMessageSize:                 config.Websocket.MaxMessageSize,
+		TokenWait:                      config.TokenWait(),
+		WriteWait:                      config.WriteWait(),
+		PongWait:                       config.PongWait(),
+		PingPeriod:                     config.PingPeriod(),
+		ImagesDir:                      config.Database.ImagesDir,
+		DefaultMaleAvatar:              config.Forum.DefaultMaleAvatar,
+		DefaultFemaleAvatar:            config.Forum.DefaultFemaleAvatar,
+		PostsForPage:                   config.Forum.PostsForPage,
+		CommentsForPage:                config.Forum.CommentsForPage,
+		PostsPreModerationIsEnabled:    config.Forum.PostsPreModerationIsEnabled,
+		CommentsPreModerationIsEnabled: config.Forum.CommentsPreModerationIsEnabled,
 	})
 
 	// Prepare handler

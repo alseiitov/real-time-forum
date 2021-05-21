@@ -58,6 +58,11 @@ type Notifications interface {
 type Chats interface {
 }
 
+type Websockets interface {
+	AddClient(c *client)
+	SendToClient(clientID int, event *WSEvent)
+}
+
 type Services struct {
 	Users         Users
 	Moderators    Moderators
@@ -67,6 +72,7 @@ type Services struct {
 	Comments      Comments
 	Notifications Notifications
 	Chats         Chats
+	Websockets    Websockets
 }
 
 type ServicesDeps struct {
@@ -75,6 +81,12 @@ type ServicesDeps struct {
 	TokenManager                   auth.TokenManager
 	AccessTokenTTL                 time.Duration
 	RefreshTokenTTL                time.Duration
+	MaxConnsForUser                int
+	MaxMessageSize                 int
+	TokenWait                      time.Duration
+	WriteWait                      time.Duration
+	PongWait                       time.Duration
+	PingPeriod                     time.Duration
 	ImagesDir                      string
 	DefaultMaleAvatar              string
 	DefaultFemaleAvatar            string
@@ -102,6 +114,10 @@ func NewServices(deps ServicesDeps) *Services {
 	chatsService := NewChatsService(deps.Repos.Chats)
 	moderatorsService := NewModeratorsService(deps.Repos.Moderators)
 	adminsService := NewAdminsService(deps.Repos.Admins, notificationsService, usersService)
+	websocketsService := NewWebsocketsService(
+		deps.MaxConnsForUser, deps.MaxMessageSize, deps.TokenWait,
+		deps.WriteWait, deps.PongWait, deps.PingPeriod,
+	)
 
 	return &Services{
 		Users:         usersService,
@@ -112,5 +128,6 @@ func NewServices(deps ServicesDeps) *Services {
 		Comments:      commentsService,
 		Notifications: notificationsService,
 		Chats:         chatsService,
+		Websockets:    websocketsService,
 	}
 }

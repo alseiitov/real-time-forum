@@ -10,21 +10,17 @@ import (
 )
 
 type Conf struct {
-	API      API      `json:"api"`
-	Client   Client   `json:"client"`
-	Database Database `json:"database"`
-	Auth     Auth     `json:"auth"`
-	Forum    Forum    `json:"forum"`
+	API       API       `json:"api"`
+	Websocket Websocket `json:"websocket"`
+	Client    Client    `json:"client"`
+	Database  Database  `json:"database"`
+	Auth      Auth      `json:"auth"`
+	Forum     Forum     `json:"forum"`
 }
 
 type API struct {
 	Host string `json:"host" validator:"required"`
 	Port string `json:"port" validator:"required"`
-}
-
-type Auth struct {
-	AccessTokenTTL  int `json:"accessTokenTTL" validator:"required"`
-	RefreshTokenTTL int `json:"refreshTokenTTL" validator:"required"`
 }
 
 type Client struct {
@@ -37,6 +33,19 @@ type Database struct {
 	FileName   string `json:"fileName" validator:"required"`
 	ImagesDir  string `json:"imagesDir" validator:"required"`
 	SchemesDir string `json:"schemesDir" validator:"required"`
+}
+
+type Auth struct {
+	AccessTokenTTL  int `json:"accessTokenTTL" validator:"required"`
+	RefreshTokenTTL int `json:"refreshTokenTTL" validator:"required"`
+}
+
+type Websocket struct {
+	MaxConnsForUser int `json:"maxConnsForUser" validator:"required,max=32"`
+	MaxMessageSize  int `json:"maxMessageSize" validator:"required"`
+	TokenWait       int `json:"tokenWait" validator:"required"`
+	WriteWait       int `json:"writeWait" validator:"required"`
+	PongWait        int `json:"pongWait" validator:"required"`
 }
 
 type Forum struct {
@@ -70,70 +79,38 @@ func NewConfig(confPath string) (*Conf, error) {
 	return &config, nil
 }
 
-func (c *Conf) BackendPort() string {
-	return c.API.Port
-}
-
 func (c *Conf) BackendAdress() string {
 	host := c.API.Host
-	port := c.BackendPort()
+	port := c.API.Port
 	if host == "localhost" || host == "127.0.0.1" {
 		return fmt.Sprintf("%s:%s", host, port)
 	}
 	return host
 }
 
-func (c *Conf) FrontendPort() string {
-	return c.Client.Port
+func (c *Conf) AccessTokenTTL() time.Duration {
+	return secondsToDuration(c.Auth.AccessTokenTTL)
 }
 
-func (c *Conf) DBFileName() string {
-	return c.Database.FileName
+func (c *Conf) RefreshTokenTTL() time.Duration {
+	return secondsToDuration(c.Auth.RefreshTokenTTL)
 }
 
-func (c *Conf) DBPath() string {
-	return c.Database.Path
+func (c *Conf) TokenWait() time.Duration {
+	return secondsToDuration(c.Websocket.TokenWait)
 }
 
-func (c *Conf) DBSchemesDir() string {
-	return c.Database.SchemesDir
+func (c *Conf) WriteWait() time.Duration {
+	return secondsToDuration(c.Websocket.WriteWait)
+}
+func (c *Conf) PongWait() time.Duration {
+	return secondsToDuration(c.Websocket.PongWait)
 }
 
-func (c *Conf) ImagesDir() string {
-	return c.Database.ImagesDir
+func (c *Conf) PingPeriod() time.Duration {
+	return (c.PongWait() * 9) / 10
 }
 
-func (c *Conf) DBDriver() string {
-	return c.Database.Driver
-}
-
-func (c *Conf) TokenTTLs() (time.Duration, time.Duration, error) {
-	accessTokenTTL := minutesToDuration(c.Auth.AccessTokenTTL)
-	refreshTokenTTL := minutesToDuration(c.Auth.RefreshTokenTTL)
-
-	return accessTokenTTL, refreshTokenTTL, nil
-}
-
-func (c *Conf) DefaultAvatars() (string, string) {
-	return c.Forum.DefaultMaleAvatar, c.Forum.DefaultFemaleAvatar
-}
-
-func (c *Conf) PostsForPage() int {
-	return c.Forum.PostsForPage
-}
-
-func (c *Conf) CommentsForPage() int {
-	return c.Forum.CommentsForPage
-}
-
-func (c *Conf) PostsPreModerationIsEnabled() bool {
-	return c.Forum.PostsPreModerationIsEnabled
-}
-
-func (c *Conf) CommentsPreModerationIsEnabled() bool {
-	return c.Forum.CommentsPreModerationIsEnabled
-}
-
-func minutesToDuration(m int) time.Duration {
-	return time.Duration(int(time.Minute) * m)
+func secondsToDuration(s int) time.Duration {
+	return time.Duration(int(time.Second) * s)
 }

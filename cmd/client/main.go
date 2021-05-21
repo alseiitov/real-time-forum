@@ -47,7 +47,7 @@ func main() {
 		}
 	})
 
-	port := conf.FrontendPort()
+	port := conf.Client.Port
 	log.Printf("Frontend server is starting at %v", port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatalln(err)
