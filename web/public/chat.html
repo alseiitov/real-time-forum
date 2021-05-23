@@ -24,7 +24,7 @@
                 if (!msg.value) {
                     return false;
                 }
-                conn.send(JSON.stringify({type: "message", body: msg.value}));
+                conn.send(JSON.stringify({type: "message", body: {recipientID: 2, message: msg.value}}));
                 msg.value = "";
                 return false;
             };
@@ -45,10 +45,12 @@
                 };
                 conn.onmessage = function (evt) {
                     let obj = JSON.parse(evt.data)
+                    console.log(obj)
                     switch (obj.type) {
                         case "message":
                             var item = document.createElement("div");
-                            item.innerText = `${obj.body.userID}\n${obj.body.date}\n${obj.body.message}\n`
+                            item.classList.add("message")
+                            item.innerText = `user ${obj.body.senderID} sends to user ${obj.body.recipientID}\n${new Date(obj.body.date).toLocaleString()}\n${obj.body.message}\n`
                             appendLog(item);
                             break
                         case "error":
@@ -81,6 +83,7 @@
         }
 
         #log {
+            display: inline-block;
             background: white;
             margin: 0;
             padding: 0.5em 0.5em 0.5em 0.5em;
@@ -90,6 +93,12 @@
             right: 0.5em;
             bottom: 3em;
             overflow: auto;
+        }
+
+        .message {
+            /* display: flex;
+            justify-content: flex-end; */
+            margin-bottom: 15px;
         }
 
         #form {

@@ -15,8 +15,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var clients = make(map[int]*client)
-
 const (
 	maxConnsForUser = 3
 	tokenWait       = 10 * time.Second
@@ -32,6 +30,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
+var clients = make(map[int]*client)
+
 type client struct {
 	id    int
 	conns []*conn
@@ -43,13 +43,30 @@ type conn struct {
 	conn     *websocket.Conn
 	mu       sync.Mutex
 }
+
 type WSEvent struct {
 	Type string      `json:"type"`
 	Body interface{} `json:"body,omitempty"`
 }
 
+var WSEventTypes = struct {
+	Message     string
+	Error       string
+	PingMessage string
+	PongMessage string
+}{
+	Message:     "message",
+	Error:       "error",
+	PingMessage: "pingMessage",
+	PongMessage: "pongMessage",
+}
+
 func (h *Handler) connReadPump(conn *conn) {
-	client := clients[conn.clientID]
+	client, ok := clients[conn.clientID]
+	if !ok {
+		return
+	}
+
 	defer func() {
 		conn.close()
 	}()
@@ -69,43 +86,54 @@ func (h *Handler) connReadPump(conn *conn) {
 		var event WSEvent
 		err = json.Unmarshal(messageBytes, &event)
 		if err != nil {
-			conn.writeJSON(&WSEvent{Type: "error", Body: err.Error()})
+			conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
 			return
 		}
 
 		switch event.Type {
-		case "message":
-			if conn.clientID != 0 {
-				msgText := strings.TrimSpace(strings.Replace(fmt.Sprintf("%s", event.Body), "\n", " ", -1))
-				if len(msgText) > 0 {
-					body := model.Message{
-						Message: msgText,
-						Date:    time.Now(),
-						UserID:  conn.clientID,
-						Read:    false,
-					}
-					client.send(&WSEvent{Type: "message", Body: body})
-				}
+		case WSEventTypes.Message:
+			var msg model.Message
+
+			bodyBytes, err := json.Marshal(event.Body.(map[string]interface{}))
+			if err != nil {
+				conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
+				return
 			}
-		case "pongMessage":
+
+			err = json.Unmarshal(bodyBytes, &msg)
+			if err != nil {
+				conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
+				return
+			}
+
+			msg.Message = strings.TrimSpace(strings.Replace(msg.Message, "\n", " ", -1))
+
+			if len(msg.Message) > 0 {
+				msg.SenderID = conn.clientID
+				msg.Date = time.Now()
+				msg.Read = false
+
+				client.send(&WSEvent{Type: WSEventTypes.Message, Body: msg})
+			}
+		case WSEventTypes.PongMessage:
 			conn.conn.SetReadDeadline(time.Now().Add(pongWait))
 		default:
-			conn.writeJSON(&WSEvent{Type: "error", Body: "invalid event type"})
+			conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: "invalid event type"})
 			return
 		}
 	}
 }
 
-func (h *Handler) pingConn(conn *conn) {
+func (c *conn) ping() {
 	ticker := time.NewTicker(writeWait)
 	defer func() {
 		ticker.Stop()
-		conn.close()
+		c.close()
 	}()
 	for {
 		<-ticker.C
-		conn.conn.SetWriteDeadline(time.Now().Add(writeWait))
-		if err := conn.writeJSON(&WSEvent{Type: "pingMessage"}); err != nil {
+		c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		if err := c.writeJSON(&WSEvent{Type: WSEventTypes.PingMessage}); err != nil {
 			return
 		}
 	}
@@ -130,7 +158,10 @@ func (c *conn) close() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	client := clients[c.clientID]
+	client, ok := clients[c.clientID]
+	if !ok {
+		return
+	}
 
 	for i := 0; i < len(client.conns); i++ {
 		if client.conns[i] == c {
@@ -145,29 +176,6 @@ func (c *conn) close() {
 	}
 }
 
-func (h *Handler) identifyConn(c *conn) (int, error) {
-	c.conn.SetReadDeadline(time.Now().Add(tokenWait))
-
-	var event WSEvent
-	_, messageBytes, err := c.conn.ReadMessage()
-	if err != nil {
-		return -1, errors.New("no token received")
-	}
-
-	err = json.Unmarshal(messageBytes, &event)
-	if err != nil {
-		return -1, err
-	}
-
-	token := fmt.Sprintf("%s", event.Body)
-	sub, _, err := h.tokenManager.Parse(token)
-	if err != nil {
-		return -1, err
-	}
-
-	return sub, nil
-}
-
 func (c *conn) writeJSON(data interface{}) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -176,41 +184,61 @@ func (c *conn) writeJSON(data interface{}) error {
 }
 
 func (h *Handler) handleWebSocket(ctx *gorouter.Context) {
-	c, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
+	ws, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	connection := &conn{conn: c}
+	connection := &conn{conn: ws}
 
-	id, err := h.identifyConn(connection)
+	err = h.identifyConn(connection)
 	if err != nil {
-		connection.writeJSON(&WSEvent{Type: "error", Body: err.Error()})
+		connection.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
 		connection.conn.Close()
 		return
 	}
 
-	connection.clientID = id
-
-	if id != 0 {
-		c, ok := clients[id]
-		if !ok {
-			c = &client{id: id}
-			clients[id] = c
-		}
-
-		if len(clients[id].conns) == maxConnsForUser {
-			conn := clients[id].conns[0]
-			conn.writeJSON(&WSEvent{Type: "error", Body: "too many connections"})
-			conn.close()
-		}
-
-		go h.connReadPump(connection)
-		go h.pingConn(connection)
-
-		clients[id].conns = append(clients[id].conns, connection)
+	c, ok := clients[connection.clientID]
+	if !ok {
+		c = &client{id: connection.clientID}
+		clients[connection.clientID] = c
 	}
+
+	if len(c.conns) == maxConnsForUser {
+		conn := c.conns[0]
+		conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: "too many connections"})
+		conn.close()
+	}
+
+	go h.connReadPump(connection)
+	go connection.ping()
+
+	c.conns = append(c.conns, connection)
+}
+
+func (h *Handler) identifyConn(c *conn) error {
+	c.conn.SetReadDeadline(time.Now().Add(tokenWait))
+
+	var event WSEvent
+	_, messageBytes, err := c.conn.ReadMessage()
+	if err != nil {
+		return errors.New("no token received")
+	}
+
+	err = json.Unmarshal(messageBytes, &event)
+	if err != nil {
+		return err
+	}
+
+	token := fmt.Sprintf("%s", event.Body)
+	sub, _, err := h.tokenManager.Parse(token)
+	if err != nil {
+		return err
+	}
+
+	c.clientID = sub
+	return nil
 }
 
 func logConns() {
