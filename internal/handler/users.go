@@ -10,17 +10,6 @@ import (
 	"github.com/alseiitov/validator"
 )
 
-// @Summary Sign up
-// @Tags users
-// @ModuleID usersSignUp
-// @Accept  json
-// @Produce  json
-// @Param input body usersSignUpInput true "sign up info"
-// @Success 201 {string} string "ok"
-// @Failure 400,404,409,500 {object} gorouter.Error
-// @Failure default {object} gorouter.Error
-// @Router /users/sign-up [post]
-
 type usersSignUpInput struct {
 	Username  string `json:"username" validator:"required,username,min=2,max=64"`
 	FirstName string `json:"firstName" validator:"required,min=2,max=64"`
@@ -31,6 +20,16 @@ type usersSignUpInput struct {
 	Password  string `json:"password" validator:"required,password,min=7,max=64"`
 }
 
+// @Summary Sign up
+// @Tags users
+// @ModuleID usersSignUp
+// @Accept  json
+// @Produce  json
+// @Param input body usersSignUpInput true "sign up info"
+// @Success 201 {string} string "ok"
+// @Failure 400,404,409,500 {object} gorouter.Error
+// @Failure default {object} gorouter.Error
+// @Router /users/sign-up [post]
 func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 	var input usersSignUpInput
 
@@ -66,17 +65,6 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 	ctx.WriteHeader(http.StatusCreated)
 }
 
-// @Summary Sign in
-// @Tags users
-// @ModuleID usersSignIn
-// @Accept  json
-// @Produce  json
-// @Param input body usersSignInInput true "sign in info"
-// @Success 200 {object} tokenResponse
-// @Failure 400,401,404,500 {object} gorouter.Error
-// @Failure default {object} gorouter.Error
-// @Router /users/sign-in [post]
-
 type usersSignInInput struct {
 	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64"`
 	Password        string `json:"password" validator:"required,password,min=7,max=64"`
@@ -87,6 +75,16 @@ type tokenResponse struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+// @Summary Sign in
+// @Tags users
+// @ModuleID usersSignIn
+// @Accept  json
+// @Produce  json
+// @Param input body usersSignInInput true "sign in info"
+// @Success 200 {object} tokenResponse
+// @Failure 400,401,404,500 {object} gorouter.Error
+// @Failure default {object} gorouter.Error
+// @Router /users/sign-in [post]
 func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 	var input usersSignInInput
 
@@ -133,7 +131,6 @@ func (h *Handler) usersSignIn(ctx *gorouter.Context) {
 // @Failure 400,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /users/{user_id} [GET]
-
 func (h *Handler) getUser(ctx *gorouter.Context) {
 	userID, err := ctx.GetIntParam("user_id")
 	if err != nil {
@@ -154,6 +151,11 @@ func (h *Handler) getUser(ctx *gorouter.Context) {
 	ctx.WriteJSON(http.StatusOK, user)
 }
 
+type usersRefreshTokensInput struct {
+	AccessToken  string `json:"accessToken" validator:"required"`
+	RefreshToken string `json:"refreshToken" validator:"required"`
+}
+
 // @Summary Refresh tokens
 // @Tags users
 // @ModuleID usersRefreshTokens
@@ -164,12 +166,6 @@ func (h *Handler) getUser(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /auth/refresh [POST]
-
-type usersRefreshTokensInput struct {
-	AccessToken  string `json:"accessToken" validator:"required"`
-	RefreshToken string `json:"refreshToken" validator:"required"`
-}
-
 func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 	var input usersRefreshTokensInput
 
@@ -215,7 +211,6 @@ func (h *Handler) usersRefreshTokens(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /moderators/requests [POST]
-
 func (h *Handler) requestModerator(ctx *gorouter.Context) {
 	userID, err := ctx.GetIntParam("sub")
 	if err != nil {

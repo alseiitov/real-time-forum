@@ -9,6 +9,15 @@ import (
 	"github.com/alseiitov/validator"
 )
 
+type createCommentInput struct {
+	Data  string `json:"data" validator:"required,min=2,max=128"`
+	Image string `json:"image"`
+}
+
+type createCommentResponse struct {
+	CommentID int `json:"commentID"`
+}
+
 // @Summary Create comment
 // @Security Auth
 // @Tags comments
@@ -21,16 +30,6 @@ import (
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id}/comments [POST]
-
-type createCommentInput struct {
-	Data  string `json:"data" validator:"required,min=2,max=128"`
-	Image string `json:"image"`
-}
-
-type createCommentResponse struct {
-	CommentID int `json:"commentID"`
-}
-
 func (h *Handler) createComment(ctx *gorouter.Context) {
 	var input createCommentInput
 
@@ -87,7 +86,6 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /comments/{comment_id} [DELETE]
-
 func (h *Handler) deleteComment(ctx *gorouter.Context) {
 	userID, err := ctx.GetIntParam("sub")
 	if err != nil {
@@ -126,7 +124,6 @@ func (h *Handler) deleteComment(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id}/comments/{page} [GET]
-
 func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
 	postID, err := ctx.GetIntParam("post_id")
 	if err != nil {
@@ -153,6 +150,10 @@ func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
 	ctx.WriteJSON(http.StatusOK, &comments)
 }
 
+type likeCommentInput struct {
+	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+}
+
 // @Summary Like of dislike comment
 // @Security Auth
 // @Tags comments
@@ -165,11 +166,6 @@ func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /comments/{comment_id}/likes [POST]
-
-type likeCommentInput struct {
-	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
-}
-
 func (h *Handler) likeComment(ctx *gorouter.Context) {
 	var input likeCommentInput
 

@@ -18,7 +18,6 @@ import (
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /moderators/requests [GET]
-
 func (h *Handler) getRequestsForModerator(ctx *gorouter.Context) {
 	requests, err := h.adminsService.GetModeratorRequests()
 	if err != nil {
@@ -27,6 +26,11 @@ func (h *Handler) getRequestsForModerator(ctx *gorouter.Context) {
 	}
 
 	ctx.WriteJSON(http.StatusOK, &requests)
+}
+
+type RequestForModeratorActionInput struct {
+	Action  string `json:"action"`
+	Message string `json:"message"`
 }
 
 // @Summary Accept or decline request for moderator role
@@ -41,12 +45,6 @@ func (h *Handler) getRequestsForModerator(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /moderators/requests/{request_id} [POST]
-
-type RequestForModeratorActionInput struct {
-	Action  string `json:"action"`
-	Message string `json:"message"`
-}
-
 func (h *Handler) RequestForModeratorAction(ctx *gorouter.Context) {
 	var input RequestForModeratorActionInput
 

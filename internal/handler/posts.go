@@ -20,7 +20,6 @@ import (
 // @Failure 400,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id} [GET]
-
 func (h *Handler) getPost(ctx *gorouter.Context) {
 	postID, err := ctx.GetIntParam("post_id")
 	if err != nil {
@@ -41,18 +40,6 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 	ctx.WriteJSON(http.StatusOK, &post)
 }
 
-// @Summary Create post
-// @Security Auth
-// @Tags posts
-// @ModuleID createPost
-// @Accept  json
-// @Produce  json
-// @Param input body createPostInput true "post input data"
-// @Success 201 {object} createPostResponse
-// @Failure 400,401,404,500 {object} gorouter.Error
-// @Failure default {object} gorouter.Error
-// @Router /posts [POST]
-
 type createPostInput struct {
 	Title      string `json:"title" validator:"required,min=2, max=64"`
 	Data       string `json:"data" validator:"required,min=2, max=512"`
@@ -64,6 +51,17 @@ type createPostResponse struct {
 	PostID int `json:"postID"`
 }
 
+// @Summary Create post
+// @Security Auth
+// @Tags posts
+// @ModuleID createPost
+// @Accept  json
+// @Produce  json
+// @Param input body createPostInput true "post input data"
+// @Success 201 {object} createPostResponse
+// @Failure 400,401,404,500 {object} gorouter.Error
+// @Failure default {object} gorouter.Error
+// @Router /posts [POST]
 func (h *Handler) createPost(ctx *gorouter.Context) {
 	var input createPostInput
 	userID, err := ctx.GetIntParam("sub")
@@ -116,7 +114,6 @@ func (h *Handler) createPost(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id} [DELETE]
-
 func (h *Handler) deletePost(ctx *gorouter.Context) {
 	userID, err := ctx.GetIntParam("sub")
 	if err != nil {
@@ -142,6 +139,10 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 	ctx.WriteHeader(http.StatusNoContent)
 }
 
+type likePostInput struct {
+	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+}
+
 // @Summary Like or dislike post
 // @Security Auth
 // @Tags posts
@@ -154,11 +155,6 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id}/likes [POST]
-
-type likePostInput struct {
-	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
-}
-
 func (h *Handler) likePost(ctx *gorouter.Context) {
 	var input likePostInput
 

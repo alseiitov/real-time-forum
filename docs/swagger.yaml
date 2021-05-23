@@ -277,14 +277,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.usersRefreshTokensInput'
+          $ref: '#/definitions/internal_handler.usersRefreshTokensInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.tokenResponse'
+            $ref: '#/definitions/internal_handler.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -583,7 +583,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.RequestForModeratorActionInput'
+          $ref: '#/definitions/internal_handler.RequestForModeratorActionInput'
       produces:
       - application/json
       responses:
@@ -951,14 +951,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.usersSignInInput'
+          $ref: '#/definitions/internal_handler.usersSignInInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.tokenResponse'
+            $ref: '#/definitions/internal_handler.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -992,7 +992,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.usersSignUpInput'
+          $ref: '#/definitions/internal_handler.usersSignUpInput'
       produces:
       - application/json
       responses:

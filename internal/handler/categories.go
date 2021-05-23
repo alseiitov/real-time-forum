@@ -18,7 +18,6 @@ import (
 // @Failure 400,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /categories [GET]
-
 func (h *Handler) getAllCategories(ctx *gorouter.Context) {
 	categories, err := h.categoriesService.GetAll()
 	if err != nil {
@@ -41,7 +40,6 @@ func (h *Handler) getAllCategories(ctx *gorouter.Context) {
 // @Failure 400,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /categories/{category_id}/{page} [GET]
-
 func (h *Handler) getCategoryPage(ctx *gorouter.Context) {
 	categoryID, err := ctx.GetIntParam("category_id")
 	if err != nil {
