@@ -61,12 +61,16 @@
                             item.innerText = `user ${obj.body.senderID} sends to user ${obj.body.recipientID}\n${new Date(obj.body.date).toLocaleString()}\n${obj.body.message}\n`
                             appendLog(item);
                             break
+                        case "notification":
+                            alert(obj.body)
+                            break
                         case "error":
                             alert(obj.body)
                             break
                         case "pingMessage":
                             conn.send(JSON.stringify({ type: "pongMessage" }))
                             break
+
                     }
                 };
             } else {

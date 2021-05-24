@@ -17,8 +17,7 @@ func NewChatsService(repo repository.Chats) *ChatsService {
 	}
 }
 
-func (s *ChatsService) CreateMessage(clientID int, message *model.Message) (int, error) {
-	message.SenderID = clientID
+func (s *ChatsService) CreateMessage(message *model.Message) (int, error) {
 	message.Date = time.Now()
 	message.Read = false
 

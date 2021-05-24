@@ -19,7 +19,7 @@ const (
 	writeWait       = 10 * time.Second
 	pongWait        = 60 * time.Second
 	pingPeriod      = (pongWait * 9) / 10
-	maxMessageSize  = 2048
+	maxMessageSize  = 256
 )
 
 var upgrader = websocket.Upgrader{
@@ -60,14 +60,7 @@ var WSEventTypes = struct {
 }
 
 func (h *Handler) connReadPump(conn *conn) {
-	// client, ok := clients[conn.clientID]
-	// if !ok {
-	// 	return
-	// }
-
-	defer func() {
-		conn.close()
-	}()
+	defer conn.close()
 
 	conn.conn.SetReadLimit(maxMessageSize)
 	conn.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -95,35 +88,6 @@ func (h *Handler) connReadPump(conn *conn) {
 				conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
 				return
 			}
-			// var msg model.Message
-
-			// bodyBytes, err := json.Marshal(event.Body.(map[string]interface{}))
-			// if err != nil {
-			// 	conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
-			// 	return
-			// }
-
-			// err = json.Unmarshal(bodyBytes, &msg)
-			// if err != nil {
-			// 	conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
-			// 	return
-			// }
-
-			// msg.Message = strings.TrimSpace(msg.Message)
-
-			// if len(msg.Message) == 0 {
-			// 	continue
-			// }
-
-			// msg.SenderID = conn.clientID
-			// msg.Date = time.Now()
-			// msg.Read = false
-
-			// msgEvent := &WSEvent{Type: WSEventTypes.Message, Body: msg}
-
-			// client.send(msgEvent)                        // Send event to message sender
-			// sendEventToClient(msg.RecipientID, msgEvent) // Send event to recipient
-
 		case WSEventTypes.PongMessage:
 			conn.conn.SetReadDeadline(time.Now().Add(pongWait))
 		default:
@@ -267,4 +231,13 @@ func logConns() {
 		fmt.Println()
 		time.Sleep(1 * time.Second)
 	}
+}
+
+func (e *WSEvent) readBodyTo(data interface{}) error {
+	bodyBytes, err := json.Marshal(e.Body.(map[string]interface{}))
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(bodyBytes, &data)
 }

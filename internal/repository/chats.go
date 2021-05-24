@@ -16,7 +16,6 @@ func NewChatsRepo(db *sql.DB) *ChatsRepo {
 
 func (r *ChatsRepo) CreateMessage(message *model.Message) (int, error) {
 	stmt, err := r.db.Prepare(`INSERT INTO messages (sender_id, recipient_id, message, date, status) VALUES (?, ?, ?, ?, ?)`)
-
 	if err != nil {
 		return 0, err
 	}
