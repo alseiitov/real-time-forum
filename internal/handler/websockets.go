@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/alseiitov/gorouter"
-	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/gorilla/websocket"
 )
 
@@ -62,10 +60,10 @@ var WSEventTypes = struct {
 }
 
 func (h *Handler) connReadPump(conn *conn) {
-	client, ok := clients[conn.clientID]
-	if !ok {
-		return
-	}
+	// client, ok := clients[conn.clientID]
+	// if !ok {
+	// 	return
+	// }
 
 	defer func() {
 		conn.close()
@@ -92,29 +90,40 @@ func (h *Handler) connReadPump(conn *conn) {
 
 		switch event.Type {
 		case WSEventTypes.Message:
-			var msg model.Message
-
-			bodyBytes, err := json.Marshal(event.Body.(map[string]interface{}))
+			err := h.messageHandler(conn.clientID, &event)
 			if err != nil {
 				conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
 				return
 			}
+			// var msg model.Message
 
-			err = json.Unmarshal(bodyBytes, &msg)
-			if err != nil {
-				conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
-				return
-			}
+			// bodyBytes, err := json.Marshal(event.Body.(map[string]interface{}))
+			// if err != nil {
+			// 	conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
+			// 	return
+			// }
 
-			msg.Message = strings.TrimSpace(strings.Replace(msg.Message, "\n", " ", -1))
+			// err = json.Unmarshal(bodyBytes, &msg)
+			// if err != nil {
+			// 	conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
+			// 	return
+			// }
 
-			if len(msg.Message) > 0 {
-				msg.SenderID = conn.clientID
-				msg.Date = time.Now()
-				msg.Read = false
+			// msg.Message = strings.TrimSpace(msg.Message)
 
-				client.send(&WSEvent{Type: WSEventTypes.Message, Body: msg})
-			}
+			// if len(msg.Message) == 0 {
+			// 	continue
+			// }
+
+			// msg.SenderID = conn.clientID
+			// msg.Date = time.Now()
+			// msg.Read = false
+
+			// msgEvent := &WSEvent{Type: WSEventTypes.Message, Body: msg}
+
+			// client.send(msgEvent)                        // Send event to message sender
+			// sendEventToClient(msg.RecipientID, msgEvent) // Send event to recipient
+
 		case WSEventTypes.PongMessage:
 			conn.conn.SetReadDeadline(time.Now().Add(pongWait))
 		default:
@@ -135,21 +144,6 @@ func (c *conn) ping() {
 		c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 		if err := c.writeJSON(&WSEvent{Type: WSEventTypes.PingMessage}); err != nil {
 			return
-		}
-	}
-}
-
-func (c *client) send(event *WSEvent) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	for i := 0; i < len(c.conns); i++ {
-		conn := c.conns[i]
-		conn.conn.SetWriteDeadline(time.Now().Add(writeWait))
-
-		if err := conn.writeJSON(&event); err != nil {
-			conn.close()
-			continue
 		}
 	}
 }
@@ -181,6 +175,29 @@ func (c *conn) writeJSON(data interface{}) error {
 	defer c.mu.Unlock()
 
 	return c.conn.WriteJSON(data)
+}
+
+func sendEventToClient(clientID int, event *WSEvent) {
+	client, ok := clients[clientID]
+	if !ok {
+		return
+	}
+	client.send(event)
+}
+
+func (c *client) send(event *WSEvent) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	for i := 0; i < len(c.conns); i++ {
+		conn := c.conns[i]
+		conn.conn.SetWriteDeadline(time.Now().Add(writeWait))
+
+		if err := conn.writeJSON(&event); err != nil {
+			conn.close()
+			continue
+		}
+	}
 }
 
 func (h *Handler) handleWebSocket(ctx *gorouter.Context) {

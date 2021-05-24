@@ -28,6 +28,7 @@ type Handler struct {
 	postsService         service.Posts
 	commentsService      service.Comments
 	notificationsService service.Notifications
+	chatsService         service.Chats
 	tokenManager         auth.TokenManager
 }
 
@@ -41,6 +42,7 @@ func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Han
 		postsService:         services.Posts,
 		commentsService:      services.Comments,
 		notificationsService: services.Notifications,
+		chatsService:         services.Chats,
 		tokenManager:         tokenManager,
 	}
 }

@@ -53,6 +53,7 @@ type Notifications interface {
 }
 
 type Chats interface {
+	CreateMessage(message *model.Message) (int, error)
 }
 
 type Repositories struct {

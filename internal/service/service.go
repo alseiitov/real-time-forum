@@ -56,6 +56,7 @@ type Notifications interface {
 }
 
 type Chats interface {
+	CreateMessage(clientID int, message *model.Message) (int, error)
 }
 
 type Services struct {

@@ -9,6 +9,14 @@
             var msg = document.getElementById("msg");
             var log = document.getElementById("log");
 
+            var recipientID = parseInt(window.location.href.slice(-1))
+            if (recipientID == 1) {
+                var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI5Mzg4MDQ0NTY5Iiwicm9sZSI6IjIiLCJzdWIiOiIyIn0.dLVytdQkOTxiNAvia4GfEjk6IJGvdHlygrjBCKFm9KU"
+            }
+            if (recipientID == 2) {
+                var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI5Mzg4MDQ0NTQ3Iiwicm9sZSI6IjIiLCJzdWIiOiIxIn0.2bRxGzoFv2MNEWixcl-ZFIvh3NSlTxkLcV49q5wnOMY"
+            }
+
             function appendLog(item) {
                 var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
                 log.appendChild(item);
@@ -24,7 +32,8 @@
                 if (!msg.value) {
                     return false;
                 }
-                conn.send(JSON.stringify({type: "message", body: {recipientID: 2, message: msg.value}}));
+
+                conn.send(JSON.stringify({ type: "message", body: { recipientID: recipientID, message: msg.value } }));
                 msg.value = "";
                 return false;
             };
@@ -32,8 +41,7 @@
             if (window["WebSocket"]) {
                 conn = new WebSocket("ws://127.0.0.1:8081/ws")
                 conn.onopen = function (evt) {
-                    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI2NDI5NDEzMjk1Iiwicm9sZSI6IjIiLCJzdWIiOiIyIn0.4PNkQewpda4lOfgPElOPzEFHONMvPVakIFNOrhMjXHg"
-                    conn.send(JSON.stringify({type: "token", body: token}))
+                    conn.send(JSON.stringify({ type: "token", body: token }))
                 }
                 conn.onerror = function (evt) {
                     alert(evt.data)
@@ -57,7 +65,7 @@
                             alert(obj.body)
                             break
                         case "pingMessage":
-                            conn.send(JSON.stringify({type: "pongMessage"}))
+                            conn.send(JSON.stringify({ type: "pongMessage" }))
                             break
                     }
                 };

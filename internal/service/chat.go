@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/repository"
 )
@@ -15,7 +17,10 @@ func NewChatsService(repo repository.Chats) *ChatsService {
 	}
 }
 
-func CreateMessage(message *model.Message) error {
+func (s *ChatsService) CreateMessage(clientID int, message *model.Message) (int, error) {
+	message.SenderID = clientID
+	message.Date = time.Now()
+	message.Read = false
 
-	return nil
+	return s.repo.CreateMessage(message)
 }
