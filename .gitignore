@@ -1,5 +1,6 @@
 build
 database/*
 database/images/*
+!database/schemes
 !database/images/default-male-avatar.jpg
 !database/images/default-female-avatar.jpg
