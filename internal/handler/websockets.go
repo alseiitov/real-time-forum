@@ -17,7 +17,7 @@ const (
 	maxConnsForUser = 3
 	tokenWait       = 10 * time.Second
 	writeWait       = 10 * time.Second
-	pongWait        = 60 * time.Second
+	pongWait        = 5 * time.Second
 	pingPeriod      = (pongWait * 9) / 10
 	maxMessageSize  = 256
 )
@@ -98,14 +98,14 @@ func (h *Handler) connReadPump(conn *conn) {
 }
 
 func (c *conn) ping() {
-	ticker := time.NewTicker(writeWait)
+	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
 		c.close()
 	}()
 	for {
 		<-ticker.C
-		c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+		c.conn.SetWriteDeadline(time.Now().Add(pongWait))
 		if err := c.writeJSON(&WSEvent{Type: WSEventTypes.PingMessage}); err != nil {
 			return
 		}
