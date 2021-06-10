@@ -21,6 +21,7 @@ type route struct {
 
 type Handler struct {
 	Router               *gorouter.Router
+	eventsChan           chan *model.WSEvent
 	usersService         service.Users
 	moderatorsService    service.Moderators
 	adminsService        service.Admins
@@ -32,9 +33,10 @@ type Handler struct {
 	tokenManager         auth.TokenManager
 }
 
-func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Handler {
+func NewHandler(services *service.Services, tokenManager auth.TokenManager, eventsChan chan *model.WSEvent) *Handler {
 	return &Handler{
 		Router:               gorouter.NewRouter(),
+		eventsChan:           eventsChan,
 		usersService:         services.Users,
 		moderatorsService:    services.Moderators,
 		adminsService:        services.Admins,
@@ -208,4 +210,6 @@ func (h *Handler) Init() {
 			log.Fatalf("error: invalid method \"%v\" for route \"%v\"", route.Method, route.Path)
 		}
 	}
+
+	go h.runEventsPump()
 }

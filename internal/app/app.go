@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/alseiitov/real-time-forum/internal/model"
+
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
 
@@ -70,9 +72,12 @@ func Run(configPath *string) {
 		log.Fatalln(err)
 	}
 
+	eventsChan := make(chan *model.WSEvent)
+
 	// Prepare services
 	services := service.NewServices(service.ServicesDeps{
 		Repos:                          repos,
+		EventsChan:                     eventsChan,
 		Hasher:                         hasher,
 		TokenManager:                   tokenManager,
 		AccessTokenTTL:                 accessTokenTTL,
@@ -87,7 +92,7 @@ func Run(configPath *string) {
 	})
 
 	// Prepare handler
-	handler := handler.NewHandler(services, tokenManager)
+	handler := handler.NewHandler(services, tokenManager, eventsChan)
 	handler.Init()
 
 	// Run server

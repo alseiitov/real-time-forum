@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/alseiitov/gorouter"
+	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/gorilla/websocket"
 )
 
@@ -42,21 +43,14 @@ type conn struct {
 	mu       sync.Mutex
 }
 
-type WSEvent struct {
-	Type string      `json:"type"`
-	Body interface{} `json:"body,omitempty"`
-}
-
-var WSEventTypes = struct {
-	Message     string
-	Error       string
-	PingMessage string
-	PongMessage string
-}{
-	Message:     "message",
-	Error:       "error",
-	PingMessage: "pingMessage",
-	PongMessage: "pongMessage",
+func (h *Handler) runEventsPump() {
+	for {
+		event, ok := <-h.eventsChan
+		if !ok {
+			continue
+		}
+		sendEventToClient(event)
+	}
 }
 
 func (h *Handler) connReadPump(conn *conn) {
@@ -74,24 +68,24 @@ func (h *Handler) connReadPump(conn *conn) {
 			return
 		}
 
-		var event WSEvent
+		var event model.WSEvent
 		err = json.Unmarshal(messageBytes, &event)
 		if err != nil {
-			conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
+			conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: err.Error()})
 			return
 		}
 
 		switch event.Type {
-		case WSEventTypes.Message:
+		case model.WSEventTypes.Message:
 			err := h.messageHandler(conn.clientID, &event)
 			if err != nil {
-				conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
+				conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: err.Error()})
 				return
 			}
-		case WSEventTypes.PongMessage:
+		case model.WSEventTypes.PongMessage:
 			conn.conn.SetReadDeadline(time.Now().Add(pongWait))
 		default:
-			conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: "invalid event type"})
+			conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: "invalid event type"})
 			return
 		}
 	}
@@ -106,7 +100,7 @@ func (c *conn) ping() {
 	for {
 		<-ticker.C
 		c.conn.SetWriteDeadline(time.Now().Add(pongWait))
-		if err := c.writeJSON(&WSEvent{Type: WSEventTypes.PingMessage}); err != nil {
+		if err := c.writeJSON(&model.WSEvent{Type: model.WSEventTypes.PingMessage}); err != nil {
 			return
 		}
 	}
@@ -141,15 +135,15 @@ func (c *conn) writeJSON(data interface{}) error {
 	return c.conn.WriteJSON(data)
 }
 
-func sendEventToClient(clientID int, event *WSEvent) {
-	client, ok := clients[clientID]
+func sendEventToClient(event *model.WSEvent) {
+	client, ok := clients[event.RecipientID]
 	if !ok {
 		return
 	}
 	client.send(event)
 }
 
-func (c *client) send(event *WSEvent) {
+func (c *client) send(event *model.WSEvent) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -175,7 +169,7 @@ func (h *Handler) handleWebSocket(ctx *gorouter.Context) {
 
 	err = h.identifyConn(connection)
 	if err != nil {
-		connection.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: err.Error()})
+		connection.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: err.Error()})
 		connection.conn.Close()
 		return
 	}
@@ -188,7 +182,7 @@ func (h *Handler) handleWebSocket(ctx *gorouter.Context) {
 
 	if len(c.conns) == maxConnsForUser {
 		conn := c.conns[0]
-		conn.writeJSON(&WSEvent{Type: WSEventTypes.Error, Body: "too many connections"})
+		conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: "too many connections"})
 		conn.close()
 	}
 
@@ -201,7 +195,7 @@ func (h *Handler) handleWebSocket(ctx *gorouter.Context) {
 func (h *Handler) identifyConn(c *conn) error {
 	c.conn.SetReadDeadline(time.Now().Add(tokenWait))
 
-	var event WSEvent
+	var event model.WSEvent
 	_, messageBytes, err := c.conn.ReadMessage()
 	if err != nil {
 		return errors.New("no token received")
@@ -233,11 +227,11 @@ func logConns() {
 	}
 }
 
-func (e *WSEvent) readBodyTo(data interface{}) error {
+func UnmarshalEventBody(e *model.WSEvent, v interface{}) error {
 	bodyBytes, err := json.Marshal(e.Body.(map[string]interface{}))
 	if err != nil {
 		return err
 	}
 
-	return json.Unmarshal(bodyBytes, &data)
+	return json.Unmarshal(bodyBytes, &v)
 }

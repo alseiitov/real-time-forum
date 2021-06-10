@@ -56,7 +56,7 @@ type Notifications interface {
 }
 
 type Chats interface {
-	CreateMessage(message *model.Message) (int, error)
+	CreateMessage(senderID, recipientID int, message string) error
 }
 
 type Services struct {
@@ -72,6 +72,7 @@ type Services struct {
 
 type ServicesDeps struct {
 	Repos                          *repository.Repositories
+	EventsChan                     chan *model.WSEvent
 	Hasher                         hash.PasswordHasher
 	TokenManager                   auth.TokenManager
 	AccessTokenTTL                 time.Duration
@@ -100,7 +101,7 @@ func NewServices(deps ServicesDeps) *Services {
 		deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL,
 		deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar,
 	)
-	chatsService := NewChatsService(deps.Repos.Chats)
+	chatsService := NewChatsService(deps.Repos.Chats, deps.EventsChan)
 	moderatorsService := NewModeratorsService(deps.Repos.Moderators)
 	adminsService := NewAdminsService(deps.Repos.Admins, notificationsService, usersService)
 

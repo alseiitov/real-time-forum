@@ -8,18 +8,44 @@ import (
 )
 
 type ChatsService struct {
-	repo repository.Chats
+	repo       repository.Chats
+	eventsChan chan *model.WSEvent
 }
 
-func NewChatsService(repo repository.Chats) *ChatsService {
+func NewChatsService(repo repository.Chats, eventsChan chan *model.WSEvent) *ChatsService {
 	return &ChatsService{
-		repo: repo,
+		repo:       repo,
+		eventsChan: eventsChan,
 	}
 }
 
-func (s *ChatsService) CreateMessage(message *model.Message) (int, error) {
-	message.Date = time.Now()
-	message.Read = false
+func (s *ChatsService) CreateMessage(senderID, recipientID int, message string) error {
+	var err error
 
-	return s.repo.CreateMessage(message)
+	msg := &model.Message{
+		SenderID:    senderID,
+		RecipientID: recipientID,
+		Message:     message,
+		Date:        time.Now(),
+		Read:        false,
+	}
+
+	msg.ID, err = s.repo.CreateMessage(msg)
+	if err != nil {
+		return err
+	}
+
+	s.eventsChan <- &model.WSEvent{
+		Type:        model.WSEventTypes.Message,
+		Body:        msg,
+		RecipientID: msg.SenderID,
+	}
+
+	s.eventsChan <- &model.WSEvent{
+		Type:        model.WSEventTypes.Message,
+		Body:        msg,
+		RecipientID: msg.RecipientID,
+	}
+
+	return nil
 }
