@@ -74,17 +74,19 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 		return 0, err
 	}
 
-	notification := model.Notification{
-		RecipientID:  post.UserID,
-		SenderID:     input.UserID,
-		ActivityType: model.NotificationActivities.PostCommented,
-		ObjectID:     input.PostID,
-		Date:         time.Now(),
-		Status:       model.NotificationStatus.Unread,
+	if input.UserID != post.UserID {
+		notification := model.Notification{
+			RecipientID:  post.UserID,
+			SenderID:     input.UserID,
+			ActivityType: model.NotificationActivities.PostCommented,
+			ObjectID:     input.PostID,
+			Date:         time.Now(),
+			Status:       model.NotificationStatus.Unread,
+		}
+		return id, s.notificationsService.Create(notification)
 	}
 
-	err = s.notificationsService.Create(notification)
-	return id, err
+	return id, nil
 }
 
 func (s *CommentsService) Delete(userID, postID int) error {
@@ -111,21 +113,50 @@ func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Com
 }
 
 func (s *CommentsService) LikeComment(comentID, userID, likeType int) error {
-
 	like := model.CommentLike{
 		CommentID: comentID,
 		UserID:    userID,
 		LikeType:  likeType,
 	}
 
-	if err := s.repo.LikeComment(like); err != nil {
+	likeCreated, err := s.repo.LikeComment(like)
+	if err != nil {
 		if err == repository.ErrForeignKeyConstraint {
 			return ErrCommentDoesntExist
 		}
 		return err
 	}
 
-	// TODO: send notification to comment author
+	// send notification to comment author
+	if likeCreated {
+		comment, err := s.repo.GetByID(comentID)
+		if err != nil {
+			if err == repository.ErrForeignKeyConstraint {
+				return ErrPostDoesntExist
+			}
+			return err
+		}
+
+		if userID != comment.UserID {
+			var activityType int
+
+			if likeType == model.LikeTypes.Like {
+				activityType = model.NotificationActivities.CommentLiked
+			} else {
+				activityType = model.NotificationActivities.CommentDisliked
+			}
+
+			notification := model.Notification{
+				RecipientID:  comment.UserID,
+				SenderID:     userID,
+				ActivityType: activityType,
+				Date:         time.Now(),
+				Status:       model.NotificationStatus.Unread,
+			}
+
+			return s.notificationsService.Create(notification)
+		}
+	}
 
 	return nil
 }

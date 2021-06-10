@@ -47,6 +47,40 @@ func (r *CommentsRepo) Create(comment model.Comment) (int, error) {
 	return int(id), err
 }
 
+func (r *CommentsRepo) GetByID(commentID int) (model.Comment, error) {
+	var comment model.Comment
+
+	row := r.db.QueryRow(`
+		SELECT 
+			id, status, user_id, post_id, data, image, date 
+		FROM 
+			comments 
+		WHERE 
+			id = $1
+		`,
+		commentID,
+	)
+
+	err := row.Scan(
+		&comment.ID,
+		&comment.Status,
+		&comment.UserID,
+		&comment.PostID,
+		&comment.Data,
+		&comment.Image,
+		&comment.Date,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return comment, ErrNoRows
+		}
+		return comment, err
+	}
+
+	return comment, nil
+}
+
 func (r *CommentsRepo) Delete(userID, commentID int) error {
 	res, err := r.db.Exec(`DELETE FROM comments WHERE id=$1 AND user_id=$2`, commentID, userID)
 	if err != nil {
@@ -108,10 +142,12 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([
 	return comments, rows.Err()
 }
 
-func (r *CommentsRepo) LikeComment(like model.CommentLike) error {
+func (r *CommentsRepo) LikeComment(like model.CommentLike) (bool, error) {
+	var likeCreated bool // bool for checking that like/dislike created (not unliked/undisliked)
+
 	tx, err := r.db.Begin()
 	if err != nil {
-		return err
+		return likeCreated, err
 	}
 
 	// Get old like to comapare with new one
@@ -138,7 +174,7 @@ func (r *CommentsRepo) LikeComment(like model.CommentLike) error {
 
 	if err != nil && err != sql.ErrNoRows {
 		tx.Rollback()
-		return err
+		return likeCreated, err
 	}
 
 	// Delete old like if user already like this post
@@ -146,7 +182,7 @@ func (r *CommentsRepo) LikeComment(like model.CommentLike) error {
 		_, err := tx.Exec(`DELETE FROM comments_likes WHERE id = $1`, oldLike.ID)
 		if err != nil {
 			tx.Rollback()
-			return err
+			return likeCreated, err
 		}
 	}
 
@@ -164,11 +200,13 @@ func (r *CommentsRepo) LikeComment(like model.CommentLike) error {
 		if err != nil {
 			tx.Rollback()
 			if isForeignKeyConstraintError(err) {
-				return ErrForeignKeyConstraint
+				return likeCreated, ErrForeignKeyConstraint
 			}
-			return err
+			return likeCreated, err
 		}
+
+		likeCreated = true
 	}
 
-	return tx.Commit()
+	return likeCreated, tx.Commit()
 }
