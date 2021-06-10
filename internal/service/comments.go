@@ -131,9 +131,6 @@ func (s *CommentsService) LikeComment(comentID, userID, likeType int) error {
 	if likeCreated {
 		comment, err := s.repo.GetByID(comentID)
 		if err != nil {
-			if err == repository.ErrForeignKeyConstraint {
-				return ErrPostDoesntExist
-			}
 			return err
 		}
 

@@ -216,10 +216,12 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 	return posts, nil
 }
 
-func (r *PostsRepo) LikePost(like model.PostLike) error {
+func (r *PostsRepo) LikePost(like model.PostLike) (bool, error) {
+	var likeCreated bool // bool for checking that like/dislike created (not unliked/undisliked)
+
 	tx, err := r.db.Begin()
 	if err != nil {
-		return err
+		return likeCreated, err
 	}
 
 	// Get old like to comapare with new one
@@ -241,7 +243,7 @@ func (r *PostsRepo) LikePost(like model.PostLike) error {
 
 	if err != nil && err != sql.ErrNoRows {
 		tx.Rollback()
-		return err
+		return likeCreated, err
 	}
 
 	// Delete old like if user already like this post
@@ -249,7 +251,7 @@ func (r *PostsRepo) LikePost(like model.PostLike) error {
 		_, err := tx.Exec(`DELETE FROM posts_likes WHERE id = $1`, oldLike.ID)
 		if err != nil {
 			tx.Rollback()
-			return err
+			return likeCreated, err
 		}
 	}
 
@@ -267,11 +269,13 @@ func (r *PostsRepo) LikePost(like model.PostLike) error {
 		if err != nil {
 			tx.Rollback()
 			if isForeignKeyConstraintError(err) {
-				return ErrForeignKeyConstraint
+				return likeCreated, ErrForeignKeyConstraint
 			}
-			return err
+			return likeCreated, err
 		}
+
+		likeCreated = true
 	}
 
-	return tx.Commit()
+	return likeCreated, tx.Commit()
 }

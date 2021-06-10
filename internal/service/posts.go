@@ -104,14 +104,40 @@ func (s *PostsService) LikePost(postID, userID, likeType int) error {
 		LikeType: likeType,
 	}
 
-	if err := s.repo.LikePost(like); err != nil {
+	likeCreated, err := s.repo.LikePost(like)
+	if err != nil {
 		if err == repository.ErrForeignKeyConstraint {
 			return ErrPostDoesntExist
 		}
 		return err
 	}
 
-	// TODO: send notification to post author
+	if likeCreated {
+		post, err := s.GetByID(postID)
+		if err != nil {
+			return err
+		}
+
+		if userID != post.UserID {
+			var activityType int
+
+			if likeType == model.LikeTypes.Like {
+				activityType = model.NotificationActivities.PostLiked
+			} else {
+				activityType = model.NotificationActivities.PostDisliked
+			}
+
+			notification := model.Notification{
+				RecipientID:  post.UserID,
+				SenderID:     userID,
+				ActivityType: activityType,
+				Date:         time.Now(),
+				Status:       model.NotificationStatus.Unread,
+			}
+
+			return s.notificationsService.Create(notification)
+		}
+	}
 
 	return nil
 }
