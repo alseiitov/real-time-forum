@@ -6,12 +6,14 @@ import (
 )
 
 type NotificationsService struct {
-	repo repository.Notifications
+	repo       repository.Notifications
+	eventsChan chan *model.WSEvent
 }
 
-func NewNotificationsService(repo repository.Notifications) *NotificationsService {
+func NewNotificationsService(repo repository.Notifications, eventsChan chan *model.WSEvent) *NotificationsService {
 	return &NotificationsService{
-		repo: repo,
+		repo:       repo,
+		eventsChan: eventsChan,
 	}
 }
 
@@ -20,5 +22,16 @@ func (s *NotificationsService) GetNotifications(userID int) ([]model.Notificatio
 }
 
 func (s *NotificationsService) Create(notification model.Notification) error {
-	return s.repo.Create(notification)
+	err := s.repo.Create(notification)
+	if err != nil {
+		return err
+	}
+
+	s.eventsChan <- &model.WSEvent{
+		Type:        model.WSEventTypes.Notification,
+		Body:        notification,
+		RecipientID: notification.RecipientID,
+	}
+
+	return nil
 }

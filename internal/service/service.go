@@ -87,9 +87,9 @@ type ServicesDeps struct {
 }
 
 func NewServices(deps ServicesDeps) *Services {
-	notificationsService := NewNotificationsService(deps.Repos.Notifications)
+	notificationsService := NewNotificationsService(deps.Repos.Notifications, deps.EventsChan)
 	commentsService := NewCommentsService(
-		deps.Repos.Comments, notificationsService, deps.CommentsForPage,
+		deps.Repos.Comments, deps.Repos.Posts, notificationsService, deps.CommentsForPage,
 		deps.ImagesDir, deps.CommentsPreModerationIsEnabled,
 	)
 	postsService := NewPostsService(

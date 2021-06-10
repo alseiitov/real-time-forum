@@ -10,16 +10,18 @@ import (
 
 type CommentsService struct {
 	repo                           repository.Comments
+	postsRepo                      repository.Posts
 	notificationsService           Notifications
 	commentsForPage                int
 	imagesDir                      string
 	commentsPreModerationIsEnabled bool
 }
 
-func NewCommentsService(repo repository.Comments, notificationsService Notifications, commentsForPage int,
+func NewCommentsService(repo repository.Comments, postsRepo repository.Posts, notificationsService Notifications, commentsForPage int,
 	imagesDir string, commentsPreModerationIsEnabled bool) *CommentsService {
 	return &CommentsService{
 		repo:                           repo,
+		postsRepo:                      postsRepo,
 		notificationsService:           notificationsService,
 		commentsForPage:                commentsForPage,
 		imagesDir:                      imagesDir,
@@ -64,9 +66,16 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 	}
 
 	// Create notification for post author
-	// TODO: fix recipientID
+	post, err := s.postsRepo.GetByID(input.PostID)
+	if err != nil {
+		if err == repository.ErrForeignKeyConstraint {
+			return 0, ErrPostDoesntExist
+		}
+		return 0, err
+	}
+
 	notification := model.Notification{
-		RecipientID:  input.UserID,
+		RecipientID:  post.UserID,
 		SenderID:     input.UserID,
 		ActivityType: model.NotificationActivities.PostCommented,
 		ObjectID:     input.PostID,

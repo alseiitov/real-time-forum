@@ -7,6 +7,5 @@ CREATE TABLE notifications (
   date DATETIME,
   message TEXT,
   status INTEGER NOT NULL,
-  FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY(sender_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );
