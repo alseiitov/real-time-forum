@@ -1,4 +1,4 @@
-package handler
+package http
 
 import (
 	"log"
@@ -6,6 +6,7 @@ import (
 
 	"github.com/alseiitov/gorouter"
 	_ "github.com/alseiitov/real-time-forum/docs"
+	"github.com/alseiitov/real-time-forum/internal/handler/ws"
 	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/service"
 	"github.com/alseiitov/real-time-forum/pkg/auth"
@@ -21,7 +22,7 @@ type route struct {
 
 type Handler struct {
 	Router               *gorouter.Router
-	eventsChan           chan *model.WSEvent
+	wsHandler            *ws.Handler
 	usersService         service.Users
 	moderatorsService    service.Moderators
 	adminsService        service.Admins
@@ -33,10 +34,10 @@ type Handler struct {
 	tokenManager         auth.TokenManager
 }
 
-func NewHandler(services *service.Services, tokenManager auth.TokenManager, eventsChan chan *model.WSEvent) *Handler {
+func NewHandler(services *service.Services, tokenManager auth.TokenManager, wsHandler *ws.Handler) *Handler {
 	return &Handler{
 		Router:               gorouter.NewRouter(),
-		eventsChan:           eventsChan,
+		wsHandler:            wsHandler,
 		usersService:         services.Users,
 		moderatorsService:    services.Moderators,
 		adminsService:        services.Admins,
@@ -52,7 +53,7 @@ func NewHandler(services *service.Services, tokenManager auth.TokenManager, even
 func (h *Handler) Init() {
 	images := http.FileServer(http.Dir("./database/images"))
 
-	go logConns()
+	go h.wsHandler.LogConns()
 
 	routes := []route{
 		// User handlers
@@ -178,7 +179,7 @@ func (h *Handler) Init() {
 			Path:    "/ws",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
-			Handler: h.handleWebSocket,
+			Handler: h.wsHandler.ServeWS,
 		},
 
 		// Swagger handler
@@ -211,5 +212,5 @@ func (h *Handler) Init() {
 		}
 	}
 
-	go h.runEventsPump()
+	go h.wsHandler.RunEventsPump()
 }

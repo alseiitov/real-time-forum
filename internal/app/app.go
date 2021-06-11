@@ -4,13 +4,14 @@ import (
 	"log"
 	"os"
 
+	"github.com/alseiitov/real-time-forum/internal/handler/http"
+	"github.com/alseiitov/real-time-forum/internal/handler/ws"
 	"github.com/alseiitov/real-time-forum/internal/model"
 
 	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/alseiitov/real-time-forum/pkg/hash"
 
 	"github.com/alseiitov/real-time-forum/internal/config"
-	"github.com/alseiitov/real-time-forum/internal/handler"
 	"github.com/alseiitov/real-time-forum/internal/repository"
 	"github.com/alseiitov/real-time-forum/internal/server"
 	"github.com/alseiitov/real-time-forum/internal/service"
@@ -72,6 +73,7 @@ func Run(configPath *string) {
 		log.Fatalln(err)
 	}
 
+	// channel to receive notifications from services and send to users by websocket
 	eventsChan := make(chan *model.WSEvent)
 
 	// Prepare services
@@ -92,10 +94,11 @@ func Run(configPath *string) {
 	})
 
 	// Prepare handler
-	handler := handler.NewHandler(services, tokenManager, eventsChan)
-	handler.Init()
+	wsHandler := ws.NewHandler(eventsChan, services, tokenManager, config)
+	httpHandler := http.NewHandler(services, tokenManager, wsHandler)
+	httpHandler.Init()
 
 	// Run server
-	server := server.NewServer(config, handler.Router)
+	server := server.NewServer(config, httpHandler.Router)
 	log.Fatalln(server.Run())
 }

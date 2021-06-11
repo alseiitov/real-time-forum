@@ -9,53 +9,55 @@ import (
 	"github.com/alseiitov/validator"
 )
 
-type Conf struct {
-	API       API       `json:"api"`
-	Websocket Websocket `json:"websocket"`
-	Client    Client    `json:"client"`
-	Database  Database  `json:"database"`
-	Auth      Auth      `json:"auth"`
-	Forum     Forum     `json:"forum"`
-}
+type (
+	Conf struct {
+		API       API       `json:"api"`
+		Websocket Websocket `json:"websocket"`
+		Client    Client    `json:"client"`
+		Database  Database  `json:"database"`
+		Auth      Auth      `json:"auth"`
+		Forum     Forum     `json:"forum"`
+	}
 
-type API struct {
-	Host string `json:"host" validator:"required"`
-	Port string `json:"port" validator:"required"`
-}
+	API struct {
+		Host string `json:"host" validator:"required"`
+		Port string `json:"port" validator:"required"`
+	}
 
-type Client struct {
-	Port string `json:"port" validator:"required"`
-}
+	Client struct {
+		Port string `json:"port" validator:"required"`
+	}
 
-type Database struct {
-	Driver     string `json:"driver" validator:"required"`
-	Path       string `json:"path" validator:"required"`
-	FileName   string `json:"fileName" validator:"required"`
-	ImagesDir  string `json:"imagesDir" validator:"required"`
-	SchemesDir string `json:"schemesDir" validator:"required"`
-}
+	Database struct {
+		Driver     string `json:"driver" validator:"required"`
+		Path       string `json:"path" validator:"required"`
+		FileName   string `json:"fileName" validator:"required"`
+		ImagesDir  string `json:"imagesDir" validator:"required"`
+		SchemesDir string `json:"schemesDir" validator:"required"`
+	}
 
-type Auth struct {
-	AccessTokenTTL  int `json:"accessTokenTTL" validator:"required"`
-	RefreshTokenTTL int `json:"refreshTokenTTL" validator:"required"`
-}
+	Auth struct {
+		AccessTokenTTL  int `json:"accessTokenTTL" validator:"required"`
+		RefreshTokenTTL int `json:"refreshTokenTTL" validator:"required"`
+	}
 
-type Websocket struct {
-	MaxConnsForUser int `json:"maxConnsForUser" validator:"required,max=32"`
-	MaxMessageSize  int `json:"maxMessageSize" validator:"required"`
-	TokenWait       int `json:"tokenWait" validator:"required"`
-	WriteWait       int `json:"writeWait" validator:"required"`
-	PongWait        int `json:"pongWait" validator:"required"`
-}
+	Websocket struct {
+		MaxConnsForUser int   `json:"maxConnsForUser" validator:"required,max=32"`
+		MaxMessageSize  int64 `json:"maxMessageSize" validator:"required"`
+		TokenWait       int   `json:"tokenWait" validator:"required"`
+		WriteWait       int   `json:"writeWait" validator:"required"`
+		PongWait        int   `json:"pongWait" validator:"required"`
+	}
 
-type Forum struct {
-	DefaultMaleAvatar              string `json:"defaultMaleAvatar" validator:"required"`
-	DefaultFemaleAvatar            string `json:"defaultFemaleAvatar" validator:"required"`
-	PostsForPage                   int    `json:"postsForPage" validator:"required"`
-	CommentsForPage                int    `json:"commentsForPage" validator:"required"`
-	PostsPreModerationIsEnabled    bool   `json:"postsPreModerationIsEnabled"`
-	CommentsPreModerationIsEnabled bool   `json:"commentsPreModerationIsEnabled"`
-}
+	Forum struct {
+		DefaultMaleAvatar              string `json:"defaultMaleAvatar" validator:"required"`
+		DefaultFemaleAvatar            string `json:"defaultFemaleAvatar" validator:"required"`
+		PostsForPage                   int    `json:"postsForPage" validator:"required"`
+		CommentsForPage                int    `json:"commentsForPage" validator:"required"`
+		PostsPreModerationIsEnabled    bool   `json:"postsPreModerationIsEnabled"`
+		CommentsPreModerationIsEnabled bool   `json:"commentsPreModerationIsEnabled"`
+	}
+)
 
 func NewConfig(confPath string) (*Conf, error) {
 	var config Conf
@@ -103,6 +105,7 @@ func (c *Conf) TokenWait() time.Duration {
 func (c *Conf) WriteWait() time.Duration {
 	return secondsToDuration(c.Websocket.WriteWait)
 }
+
 func (c *Conf) PongWait() time.Duration {
 	return secondsToDuration(c.Websocket.PongWait)
 }

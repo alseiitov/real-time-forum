@@ -1,4 +1,4 @@
-package handler
+package ws
 
 import (
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -13,7 +13,7 @@ type messageInput struct {
 func (h *Handler) messageHandler(clientID int, event *model.WSEvent) error {
 	var input messageInput
 
-	err := UnmarshalEventBody(event, &input)
+	err := unmarshalEventBody(event, &input)
 	if err != nil {
 		return err
 	}
