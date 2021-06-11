@@ -56,37 +56,37 @@ func (h *Handler) Init() {
 
 	routes := []route{
 		// User handlers
-		route{
+		{
 			Path:    "/api/users/sign-up",
 			Method:  "POST",
 			MinRole: model.Roles.Guest,
 			Handler: h.usersSignUp,
 		},
-		route{
+		{
 			Path:    "/api/users/sign-in",
 			Method:  "POST",
 			MinRole: model.Roles.Guest,
 			Handler: h.usersSignIn,
 		},
-		route{
+		{
 			Path:    "/api/users/:user_id",
 			Method:  "GET",
 			MinRole: model.Roles.User,
 			Handler: h.getUser,
 		},
-		route{
+		{
 			Path:    "/api/auth/refresh",
 			Method:  "POST",
 			MinRole: model.Roles.Guest,
 			Handler: h.usersRefreshTokens,
 		},
-		route{
+		{
 			Path:    "/api/moderators/requests",
 			Method:  "POST",
 			MinRole: model.Roles.User,
 			Handler: h.requestModerator,
 		},
-		route{
+		{
 			Path:    "/api/notifications",
 			Method:  "GET",
 			MinRole: model.Roles.User,
@@ -94,25 +94,25 @@ func (h *Handler) Init() {
 		},
 
 		// Post handlers
-		route{
+		{
 			Path:    "/api/posts/:post_id",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
 			Handler: h.getPost,
 		},
-		route{
+		{
 			Path:    "/api/posts",
 			Method:  "POST",
 			MinRole: model.Roles.User,
 			Handler: h.createPost,
 		},
-		route{
+		{
 			Path:    "/api/posts/:post_id",
 			Method:  "DELETE",
 			MinRole: model.Roles.User,
 			Handler: h.deletePost,
 		},
-		route{
+		{
 			Path:    "/api/posts/:post_id/likes",
 			Method:  "POST",
 			MinRole: model.Roles.User,
@@ -120,13 +120,13 @@ func (h *Handler) Init() {
 		},
 
 		// Categories handlers
-		route{
+		{
 			Path:    "/api/categories",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
 			Handler: h.getAllCategories,
 		},
-		route{
+		{
 			Path:    "/api/categories/:category_id/:page",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
@@ -134,25 +134,25 @@ func (h *Handler) Init() {
 		},
 
 		// Comments Handlers
-		route{
+		{
 			Path:    "/api/posts/:post_id/comments/:page",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
 			Handler: h.getCommentsOfPost,
 		},
-		route{
+		{
 			Path:    "/api/posts/:post_id/comments",
 			Method:  "POST",
 			MinRole: model.Roles.User,
 			Handler: h.createComment,
 		},
-		route{
+		{
 			Path:    "/api/comments/:comment_id/likes",
 			Method:  "POST",
 			MinRole: model.Roles.User,
 			Handler: h.likeComment,
 		},
-		route{
+		{
 			Path:    "/api/comments/:comment_id",
 			Method:  "DELETE",
 			MinRole: model.Roles.User,
@@ -160,13 +160,13 @@ func (h *Handler) Init() {
 		},
 
 		// Admins Handlers
-		route{
+		{
 			Path:    "/api/moderators/requests",
 			Method:  "GET",
 			MinRole: model.Roles.Admin,
 			Handler: h.getRequestsForModerator,
 		},
-		route{
+		{
 			Path:    "/api/moderators/requests/:request_id",
 			Method:  "POST",
 			MinRole: model.Roles.Admin,
@@ -174,7 +174,7 @@ func (h *Handler) Init() {
 		},
 
 		// Chat Handlers
-		route{
+		{
 			Path:    "/ws",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
@@ -182,7 +182,7 @@ func (h *Handler) Init() {
 		},
 
 		// Swagger handler
-		route{
+		{
 			Path:    "/swagger/*",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
@@ -190,7 +190,7 @@ func (h *Handler) Init() {
 		},
 
 		// Images filserver
-		route{
+		{
 			Path:    "/images/*",
 			Method:  "GET",
 			MinRole: model.Roles.Guest,
