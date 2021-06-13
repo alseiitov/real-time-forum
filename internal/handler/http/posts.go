@@ -41,14 +41,14 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 }
 
 type createPostInput struct {
-	Title      string `json:"title" validator:"required,min=2, max=64"`
-	Data       string `json:"data" validator:"required,min=2, max=512"`
+	Title      string `json:"title" validator:"required,min=2,max=64"`
+	Data       string `json:"data" validator:"required,min=2,max=512"`
 	Image      string `json:"image"`
-	Categories []int  `json:"categories" validator:"required,min=1"`
+	Categories []int  `json:"categories" validator:"required,min=1" example:"1,2"`
 }
 
 type createPostResponse struct {
-	PostID int `json:"postID"`
+	PostID int `json:"postID" example:"1"`
 }
 
 // @Summary Create post
@@ -140,7 +140,7 @@ func (h *Handler) deletePost(ctx *gorouter.Context) {
 }
 
 type likePostInput struct {
-	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+	LikeType int `json:"likeType" validator:"required,min=1,max=2" example:"1"`
 }
 
 // @Summary Like or dislike post
@@ -149,8 +149,8 @@ type likePostInput struct {
 // @ModuleID likePost
 // @Accept  json
 // @Produce  json
-// @Param input body likePostInput true "like type: 1 - like, 2 - dislike"
 // @Param post_id path int true "ID of post"
+// @Param input body likePostInput true "like type: 1 - like, 2 - dislike"
 // @Success 200 {string} string "ok"
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error

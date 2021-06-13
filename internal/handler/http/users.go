@@ -11,13 +11,13 @@ import (
 )
 
 type usersSignUpInput struct {
-	Username  string `json:"username" validator:"required,username,min=2,max=64"`
-	FirstName string `json:"firstName" validator:"required,min=2,max=64"`
-	LastName  string `json:"lastName" validator:"required,min=2,max=64"`
-	Age       int    `json:"age" validator:"required,min=12,max=110"`
-	Gender    int    `json:"gender" validator:"min=1,max=2"`
-	Email     string `json:"email" validator:"required,email,max=64"`
-	Password  string `json:"password" validator:"required,password,min=7,max=64"`
+	Username  string `json:"username" validator:"required,username,min=2,max=64" example:"johndoe"`
+	FirstName string `json:"firstName" validator:"required,min=2,max=64" example:"John"`
+	LastName  string `json:"lastName" validator:"required,min=2,max=64" example:"Doe"`
+	Age       int    `json:"age" validator:"required,min=12,max=110" example:"18"`
+	Gender    int    `json:"gender" validator:"min=1,max=2" example:"1"`
+	Email     string `json:"email" validator:"required,email,max=64" example:"johndoe@gmail.com"`
+	Password  string `json:"password" validator:"required,password,min=7,max=64" example:"Password123@"`
 }
 
 // @Summary Sign up
@@ -66,8 +66,8 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 }
 
 type usersSignInInput struct {
-	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64"`
-	Password        string `json:"password" validator:"required,password,min=7,max=64"`
+	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64" example:"jogndoe"`
+	Password        string `json:"password" validator:"required,password,min=7,max=64" example:"Password123@"`
 }
 
 type tokenResponse struct {

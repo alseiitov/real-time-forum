@@ -1,27 +1,32 @@
 basePath: /api
 definitions:
-  github.com_alseiitov_real-time-forum_internal_handler.RequestForModeratorActionInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.RequestForModeratorActionInput:
     properties:
       action:
+        example: accept
         type: string
       message:
         type: string
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.createCommentInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.createCommentInput:
     properties:
       data:
         type: string
       image:
         type: string
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.createCommentResponse:
+  github.com_alseiitov_real-time-forum_internal_handler_http.createCommentResponse:
     properties:
       commentID:
+        example: 1
         type: integer
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.createPostInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.createPostInput:
     properties:
       categories:
+        example:
+        - 1
+        - 2
         items:
           type: integer
         type: array
@@ -32,57 +37,69 @@ definitions:
       title:
         type: string
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.createPostResponse:
+  github.com_alseiitov_real-time-forum_internal_handler_http.createPostResponse:
     properties:
       postID:
+        example: 1
         type: integer
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.likeCommentInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.likeCommentInput:
     properties:
       likeType:
+        example: 1
         type: integer
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.likePostInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.likePostInput:
     properties:
       likeType:
+        example: 1
         type: integer
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.tokenResponse:
+  github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse:
     properties:
       accessToken:
         type: string
       refreshToken:
         type: string
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.usersRefreshTokensInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.usersRefreshTokensInput:
     properties:
       accessToken:
         type: string
       refreshToken:
         type: string
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.usersSignInInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.usersSignInInput:
     properties:
       password:
+        example: Password123@
         type: string
       usernameOrEmail:
+        example: jogndoe
         type: string
     type: object
-  github.com_alseiitov_real-time-forum_internal_handler.usersSignUpInput:
+  github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput:
     properties:
       age:
+        example: 18
         type: integer
       email:
+        example: johndoe@gmail.com
         type: string
       firstName:
+        example: John
         type: string
       gender:
+        example: 1
         type: integer
       lastName:
+        example: Doe
         type: string
       password:
+        example: Password123@
         type: string
       username:
+        example: johndoe
         type: string
     type: object
   gorouter.Error:
@@ -90,28 +107,33 @@ definitions:
       error:
         type: string
     type: object
-  internal_handler.RequestForModeratorActionInput:
+  internal_handler_http.RequestForModeratorActionInput:
     properties:
       action:
+        example: accept
         type: string
       message:
         type: string
     type: object
-  internal_handler.createCommentInput:
+  internal_handler_http.createCommentInput:
     properties:
       data:
         type: string
       image:
         type: string
     type: object
-  internal_handler.createCommentResponse:
+  internal_handler_http.createCommentResponse:
     properties:
       commentID:
+        example: 1
         type: integer
     type: object
-  internal_handler.createPostInput:
+  internal_handler_http.createPostInput:
     properties:
       categories:
+        example:
+        - 1
+        - 2
         items:
           type: integer
         type: array
@@ -122,57 +144,69 @@ definitions:
       title:
         type: string
     type: object
-  internal_handler.createPostResponse:
+  internal_handler_http.createPostResponse:
     properties:
       postID:
+        example: 1
         type: integer
     type: object
-  internal_handler.likeCommentInput:
+  internal_handler_http.likeCommentInput:
     properties:
       likeType:
+        example: 1
         type: integer
     type: object
-  internal_handler.likePostInput:
+  internal_handler_http.likePostInput:
     properties:
       likeType:
+        example: 1
         type: integer
     type: object
-  internal_handler.tokenResponse:
+  internal_handler_http.tokenResponse:
     properties:
       accessToken:
         type: string
       refreshToken:
         type: string
     type: object
-  internal_handler.usersRefreshTokensInput:
+  internal_handler_http.usersRefreshTokensInput:
     properties:
       accessToken:
         type: string
       refreshToken:
         type: string
     type: object
-  internal_handler.usersSignInInput:
+  internal_handler_http.usersSignInInput:
     properties:
       password:
+        example: Password123@
         type: string
       usernameOrEmail:
+        example: jogndoe
         type: string
     type: object
-  internal_handler.usersSignUpInput:
+  internal_handler_http.usersSignUpInput:
     properties:
       age:
+        example: 18
         type: integer
       email:
+        example: johndoe@gmail.com
         type: string
       firstName:
+        example: John
         type: string
       gender:
+        example: 1
         type: integer
       lastName:
+        example: Doe
         type: string
       password:
+        example: Password123@
         type: string
       username:
+        example: johndoe
         type: string
     type: object
   model.Category:
@@ -251,8 +285,6 @@ definitions:
         type: integer
       lastName:
         type: string
-      password:
-        type: string
       registered:
         type: string
       role:
@@ -277,14 +309,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.usersRefreshTokensInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersRefreshTokensInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_handler.tokenResponse'
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -450,7 +482,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.likeCommentInput'
+          $ref: '#/definitions/internal_handler_http.likeCommentInput'
       produces:
       - application/json
       responses:
@@ -583,7 +615,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.RequestForModeratorActionInput'
+          $ref: '#/definitions/internal_handler_http.RequestForModeratorActionInput'
       produces:
       - application/json
       responses:
@@ -630,14 +662,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostInput'
+          $ref: '#/definitions/internal_handler_http.createPostInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostResponse'
+            $ref: '#/definitions/internal_handler_http.createPostResponse'
         "400":
           description: Bad Request
           schema:
@@ -761,14 +793,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.createCommentInput'
+          $ref: '#/definitions/internal_handler_http.createCommentInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/internal_handler.createCommentResponse'
+            $ref: '#/definitions/internal_handler_http.createCommentResponse'
         "400":
           description: Bad Request
           schema:
@@ -856,17 +888,17 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 'like type: 1 - like, 2 - dislike'
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likePostInput'
       - description: ID of post
         in: path
         name: post_id
         required: true
         type: integer
+      - description: 'like type: 1 - like, 2 - dislike'
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler_http.likePostInput'
       produces:
       - application/json
       responses:
@@ -951,14 +983,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.usersSignInInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignInInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/internal_handler.tokenResponse'
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -992,7 +1024,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler.usersSignUpInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput'
       produces:
       - application/json
       responses:

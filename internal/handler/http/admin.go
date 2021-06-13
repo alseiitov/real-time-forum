@@ -29,7 +29,7 @@ func (h *Handler) getRequestsForModerator(ctx *gorouter.Context) {
 }
 
 type RequestForModeratorActionInput struct {
-	Action  string `json:"action"`
+	Action  string `json:"action" example:"accept"`
 	Message string `json:"message"`
 }
 

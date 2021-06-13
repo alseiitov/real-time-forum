@@ -15,7 +15,7 @@ type createCommentInput struct {
 }
 
 type createCommentResponse struct {
-	CommentID int `json:"commentID"`
+	CommentID int `json:"commentID" example:"1"`
 }
 
 // @Summary Create comment
@@ -151,7 +151,7 @@ func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
 }
 
 type likeCommentInput struct {
-	LikeType int `json:"likeType" validator:"required,min=1,max=2"`
+	LikeType int `json:"likeType" validator:"required,min=1,max=2" example:"1"`
 }
 
 // @Summary Like of dislike comment

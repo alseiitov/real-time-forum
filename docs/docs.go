@@ -42,7 +42,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.usersRefreshTokensInput"
+                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersRefreshTokensInput"
                         }
                     }
                 ],
@@ -50,7 +50,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.tokenResponse"
+                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse"
                         }
                     },
                     "400": {
@@ -316,7 +316,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.likeCommentInput"
+                            "$ref": "#/definitions/internal_handler_http.likeCommentInput"
                         }
                     }
                 ],
@@ -524,7 +524,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.RequestForModeratorActionInput"
+                            "$ref": "#/definitions/internal_handler_http.RequestForModeratorActionInput"
                         }
                     }
                 ],
@@ -598,7 +598,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostInput"
+                            "$ref": "#/definitions/internal_handler_http.createPostInput"
                         }
                     }
                 ],
@@ -606,7 +606,7 @@ var doc = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler.createPostResponse"
+                            "$ref": "#/definitions/internal_handler_http.createPostResponse"
                         }
                     },
                     "400": {
@@ -803,7 +803,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.createCommentInput"
+                            "$ref": "#/definitions/internal_handler_http.createCommentInput"
                         }
                     }
                 ],
@@ -811,7 +811,7 @@ var doc = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.createCommentResponse"
+                            "$ref": "#/definitions/internal_handler_http.createCommentResponse"
                         }
                     },
                     "400": {
@@ -954,20 +954,20 @@ var doc = `{
                 "summary": "Like or dislike post",
                 "parameters": [
                     {
-                        "description": "like type: 1 - like, 2 - dislike",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler.likePostInput"
-                        }
-                    },
-                    {
                         "type": "integer",
                         "description": "ID of post",
                         "name": "post_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "like type: 1 - like, 2 - dislike",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handler_http.likePostInput"
+                        }
                     }
                 ],
                 "responses": {
@@ -1035,7 +1035,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.usersSignInInput"
+                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignInInput"
                         }
                     }
                 ],
@@ -1043,7 +1043,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.tokenResponse"
+                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse"
                         }
                     },
                     "400": {
@@ -1098,7 +1098,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler.usersSignUpInput"
+                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput"
                         }
                     }
                 ],
@@ -1204,18 +1204,19 @@ var doc = `{
         }
     },
     "definitions": {
-        "github.com_alseiitov_real-time-forum_internal_handler.RequestForModeratorActionInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.RequestForModeratorActionInput": {
             "type": "object",
             "properties": {
                 "action": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "accept"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.createCommentInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.createCommentInput": {
             "type": "object",
             "properties": {
                 "data": {
@@ -1226,22 +1227,27 @@ var doc = `{
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.createCommentResponse": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.createCommentResponse": {
             "type": "object",
             "properties": {
                 "commentID": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.createPostInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.createPostInput": {
             "type": "object",
             "properties": {
                 "categories": {
                     "type": "array",
                     "items": {
                         "type": "integer"
-                    }
+                    },
+                    "example": [
+                        1,
+                        2
+                    ]
                 },
                 "data": {
                     "type": "string"
@@ -1254,31 +1260,34 @@ var doc = `{
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.createPostResponse": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.createPostResponse": {
             "type": "object",
             "properties": {
                 "postID": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.likeCommentInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.likeCommentInput": {
             "type": "object",
             "properties": {
                 "likeType": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.likePostInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.likePostInput": {
             "type": "object",
             "properties": {
                 "likeType": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.tokenResponse": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -1289,7 +1298,7 @@ var doc = `{
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.usersRefreshTokensInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.usersRefreshTokensInput": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -1300,40 +1309,49 @@ var doc = `{
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.usersSignInInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.usersSignInInput": {
             "type": "object",
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Password123@"
                 },
                 "usernameOrEmail": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "jogndoe"
                 }
             }
         },
-        "github.com_alseiitov_real-time-forum_internal_handler.usersSignUpInput": {
+        "github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput": {
             "type": "object",
             "properties": {
                 "age": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 18
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "johndoe@gmail.com"
                 },
                 "firstName": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "John"
                 },
                 "gender": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "lastName": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Doe"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Password123@"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "johndoe"
                 }
             }
         },
@@ -1345,18 +1363,19 @@ var doc = `{
                 }
             }
         },
-        "internal_handler.RequestForModeratorActionInput": {
+        "internal_handler_http.RequestForModeratorActionInput": {
             "type": "object",
             "properties": {
                 "action": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "accept"
                 },
                 "message": {
                     "type": "string"
                 }
             }
         },
-        "internal_handler.createCommentInput": {
+        "internal_handler_http.createCommentInput": {
             "type": "object",
             "properties": {
                 "data": {
@@ -1367,22 +1386,27 @@ var doc = `{
                 }
             }
         },
-        "internal_handler.createCommentResponse": {
+        "internal_handler_http.createCommentResponse": {
             "type": "object",
             "properties": {
                 "commentID": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "internal_handler.createPostInput": {
+        "internal_handler_http.createPostInput": {
             "type": "object",
             "properties": {
                 "categories": {
                     "type": "array",
                     "items": {
                         "type": "integer"
-                    }
+                    },
+                    "example": [
+                        1,
+                        2
+                    ]
                 },
                 "data": {
                     "type": "string"
@@ -1395,31 +1419,34 @@ var doc = `{
                 }
             }
         },
-        "internal_handler.createPostResponse": {
+        "internal_handler_http.createPostResponse": {
             "type": "object",
             "properties": {
                 "postID": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "internal_handler.likeCommentInput": {
+        "internal_handler_http.likeCommentInput": {
             "type": "object",
             "properties": {
                 "likeType": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "internal_handler.likePostInput": {
+        "internal_handler_http.likePostInput": {
             "type": "object",
             "properties": {
                 "likeType": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
-        "internal_handler.tokenResponse": {
+        "internal_handler_http.tokenResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -1430,7 +1457,7 @@ var doc = `{
                 }
             }
         },
-        "internal_handler.usersRefreshTokensInput": {
+        "internal_handler_http.usersRefreshTokensInput": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -1441,40 +1468,49 @@ var doc = `{
                 }
             }
         },
-        "internal_handler.usersSignInInput": {
+        "internal_handler_http.usersSignInInput": {
             "type": "object",
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Password123@"
                 },
                 "usernameOrEmail": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "jogndoe"
                 }
             }
         },
-        "internal_handler.usersSignUpInput": {
+        "internal_handler_http.usersSignUpInput": {
             "type": "object",
             "properties": {
                 "age": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 18
                 },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "johndoe@gmail.com"
                 },
                 "firstName": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "John"
                 },
                 "gender": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "lastName": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Doe"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Password123@"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "johndoe"
                 }
             }
         },
@@ -1592,9 +1628,6 @@ var doc = `{
                     "type": "integer"
                 },
                 "lastName": {
-                    "type": "string"
-                },
-                "password": {
                     "type": "string"
                 },
                 "registered": {
