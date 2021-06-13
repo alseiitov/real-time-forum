@@ -24,16 +24,7 @@ func (h *Handler) connReadPump(conn *conn) {
 	conn.conn.SetReadDeadline(time.Now().Add(h.pongWait))
 
 	for {
-		_, messageBytes, err := conn.conn.ReadMessage()
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
-			}
-			return
-		}
-
-		var event model.WSEvent
-		err = json.Unmarshal(messageBytes, &event)
+		event, err := conn.readEvent()
 		if err != nil {
 			conn.writeError(err)
 			return
@@ -114,6 +105,22 @@ func (c *conn) writeError(err error) error {
 			Body: err.Error(),
 		},
 	)
+}
+
+func (c *conn) readEvent() (model.WSEvent, error) {
+	var event model.WSEvent
+
+	_, messageBytes, err := c.conn.ReadMessage()
+	if err != nil {
+		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			log.Printf("error: %v", err)
+		}
+		return event, err
+	}
+
+	err = json.Unmarshal(messageBytes, &event)
+
+	return event, err
 }
 
 func (h *Handler) identifyConn(c *conn) error {
