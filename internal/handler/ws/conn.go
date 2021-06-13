@@ -2,7 +2,6 @@ package ws
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"sync"
@@ -16,30 +15,6 @@ type conn struct {
 	clientID int
 	conn     *websocket.Conn
 	mu       sync.Mutex
-}
-
-func (h *Handler) identifyConn(c *conn) error {
-	c.conn.SetReadDeadline(time.Now().Add(h.tokenWait))
-
-	var event model.WSEvent
-	_, messageBytes, err := c.conn.ReadMessage()
-	if err != nil {
-		return errors.New("no token received")
-	}
-
-	err = json.Unmarshal(messageBytes, &event)
-	if err != nil {
-		return err
-	}
-
-	token := fmt.Sprintf("%s", event.Body)
-	sub, _, err := h.tokenManager.Parse(token)
-	if err != nil {
-		return err
-	}
-
-	c.clientID = sub
-	return nil
 }
 
 func (h *Handler) connReadPump(conn *conn) {
@@ -60,21 +35,23 @@ func (h *Handler) connReadPump(conn *conn) {
 		var event model.WSEvent
 		err = json.Unmarshal(messageBytes, &event)
 		if err != nil {
-			conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: err.Error()})
+			conn.writeError(err)
 			return
 		}
 
 		switch event.Type {
 		case model.WSEventTypes.Message:
-			err := h.messageHandler(conn.clientID, &event)
-			if err != nil {
-				conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: err.Error()})
-				return
-			}
+			err = h.messageHandler(conn.clientID, &event)
+
 		case model.WSEventTypes.PongMessage:
-			conn.conn.SetReadDeadline(time.Now().Add(h.pongWait))
+			err = conn.conn.SetReadDeadline(time.Now().Add(h.pongWait))
+
 		default:
-			conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: "invalid event type"})
+			err = errInvalidEventType
+		}
+
+		if err != nil {
+			conn.writeError(err)
 			return
 		}
 	}
@@ -89,7 +66,13 @@ func (h *Handler) pingConn(c *conn) {
 	for {
 		<-ticker.C
 		c.conn.SetWriteDeadline(time.Now().Add(h.pongWait))
-		if err := c.writeJSON(&model.WSEvent{Type: model.WSEventTypes.PingMessage}); err != nil {
+
+		event := &model.WSEvent{
+			Type: model.WSEventTypes.PingMessage,
+		}
+
+		err := c.writeJSON(event)
+		if err != nil {
 			return
 		}
 	}
@@ -122,4 +105,37 @@ func (c *conn) writeJSON(data interface{}) error {
 	defer c.mu.Unlock()
 
 	return c.conn.WriteJSON(data)
+}
+
+func (c *conn) writeError(err error) error {
+	return c.writeJSON(
+		&model.WSEvent{
+			Type: model.WSEventTypes.Error,
+			Body: err.Error(),
+		},
+	)
+}
+
+func (h *Handler) identifyConn(c *conn) error {
+	c.conn.SetReadDeadline(time.Now().Add(h.tokenWait))
+
+	_, messageBytes, err := c.conn.ReadMessage()
+	if err != nil {
+		return errNoTokenReceived
+	}
+
+	var event model.WSEvent
+	err = json.Unmarshal(messageBytes, &event)
+	if err != nil {
+		return err
+	}
+
+	token := fmt.Sprintf("%s", event.Body)
+	sub, _, err := h.tokenManager.Parse(token)
+	if err != nil {
+		return err
+	}
+
+	c.clientID = sub
+	return nil
 }

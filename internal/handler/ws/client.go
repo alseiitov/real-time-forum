@@ -26,7 +26,8 @@ func (h *Handler) sendEventToClient(event *model.WSEvent) {
 		conn := client.conns[i]
 		conn.conn.SetWriteDeadline(time.Now().Add(h.writeWait))
 
-		if err := conn.writeJSON(&event); err != nil {
+		err := conn.writeJSON(&event)
+		if err != nil {
 			h.closeConn(conn)
 			continue
 		}

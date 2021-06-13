@@ -60,7 +60,7 @@ func (h *Handler) ServeWS(ctx *gorouter.Context) {
 
 	err = h.identifyConn(connection)
 	if err != nil {
-		connection.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: err.Error()})
+		connection.writeError(err)
 		connection.conn.Close()
 		return
 	}
@@ -73,7 +73,7 @@ func (h *Handler) ServeWS(ctx *gorouter.Context) {
 
 	if len(c.conns) == h.maxConnsForUser {
 		conn := c.conns[0]
-		conn.writeJSON(&model.WSEvent{Type: model.WSEventTypes.Error, Body: "too many connections"})
+		conn.writeError(errTooManyConnections)
 		h.closeConn(conn)
 	}
 
