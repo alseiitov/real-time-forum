@@ -42,6 +42,9 @@
                 conn = new WebSocket("ws://127.0.0.1:8081/ws")
                 conn.onopen = function (evt) {
                     conn.send(JSON.stringify({ type: "token", body: token }))
+                    setTimeout(() => {
+                        conn.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
+                    }, 1000)
                 }
                 conn.onerror = function (evt) {
                     alert(evt.data)
@@ -56,11 +59,25 @@
                     console.log(obj)
                     switch (obj.type) {
                         case "message":
+                            let msg = obj.body
                             var item = document.createElement("div");
                             item.classList.add("message")
-                            item.innerText = `user ${obj.body.senderID} sends to user ${obj.body.recipientID}\n${new Date(obj.body.date).toLocaleString()}\n${obj.body.message}\n`
+                            item.innerText = `user ${msg.senderID} sends to user ${msg.recipientID}\n${new Date(Date.parse(msg.date)).toLocaleString()}\n${msg.message}\n`
                             appendLog(item);
                             break
+                        case "messagesResponse":
+                            obj.body.forEach((msg) => {
+                                var item = document.createElement("div");
+                                item.classList.add("message")
+                                item.innerText = `user ${msg.senderID} sends to user ${msg.recipientID}\n${new Date(Date.parse(msg.date)).toLocaleString()}\n${msg.message}\n`
+
+                                log.prepend(item)
+                                
+                                console.log(msg)
+                            })
+
+                            break
+
                         case "notification":
                             // console.log(obj)
                             break

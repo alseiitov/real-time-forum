@@ -49,3 +49,8 @@ func (s *ChatsService) CreateMessage(senderID, recipientID int, message string) 
 
 	return nil
 }
+
+func (s *ChatsService) GetMessages(senderID, recipientID, lastMessageID int) ([]model.Message, error) {
+	limit := 10
+	return s.repo.GetMessages(senderID, recipientID, lastMessageID, limit)
+}

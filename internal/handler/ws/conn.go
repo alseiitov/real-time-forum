@@ -32,7 +32,10 @@ func (h *Handler) connReadPump(conn *conn) {
 
 		switch event.Type {
 		case model.WSEventTypes.Message:
-			err = h.messageHandler(conn.clientID, &event)
+			err = h.handleNewMessage(conn.clientID, &event)
+
+		case model.WSEventTypes.MessagesRequest:
+			err = h.getMessages(conn.clientID, &event)
 
 		case model.WSEventTypes.PongMessage:
 			err = conn.conn.SetReadDeadline(time.Now().Add(h.pongWait))

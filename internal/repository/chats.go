@@ -29,3 +29,59 @@ func (r *ChatsRepo) CreateMessage(message *model.Message) (int, error) {
 	id, err := res.LastInsertId()
 	return int(id), err
 }
+
+func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int) ([]model.Message, error) {
+	var messages []model.Message
+
+	rows, err := r.db.Query(`
+		SELECT 
+			id, sender_id, recipient_id, message, date, status 
+		FROM 
+			messages 
+		WHERE 
+			(
+				(sender_id = $1 AND recipient_id = $2) 
+				OR 
+				(sender_id = $2 AND recipient_id = $1)
+			) 
+		AND 
+			CASE WHEN 
+				$3 = 0 
+			THEN 
+				true 
+			ELSE 
+				id < $3 
+			END
+		ORDER BY 
+			id 
+		DESC LIMIT $4;
+	`,
+		senderID, recipientID, lastMessageID, limit,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var message model.Message
+
+		err := rows.Scan(
+			&message.ID,
+			&message.SenderID,
+			&message.RecipientID,
+			&message.Message,
+			&message.Date,
+			&message.Read,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
