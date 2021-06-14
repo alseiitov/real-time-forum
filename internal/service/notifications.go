@@ -22,6 +22,10 @@ func (s *NotificationsService) GetNotifications(userID int) ([]model.Notificatio
 }
 
 func (s *NotificationsService) Create(notification model.Notification) error {
+	if notification.RecipientID == notification.SenderID {
+		return nil
+	}
+
 	err := s.repo.Create(notification)
 	if err != nil {
 		return err

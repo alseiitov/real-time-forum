@@ -15,7 +15,7 @@ func NewChatsRepo(db *sql.DB) *ChatsRepo {
 }
 
 func (r *ChatsRepo) CreateMessage(message *model.Message) (int, error) {
-	stmt, err := r.db.Prepare(`INSERT INTO messages (sender_id, recipient_id, message, date, status) VALUES (?, ?, ?, ?, ?)`)
+	stmt, err := r.db.Prepare(`INSERT INTO messages (sender_id, recipient_id, message, date, read) VALUES (?, ?, ?, ?, ?)`)
 	if err != nil {
 		return 0, err
 	}
@@ -40,7 +40,7 @@ func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int)
 
 	rows, err := tx.Query(`
 		SELECT 
-			id, sender_id, recipient_id, message, date, status 
+			id, sender_id, recipient_id, message, date, read 
 		FROM 
 			messages 
 		WHERE 
@@ -89,10 +89,13 @@ func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int)
 
 		messages = append(messages, message)
 
-		_, err = tx.Exec(`UPDATE messages SET status = true WHERE id = $1`, message.ID)
-		if err != nil {
-			tx.Rollback()
-			return nil, err
+		// update message read status to true if user is message recipient
+		if message.RecipientID == senderID {
+			_, err = tx.Exec(`UPDATE messages SET read = true WHERE id = $1`, message.ID)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
 		}
 	}
 

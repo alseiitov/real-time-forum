@@ -118,25 +118,23 @@ func (s *PostsService) LikePost(postID, userID, likeType int) error {
 			return err
 		}
 
-		if userID != post.UserID {
-			var activityType int
+		var activityType int
 
-			if likeType == model.LikeTypes.Like {
-				activityType = model.NotificationActivities.PostLiked
-			} else {
-				activityType = model.NotificationActivities.PostDisliked
-			}
-
-			notification := model.Notification{
-				RecipientID:  post.UserID,
-				SenderID:     userID,
-				ActivityType: activityType,
-				Date:         time.Now(),
-				Status:       model.NotificationStatus.Unread,
-			}
-
-			return s.notificationsService.Create(notification)
+		if likeType == model.LikeTypes.Like {
+			activityType = model.NotificationActivities.PostLiked
+		} else {
+			activityType = model.NotificationActivities.PostDisliked
 		}
+
+		notification := model.Notification{
+			RecipientID:  post.UserID,
+			SenderID:     userID,
+			ActivityType: activityType,
+			Date:         time.Now(),
+			Read:         false,
+		}
+
+		return s.notificationsService.Create(notification)
 	}
 
 	return nil

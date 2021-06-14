@@ -10,15 +10,14 @@ import (
 )
 
 type UsersService struct {
-	repo                 repository.Users
-	notificationsService Notifications
-	hasher               hash.PasswordHasher
-	tokenManager         auth.TokenManager
-	accessTokenTTL       time.Duration
-	refreshTokenTTL      time.Duration
-	imagesDir            string
-	defaultMaleAvatar    string
-	defaultFemaleAvatar  string
+	repo                repository.Users
+	hasher              hash.PasswordHasher
+	tokenManager        auth.TokenManager
+	accessTokenTTL      time.Duration
+	refreshTokenTTL     time.Duration
+	imagesDir           string
+	defaultMaleAvatar   string
+	defaultFemaleAvatar string
 }
 
 func NewUsersService(repo repository.Users, hasher hash.PasswordHasher, tokenManager auth.TokenManager, accessTokenTTL time.Duration,

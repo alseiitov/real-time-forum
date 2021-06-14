@@ -66,7 +66,7 @@ func (h *Handler) usersSignUp(ctx *gorouter.Context) {
 }
 
 type usersSignInInput struct {
-	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64" example:"jogndoe"`
+	UsernameOrEmail string `json:"usernameOrEmail" validator:"required,max=64" example:"johndoe"`
 	Password        string `json:"password" validator:"required,password,min=7,max=64" example:"Password123@"`
 }
 

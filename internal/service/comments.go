@@ -74,19 +74,16 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 		return 0, err
 	}
 
-	if input.UserID != post.UserID {
-		notification := model.Notification{
-			RecipientID:  post.UserID,
-			SenderID:     input.UserID,
-			ActivityType: model.NotificationActivities.PostCommented,
-			ObjectID:     input.PostID,
-			Date:         time.Now(),
-			Status:       model.NotificationStatus.Unread,
-		}
-		return id, s.notificationsService.Create(notification)
+	notification := model.Notification{
+		RecipientID:  post.UserID,
+		SenderID:     input.UserID,
+		ActivityType: model.NotificationActivities.PostCommented,
+		ObjectID:     input.PostID,
+		Date:         time.Now(),
+		Read:         false,
 	}
 
-	return id, nil
+	return id, s.notificationsService.Create(notification)
 }
 
 func (s *CommentsService) Delete(userID, postID int) error {
@@ -134,25 +131,23 @@ func (s *CommentsService) LikeComment(comentID, userID, likeType int) error {
 			return err
 		}
 
-		if userID != comment.UserID {
-			var activityType int
+		var activityType int
 
-			if likeType == model.LikeTypes.Like {
-				activityType = model.NotificationActivities.CommentLiked
-			} else {
-				activityType = model.NotificationActivities.CommentDisliked
-			}
-
-			notification := model.Notification{
-				RecipientID:  comment.UserID,
-				SenderID:     userID,
-				ActivityType: activityType,
-				Date:         time.Now(),
-				Status:       model.NotificationStatus.Unread,
-			}
-
-			return s.notificationsService.Create(notification)
+		if likeType == model.LikeTypes.Like {
+			activityType = model.NotificationActivities.CommentLiked
+		} else {
+			activityType = model.NotificationActivities.CommentDisliked
 		}
+
+		notification := model.Notification{
+			RecipientID:  comment.UserID,
+			SenderID:     userID,
+			ActivityType: activityType,
+			Date:         time.Now(),
+			Read:         false,
+		}
+
+		return s.notificationsService.Create(notification)
 	}
 
 	return nil

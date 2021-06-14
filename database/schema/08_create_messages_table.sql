@@ -4,7 +4,7 @@ CREATE TABLE messages (
   recipient_id INTEGER NOT NULL,
   message TEXT NOT NULL,
   date DATETIME,
-  status INTEGER NOT NULL,
+  read INTEGER NOT NULL,
   FOREIGN KEY(sender_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );

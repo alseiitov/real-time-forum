@@ -75,7 +75,7 @@ definitions:
         example: Password123@
         type: string
       usernameOrEmail:
-        example: jogndoe
+        example: johndoe
         type: string
     type: object
   github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput:
@@ -182,7 +182,7 @@ definitions:
         example: Password123@
         type: string
       usernameOrEmail:
-        example: jogndoe
+        example: johndoe
         type: string
     type: object
   internal_handler_http.usersSignUpInput:
@@ -309,14 +309,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersRefreshTokensInput'
+          $ref: '#/definitions/internal_handler_http.usersRefreshTokensInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse'
+            $ref: '#/definitions/internal_handler_http.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -482,7 +482,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_http.likeCommentInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.likeCommentInput'
       produces:
       - application/json
       responses:
@@ -662,14 +662,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_http.createPostInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.createPostInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/internal_handler_http.createPostResponse'
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.createPostResponse'
         "400":
           description: Bad Request
           schema:
@@ -793,14 +793,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_http.createCommentInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.createCommentInput'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/internal_handler_http.createCommentResponse'
+            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.createCommentResponse'
         "400":
           description: Bad Request
           schema:
@@ -898,7 +898,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_http.likePostInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.likePostInput'
       produces:
       - application/json
       responses:
@@ -983,14 +983,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignInInput'
+          $ref: '#/definitions/internal_handler_http.usersSignInInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse'
+            $ref: '#/definitions/internal_handler_http.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -1024,7 +1024,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput'
+          $ref: '#/definitions/internal_handler_http.usersSignUpInput'
       produces:
       - application/json
       responses:

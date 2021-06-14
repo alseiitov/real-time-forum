@@ -34,7 +34,7 @@ func (r *NotificationsRepo) GetNotifications(userID int) ([]model.Notification, 
 			&notification.ObjectID,
 			&notification.Date,
 			&notification.Message,
-			&notification.Status,
+			&notification.Read,
 		)
 
 		if err != nil {
@@ -48,19 +48,10 @@ func (r *NotificationsRepo) GetNotifications(userID int) ([]model.Notification, 
 }
 
 func (r *NotificationsRepo) Create(n model.Notification) error {
-	recipientID, err := r.getRecipientID(n)
-	if err != nil {
-		return err
-	}
-
-	if recipientID == n.SenderID {
-		return nil
-	}
-
 	stmt, err := r.db.Prepare(`
 		INSERT INTO 
 			notifications 
-				(recipient_id, sender_id, activity_type, object_id, date, message, status) 
+				(recipient_id, sender_id, activity_type, object_id, date, message, read) 
 		VALUES 
 			($1, $2, $3, $4, $5, $6, $7)`,
 	)
@@ -71,13 +62,13 @@ func (r *NotificationsRepo) Create(n model.Notification) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		&recipientID,
+		&n.RecipientID,
 		&n.SenderID,
 		&n.ActivityType,
 		&n.ObjectID,
 		&n.Date,
 		&n.Message,
-		&n.Status,
+		&n.Read,
 	)
 
 	if err != nil {
@@ -85,32 +76,4 @@ func (r *NotificationsRepo) Create(n model.Notification) error {
 	}
 
 	return err
-}
-
-func (r *NotificationsRepo) getRecipientID(n model.Notification) (int, error) {
-	if n.RecipientID != 0 {
-		return n.RecipientID, nil
-	}
-
-	var query string
-	var id int
-
-	switch n.ActivityType {
-	case
-		model.NotificationActivities.PostLiked,
-		model.NotificationActivities.PostDisliked,
-		model.NotificationActivities.PostCommented,
-		model.NotificationActivities.PostModerationApproved,
-		model.NotificationActivities.PostModerationDeclined:
-
-		query = `SELECT user_id FROM posts WHERE id = $1`
-	case
-		model.NotificationActivities.CommentLiked,
-		model.NotificationActivities.CommentDisliked:
-
-		query = `SELECT user_id FROM comments WHERE id = $1`
-	}
-
-	err := r.db.QueryRow(query, n.ObjectID).Scan(&id)
-	return id, err
 }

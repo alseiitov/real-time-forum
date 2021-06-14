@@ -6,6 +6,6 @@ CREATE TABLE notifications (
   object_id INTEGER NOT NULL,
   date DATETIME,
   message TEXT,
-  status INTEGER NOT NULL,
+  read INTEGER NOT NULL,
   FOREIGN KEY(recipient_id) REFERENCES users(id) ON DELETE CASCADE
 );

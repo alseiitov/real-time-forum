@@ -44,7 +44,7 @@ func (s *AdminsService) AcceptRequestForModerator(adminID, requestID int) error 
 		SenderID:     adminID,
 		ActivityType: model.NotificationActivities.ModeratorRequestAccepted,
 		Date:         time.Now(),
-		Status:       model.NotificationStatus.Unread,
+		Read:         false,
 	}
 
 	err = s.notificationsService.Create(requestAcceptedNotification)
@@ -70,7 +70,7 @@ func (s *AdminsService) DeclineRequestForModerator(adminID, requestID int, messa
 		ActivityType: model.NotificationActivities.ModeratorRequestDeclined,
 		Date:         time.Now(),
 		Message:      message,
-		Status:       model.NotificationStatus.Unread,
+		Read:         false,
 	}
 
 	err = s.notificationsService.Create(requestDeclinedNotification)
@@ -91,7 +91,7 @@ func (s *AdminsService) UpdateUserRole(userID int, role int) error {
 		RecipientID:  userID,
 		ActivityType: model.NotificationActivities.RoleUpdated,
 		Date:         time.Now(),
-		Status:       model.NotificationStatus.Unread,
+		Read:         false,
 	}
 
 	return s.notificationsService.Create(roleUpdatedNotification)

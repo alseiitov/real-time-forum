@@ -10,7 +10,7 @@ type Notification struct {
 	ObjectID     int       `json:"objectID,omitempty"`
 	Date         time.Time `json:"date,omitempty"`
 	Message      string    `json:"message,omitempty"`
-	Status       int       `json:"status,omitempty"`
+	Read         bool      `json:"read,omitempty"`
 }
 
 var NotificationActivities = struct {
@@ -35,12 +35,4 @@ var NotificationActivities = struct {
 	RoleUpdated:              8,
 	ModeratorRequestAccepted: 9,
 	ModeratorRequestDeclined: 10,
-}
-
-var NotificationStatus = struct {
-	Read   int
-	Unread int
-}{
-	Read:   1,
-	Unread: 2,
 }
