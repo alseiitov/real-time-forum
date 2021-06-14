@@ -33,7 +33,12 @@ func (r *ChatsRepo) CreateMessage(message *model.Message) (int, error) {
 func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int) ([]model.Message, error) {
 	var messages []model.Message
 
-	rows, err := r.db.Query(`
+	tx, err := r.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := tx.Query(`
 		SELECT 
 			id, sender_id, recipient_id, message, date, status 
 		FROM 
@@ -60,6 +65,7 @@ func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int)
 	)
 
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	defer rows.Close()
@@ -77,11 +83,18 @@ func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int)
 		)
 
 		if err != nil {
+			tx.Rollback()
 			return nil, err
 		}
 
 		messages = append(messages, message)
+
+		_, err = tx.Exec(`UPDATE messages SET status = true WHERE id = $1`, message.ID)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
-	return messages, nil
+	return messages, tx.Commit()
 }
