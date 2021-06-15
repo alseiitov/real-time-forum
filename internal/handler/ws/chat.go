@@ -1,8 +1,6 @@
 package ws
 
 import (
-	"fmt"
-
 	"github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/validator"
 )
@@ -33,7 +31,7 @@ type getMessagesInput struct {
 	LastMessageID int `json:"lastMessageID"`
 }
 
-func (h *Handler) getMessages(clientID int, event *model.WSEvent) error {
+func (h *Handler) getMessages(clientID int, conn *conn, event *model.WSEvent) error {
 	var input getMessagesInput
 
 	err := unmarshalEventBody(event, &input)
@@ -51,13 +49,11 @@ func (h *Handler) getMessages(clientID int, event *model.WSEvent) error {
 		return err
 	}
 
-	h.sendEventToClient(
-		&model.WSEvent{
-			Type:        model.WSEventTypes.MessagesResponse,
-			Body:        messages,
-			RecipientID: clientID,
-		},
-	)
+	conn.writeJSON(&model.WSEvent{
+		Type:        model.WSEventTypes.MessagesResponse,
+		Body:        messages,
+		RecipientID: clientID,
+	})
 
 	return nil
 }
@@ -79,12 +75,5 @@ func (h *Handler) readMessage(clientID int, event *model.WSEvent) error {
 		return err
 	}
 
-	err = h.chatsService.ReadMessage(clientID, input.MessageID)
-	if err != nil {
-		fmt.Println(clientID)
-		fmt.Println(input)
-		return err
-	}
-
-	return nil
+	return h.chatsService.ReadMessage(clientID, input.MessageID)
 }
