@@ -33,12 +33,7 @@ func (r *ChatsRepo) CreateMessage(message *model.Message) (int, error) {
 func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int) ([]model.Message, error) {
 	var messages []model.Message
 
-	tx, err := r.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-
-	rows, err := tx.Query(`
+	rows, err := r.db.Query(`
 		SELECT 
 			id, sender_id, recipient_id, message, date, read 
 		FROM 
@@ -60,12 +55,11 @@ func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int)
 		ORDER BY 
 			id 
 		DESC LIMIT $4;
-	`,
+		`,
 		senderID, recipientID, lastMessageID, limit,
 	)
 
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	defer rows.Close()
@@ -83,21 +77,39 @@ func (r *ChatsRepo) GetMessages(senderID, recipientID, lastMessageID, limit int)
 		)
 
 		if err != nil {
-			tx.Rollback()
 			return nil, err
 		}
 
 		messages = append(messages, message)
-
-		// update message read status to true if user is message recipient
-		if message.RecipientID == senderID {
-			_, err = tx.Exec(`UPDATE messages SET read = true WHERE id = $1`, message.ID)
-			if err != nil {
-				tx.Rollback()
-				return nil, err
-			}
-		}
 	}
 
-	return messages, tx.Commit()
+	return messages, nil
+}
+
+func (r *ChatsRepo) ReadMessage(recipientID int, messageID int) (model.Message, error) {
+	var message model.Message
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return message, err
+	}
+
+	err = tx.QueryRow(
+		`SELECT id, sender_id FROM messages WHERE id = $1 AND recipient_id = $2`, messageID, recipientID,
+	).Scan(
+		&message.ID, &message.SenderID,
+	)
+
+	if err != nil {
+		tx.Rollback()
+		return message, err
+	}
+
+	_, err = tx.Exec(`UPDATE messages SET read = true WHERE id = $1`, messageID)
+	if err != nil {
+		tx.Rollback()
+		return message, err
+	}
+
+	return message, tx.Commit()
 }

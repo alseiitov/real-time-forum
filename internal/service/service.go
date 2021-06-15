@@ -58,6 +58,7 @@ type Notifications interface {
 type Chats interface {
 	CreateMessage(senderID, recipientID int, message string) error
 	GetMessages(senderID, recipientID, lastMessageID int) ([]model.Message, error)
+	ReadMessage(recipientID int, messageID int) error
 }
 
 type Services struct {

@@ -20,7 +20,12 @@ func (h *Handler) LogConns() {
 }
 
 func unmarshalEventBody(e *model.WSEvent, v interface{}) error {
-	bodyBytes, err := json.Marshal(e.Body.(map[string]interface{}))
+	body, ok := e.Body.(map[string]interface{})
+	if !ok {
+		return errInvalidEventBody
+	}
+
+	bodyBytes, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}

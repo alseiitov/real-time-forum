@@ -54,3 +54,18 @@ func (s *ChatsService) GetMessages(senderID, recipientID, lastMessageID int) ([]
 	limit := 10
 	return s.repo.GetMessages(senderID, recipientID, lastMessageID, limit)
 }
+
+func (s *ChatsService) ReadMessage(recipientID int, messageID int) error {
+	message, err := s.repo.ReadMessage(recipientID, messageID)
+	if err != nil {
+		return err
+	}
+
+	s.eventsChan <- &model.WSEvent{
+		Type:        model.WSEventTypes.ReadMessageResponse,
+		Body:        message.ID,
+		RecipientID: message.SenderID,
+	}
+
+	return nil
+}

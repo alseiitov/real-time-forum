@@ -7,19 +7,23 @@ type WSEvent struct {
 }
 
 var WSEventTypes = struct {
-	Message          string
-	MessagesRequest  string
-	MessagesResponse string
-	Notification     string
-	Error            string
-	PingMessage      string
-	PongMessage      string
+	Message             string
+	MessagesRequest     string
+	MessagesResponse    string
+	ReadMessageRequest  string
+	ReadMessageResponse string
+	Notification        string
+	Error               string
+	PingMessage         string
+	PongMessage         string
 }{
-	Message:          "message",
-	MessagesRequest:  "messagesRequest",
-	MessagesResponse: "messagesResponse",
-	Notification:     "notification",
-	Error:            "error",
-	PingMessage:      "pingMessage",
-	PongMessage:      "pongMessage",
+	Message:             "message",
+	MessagesRequest:     "messagesRequest",
+	MessagesResponse:    "messagesResponse",
+	ReadMessageRequest:  "readMessageRequest",
+	ReadMessageResponse: "readMessageResponse",
+	Notification:        "notification",
+	Error:               "error",
+	PingMessage:         "pingMessage",
+	PongMessage:         "pongMessage",
 }

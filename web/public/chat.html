@@ -12,9 +12,12 @@
             var recipientID = parseInt(window.location.href.slice(-1))
             if (recipientID == 1) {
                 var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI5Mzg4MDQ0NTY5Iiwicm9sZSI6IjIiLCJzdWIiOiIyIn0.dLVytdQkOTxiNAvia4GfEjk6IJGvdHlygrjBCKFm9KU"
+                var senderID = 2
+
             }
             if (recipientID == 2) {
                 var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI5Mzg4MDQ0NTQ3Iiwicm9sZSI6IjIiLCJzdWIiOiIxIn0.2bRxGzoFv2MNEWixcl-ZFIvh3NSlTxkLcV49q5wnOMY"
+                var senderID = 1
             }
 
             function appendLog(item) {
@@ -61,22 +64,45 @@
                         case "message":
                             let msg = obj.body
                             var item = document.createElement("div");
+                            item.id = `message-${msg.id}`
+
+                            if (!msg.read && msg.recipientID == senderID) {
+                                conn.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: msg.id } }))
+                            }
+                            if (!msg.read && msg.senderID == senderID) {
+                                item.style.color = "gray"
+                            }
+
                             item.classList.add("message")
                             item.innerText = `user ${msg.senderID} sends to user ${msg.recipientID}\n${new Date(Date.parse(msg.date)).toLocaleString()}\n${msg.message}\n`
                             appendLog(item);
+
                             break
                         case "messagesResponse":
                             obj.body.forEach((msg) => {
                                 var item = document.createElement("div");
+                                item.id =  `message-${msg.id}`
+
+                                if (!msg.read && msg.recipientID == senderID) {
+                                    conn.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: msg.id } }))
+                                }
+                                if (!msg.read && msg.senderID == senderID) {
+                                    item.style.color = "gray"
+                                }
+
                                 item.classList.add("message")
                                 item.innerText = `user ${msg.senderID} sends to user ${msg.recipientID}\n${new Date(Date.parse(msg.date)).toLocaleString()}\n${msg.message}\n`
 
                                 log.prepend(item)
-                                
+
                                 console.log(msg)
                             })
 
                             break
+                        case "readMessageResponse":
+                            
+                            let el = document.getElementById(`message-${obj.body}`)
+                            el.style.color = "black"
 
                         case "notification":
                             // console.log(obj)
