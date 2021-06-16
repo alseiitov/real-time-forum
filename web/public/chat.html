@@ -9,6 +9,39 @@
             var msg = document.getElementById("msg");
             var log = document.getElementById("log");
 
+
+            const debounce = (func, wait, immediate) => {
+                var timeout;
+                return function () {
+                    var context = this, args = arguments;
+                    var later = function () {
+                        timeout = null;
+                        if (!immediate) func.apply(context, args);
+                    };
+                    var callNow = immediate && !timeout;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                    if (callNow) func.apply(context, args);
+                };
+            };
+
+            const loadMessages = debounce(function () {
+                console.log(log.scrollHeight)
+                console.log(log.scrollTop)
+
+                if (log.scrollTop < log.scrollHeight * 0.1) {
+                    let offsetMsg = document.querySelector('.message')
+                    let offsetMsgID = parseInt(offsetMsg.id.split('-')[1]);
+                    conn.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: offsetMsgID } }))
+                }
+
+                if (log.scrollTop == 0) {
+                    log.scrollTop = 1
+                }
+            }, 50)
+
+            log.addEventListener("scroll", loadMessages)
+
             var recipientID = parseInt(window.location.href.slice(-1))
             if (recipientID == 1) {
                 var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI5Mzg4MDQ0NTY5Iiwicm9sZSI6IjIiLCJzdWIiOiIyIn0.dLVytdQkOTxiNAvia4GfEjk6IJGvdHlygrjBCKFm9KU"
@@ -79,9 +112,11 @@
 
                             break
                         case "messagesResponse":
+                            let scrollToEnd = log.childNodes.length == 0
+
                             obj.body.forEach((msg) => {
                                 var item = document.createElement("div");
-                                item.id =  `message-${msg.id}`
+                                item.id = `message-${msg.id}`
 
                                 if (!msg.read && msg.recipientID == senderID) {
                                     conn.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: msg.id } }))
@@ -95,12 +130,14 @@
 
                                 log.prepend(item)
 
-                                console.log(msg)
+                                if (scrollToEnd) {
+                                    log.scrollTop = log.scrollHeight
+                                }
                             })
 
                             break
                         case "readMessageResponse":
-                            
+
                             let el = document.getElementById(`message-${obj.body}`)
                             el.style.color = "black"
 
@@ -148,6 +185,7 @@
             right: 0.5em;
             bottom: 3em;
             overflow: auto;
+            height: 600px;
         }
 
         .message {
