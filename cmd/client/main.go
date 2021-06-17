@@ -23,24 +23,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	chatTemp, err := template.ParseFiles("./web/public/chat.html")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	fileServer := http.FileServer(http.Dir("./web/src"))
 
 	http.Handle("/src/", http.StripPrefix("/src/", fileServer))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		err := indexTemp.Execute(w, conf.BackendAdress())
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
-		}
-	})
-
-	http.HandleFunc("/chat/", func(w http.ResponseWriter, r *http.Request) {
-		err := chatTemp.Execute(w, r.URL.String()[6:])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
