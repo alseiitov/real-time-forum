@@ -11,7 +11,6 @@ export default class extends AbstractView {
         return `
             <div id="log"></div>
             <form id="form">
-                <input type="submit" value="Send" />
                 <input type="text" id="msg" size="64" autofocus />
             </form>
         `;
@@ -55,14 +54,19 @@ export default class extends AbstractView {
         log.addEventListener("scroll", loadMessages)
 
         var recipientID = parseInt(this.userID)
-    
+        
+        var token = localStorage.getItem("accessToken")
+        
+        if (token == undefined) {
+            alert("empty access token in localStorage")
+            return
+        }
+
         if (recipientID == 1) {
-            var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI5Mzg4MDQ0NTY5Iiwicm9sZSI6IjIiLCJzdWIiOiIyIn0.dLVytdQkOTxiNAvia4GfEjk6IJGvdHlygrjBCKFm9KU"
             var senderID = 2
 
         }
         if (recipientID == 2) {
-            var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOiI5Mzg4MDQ0NTQ3Iiwicm9sZSI6IjIiLCJzdWIiOiIxIn0.2bRxGzoFv2MNEWixcl-ZFIvh3NSlTxkLcV49q5wnOMY"
             var senderID = 1
         }
 
@@ -151,7 +155,7 @@ export default class extends AbstractView {
                     case "readMessageResponse":
 
                         let el = document.getElementById(`message-${obj.body}`)
-                        el.style.color = "black"
+                        el.style.color = ""
 
                     case "notification":
                         // console.log(obj)

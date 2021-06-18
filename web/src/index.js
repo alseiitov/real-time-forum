@@ -1,6 +1,8 @@
-import Home from "/src/views/HomeView.js";
-import Chats from "/src/views/ChatsView.js";
-import Chat from "/src/views/ChatView.js";
+import Home from "./views/HomeView.js";
+import SignIn from "./views/SignInView.js";
+import Chats from "./views/ChatsView.js";
+import Chat from "./views/ChatView.js";
+
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -21,7 +23,8 @@ const navigateTo = url => {
 const router = async () => {
     const routes = [
         { path: "/", view: Home },
-        { path: "/chats", view: Chats},
+        { path: "/sign-in", view: SignIn },
+        { path: "/chats", view: Chats },
         { path: "/chat/:userID", view: Chat }
     ];
 
@@ -60,3 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     router();
 });
+
+
+export default {navigateTo};
