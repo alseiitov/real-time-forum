@@ -1,4 +1,4 @@
-#log {
+#chat-messages {
     background: #292a2d;
     padding: 1em 1em 1em 1em;
     overflow: auto;
@@ -7,7 +7,7 @@
     max-width: 800px;
 }
 
-#form {
+#chat-input {
     overflow: hidden;
     width: 90%;
     max-width: 800px;

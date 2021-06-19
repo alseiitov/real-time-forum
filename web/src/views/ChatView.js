@@ -1,4 +1,46 @@
 import AbstractView from "./AbstractView.js";
+import Ws from "../services/Ws.js"
+
+
+var loadMessages
+
+const newMessageElemet = (message) => {
+    const el = document.createElement("div");
+    el.id = `message-${message.id}`
+
+    const userID = parseInt(localStorage.getItem("sub"))
+
+    if (!message.read && message.recipientID == userID) {
+        Ws.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: message.id } }))
+    }
+
+    if (!message.read && message.senderID == userID) {
+        el.style.color = "gray"
+    }
+
+    el.classList.add("message")
+    el.innerText = `user ${message.senderID} sends to user ${message.recipientID}\n${new Date(Date.parse(message.date)).toLocaleString()}\n${message.message}\n`
+
+    return el
+}
+
+const debounce = (func, wait, immediate) => {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
+
+
 
 export default class extends AbstractView {
     constructor(params) {
@@ -9,170 +51,77 @@ export default class extends AbstractView {
 
     async getHtml() {
         return `
-            <div id="log"></div>
-            <form id="form">
-                <input type="text" id="msg" size="64" autofocus />
+            <div id="chat-messages"></div>
+            <form id="message-form">
+                <input type="text" id="message-input" size="64" autofocus />
             </form>
         `;
     }
 
     async init() {
-        var conn;
-        var msg = document.getElementById("msg");
-        var log = document.getElementById("log");
+        const chatMessages = document.getElementById("chat-messages");
+        const messageForm = document.getElementById("message-form");
+        const messageInput = document.getElementById("message-input");
+        const recipientID = parseInt(this.userID)
 
-        const debounce = (func, wait, immediate) => {
-            var timeout;
-            return function () {
-                var context = this, args = arguments;
-                var later = function () {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                };
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(context, args);
-            };
-        };
-
-        const loadMessages = debounce(function () {
-            console.log(log.scrollHeight)
-            console.log(log.scrollTop)
-
-            if (log.scrollTop < log.scrollHeight * 0.1) {
+        loadMessages = debounce(function () {
+            if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {
                 let offsetMsg = document.querySelector('.message')
                 let offsetMsgID = parseInt(offsetMsg.id.split('-')[1]);
-                conn.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: offsetMsgID } }))
+                Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: offsetMsgID } }))
             }
 
-            if (log.scrollTop == 0) {
-                log.scrollTop = 1
+            if (chatMessages.scrollTop == 0) {
+                chatMessages.scrollTop = 1
             }
-        }, 50)
+        }, 100)
 
-        log.addEventListener("scroll", loadMessages)
 
-        var recipientID = parseInt(this.userID)
-        
-        var token = localStorage.getItem("accessToken")
-        
-        if (token == undefined) {
-            alert("empty access token in localStorage")
-            return
-        }
+        chatMessages.addEventListener("scroll", loadMessages)
 
-        if (recipientID == 1) {
-            var senderID = 2
-
-        }
-        if (recipientID == 2) {
-            var senderID = 1
-        }
-
-        function appendLog(item) {
-            var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-            log.appendChild(item);
-            if (doScroll) {
-                log.scrollTop = log.scrollHeight - log.clientHeight;
-            }
-        }
-
-        document.getElementById("form").onsubmit = function () {
-            if (!conn) {
-                return false;
-            }
-            if (!msg.value) {
+        messageForm.onsubmit = function () {
+            if (!messageInput.value) {
                 return false;
             }
 
-            conn.send(JSON.stringify({ type: "message", body: { recipientID: recipientID, message: msg.value } }));
-            msg.value = "";
+            let message = { recipientID: recipientID, message: messageInput.value }
+            Ws.send(JSON.stringify({ type: "message", body: message }));
+            messageInput.value = "";
             return false;
         };
 
-        if (window["WebSocket"]) {
-            conn = new WebSocket("ws://127.0.0.1:8081/ws")
-            conn.onopen = function (evt) {
-                conn.send(JSON.stringify({ type: "token", body: token }))
-                conn.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
-            }
+        Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
+    }
 
-            conn.onerror = function (evt) {
-                alert(evt.data)
-            }
-            conn.onclose = function (evt) {
-                var item = document.createElement("div");
-                item.innerHTML = "<b>Connection closed.</b>";
-                appendLog(item);
-            };
-            conn.onmessage = function (evt) {
-                let obj = JSON.parse(evt.data)
-                console.log(obj)
-                switch (obj.type) {
-                    case "message":
-                        let msg = obj.body
-                        var item = document.createElement("div");
-                        item.id = `message-${msg.id}`
-
-                        if (!msg.read && msg.recipientID == senderID) {
-                            conn.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: msg.id } }))
-                        }
-                        if (!msg.read && msg.senderID == senderID) {
-                            item.style.color = "gray"
-                        }
-
-                        item.classList.add("message")
-                        item.innerText = `user ${msg.senderID} sends to user ${msg.recipientID}\n${new Date(Date.parse(msg.date)).toLocaleString()}\n${msg.message}\n`
-                        appendLog(item);
-
-                        break
-                    case "messagesResponse":
-                        let scrollToEnd = log.childNodes.length == 0
-
-                        obj.body.forEach((msg) => {
-                            var item = document.createElement("div");
-                            item.id = `message-${msg.id}`
-
-                            if (!msg.read && msg.recipientID == senderID) {
-                                conn.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: msg.id } }))
-                            }
-                            if (!msg.read && msg.senderID == senderID) {
-                                item.style.color = "gray"
-                            }
-
-                            item.classList.add("message")
-                            item.innerText = `user ${msg.senderID} sends to user ${msg.recipientID}\n${new Date(Date.parse(msg.date)).toLocaleString()}\n${msg.message}\n`
-
-                            log.prepend(item)
-
-                            if (scrollToEnd) {
-                                log.scrollTop = log.scrollHeight
-                            }
-                        })
-
-                        break
-                    case "readMessageResponse":
-
-                        let el = document.getElementById(`message-${obj.body}`)
-                        el.style.color = ""
-
-                    case "notification":
-                        // console.log(obj)
-                        break
-                    case "error":
-                        alert(obj.body)
-                        break
-                    case "pingMessage":
-                        conn.send(JSON.stringify({ type: "pongMessage" }))
-                        break
-
-                }
-            };
-        } else {
-            var item = document.createElement("div");
-            item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-            appendLog(item);
+    static async appendNewMessage(message) {
+        const chatMessages = document.getElementById("chat-messages");
+        const doScroll = chatMessages.scrollTop > chatMessages.scrollHeight - chatMessages.clientHeight - 1;
+        const el = newMessageElemet(message)
+        chatMessages.appendChild(el);
+        if (doScroll) {
+            chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
         }
     }
+
+    static async prependMessages(messages) {
+        const chatMessages = document.getElementById("chat-messages");
+        const scrollToEnd = (chatMessages.childNodes.length == 0)
+
+        if (messages == null) {
+            chatMessages.removeEventListener("scroll", loadMessages)
+            return
+        }
+
+        messages.forEach((message) => {
+            const el = newMessageElemet(message)
+            chatMessages.prepend(el)
+
+            if (scrollToEnd) {
+                chatMessages.scrollTop = chatMessages.scrollHeight
+            }
+        })
+    }
 }
+
+
+

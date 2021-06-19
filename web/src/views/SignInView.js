@@ -1,5 +1,6 @@
 import AbstractView from "./AbstractView.js";
 import router from "../index.js"
+import utils from "../services/Utils.js"
 
 const signIn = async (username, password) => {
     const url = "http://localhost:8081/api/users/sign-in"
@@ -18,6 +19,10 @@ const signIn = async (username, password) => {
 
         localStorage.setItem("accessToken", data.accessToken)
         localStorage.setItem("refreshToken", data.refreshToken)
+
+        const payload = utils.parseJwt(data.accessToken)
+        localStorage.setItem("sub", parseInt(payload.sub))
+        localStorage.setItem("role", parseInt(payload.role))
 
         router.navigateTo("/chats")
     }

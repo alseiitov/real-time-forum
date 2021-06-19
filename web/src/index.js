@@ -2,6 +2,7 @@ import Home from "./views/HomeView.js";
 import SignIn from "./views/SignInView.js";
 import Chats from "./views/ChatsView.js";
 import Chat from "./views/ChatView.js";
+import Ws from "./services/Ws.js"
 
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
@@ -54,15 +55,17 @@ const router = async () => {
 window.addEventListener("popstate", router);
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.body.addEventListener("click", e => {
+    document.body.addEventListener("click", function (e) {
         if (e.target.matches("[data-link]")) {
             e.preventDefault();
             navigateTo(e.target.href);
         }
     });
 
-    router();
+    Ws.connect().then(() => {
+        router()
+    })
 });
 
 
-export default {navigateTo};
+export default { navigateTo };
