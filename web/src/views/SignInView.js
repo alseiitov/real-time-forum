@@ -3,7 +3,7 @@ import router from "../index.js"
 import utils from "../services/Utils.js"
 
 const signIn = async (username, password) => {
-    const url = "http://localhost:8081/api/users/sign-in"
+    const url = `http://${API_HOST_NAME}/api/users/sign-in`
 
     const options = {
         method: "POST",
@@ -24,7 +24,7 @@ const signIn = async (username, password) => {
         localStorage.setItem("sub", parseInt(payload.sub))
         localStorage.setItem("role", parseInt(payload.role))
 
-        router.navigateTo("/chats")
+        router.navigateTo("/")
     }
 }
 
@@ -47,10 +47,10 @@ export default class extends AbstractView {
     }
 
     async init() {
-        const signInForm = document.querySelector("#sign-in-form")
+        const signInForm = document.getElementById("sign-in-form")
         signInForm.addEventListener("submit", function () {
-            const username = document.querySelector("#username").value
-            const password = document.querySelector("#password").value
+            const username = document.getElementById("username").value
+            const password = document.getElementById("password").value
 
             signIn(username, password)
         })

@@ -9,10 +9,6 @@ export default class extends AbstractView {
     async getHtml() {
         return `
             <h1>Hello</h1>
-           
-            <p>
-                <a href="/chats" data-link>Chats</a>
-            </p>
         `;
     }
 

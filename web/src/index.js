@@ -1,4 +1,5 @@
 import Home from "./views/HomeView.js";
+import SignUp from "./views/SignUpView.js";
 import SignIn from "./views/SignInView.js";
 import Chats from "./views/ChatsView.js";
 import Chat from "./views/ChatView.js";
@@ -24,6 +25,7 @@ const navigateTo = url => {
 const router = async () => {
     const routes = [
         { path: "/", view: Home },
+        { path: "/sign-up", view: SignUp },
         { path: "/sign-in", view: SignIn },
         { path: "/chats", view: Chats },
         { path: "/chat/:userID", view: Chat }
