@@ -12,7 +12,7 @@ func (h *Handler) LogConns() {
 	for {
 		fmt.Println(len(h.clients), "clients connected")
 		for _, client := range h.clients {
-			fmt.Printf("client %v have %v connections\n", client.id, len(client.conns))
+			fmt.Printf("client %v have %v connections\n", client.Username, len(client.conns))
 		}
 		fmt.Println()
 		time.Sleep(1 * time.Second)

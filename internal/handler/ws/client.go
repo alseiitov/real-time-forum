@@ -8,9 +8,9 @@ import (
 )
 
 type client struct {
-	id    int
 	conns []*conn
 	mu    sync.Mutex
+	model.User
 }
 
 func (h *Handler) sendEventToClient(event *model.WSEvent) {

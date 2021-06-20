@@ -17,6 +17,7 @@ type Handler struct {
 	clients         map[int]*client
 	eventsChan      chan *model.WSEvent
 	chatsService    service.Chats
+	usersService    service.Users
 	tokenManager    auth.TokenManager
 	maxConnsForUser int
 	maxMessageSize  int64
@@ -38,6 +39,7 @@ func NewHandler(eventsChan chan *model.WSEvent, services *service.Services, toke
 		clients:         make(map[int]*client),
 		eventsChan:      eventsChan,
 		chatsService:    services.Chats,
+		usersService:    services.Users,
 		tokenManager:    tokenManager,
 		upgrader:        upgrader,
 		maxConnsForUser: config.Websocket.MaxConnsForUser,
@@ -67,7 +69,14 @@ func (h *Handler) ServeWS(ctx *gorouter.Context) {
 
 	c, ok := h.clients[connection.clientID]
 	if !ok {
-		c = &client{id: connection.clientID}
+		user, err := h.usersService.GetByID(connection.clientID)
+		if err != nil {
+			connection.writeError(err)
+			connection.conn.Close()
+			return
+		}
+
+		c = &client{User: user}
 		h.clients[connection.clientID] = c
 	}
 

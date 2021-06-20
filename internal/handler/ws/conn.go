@@ -93,7 +93,7 @@ func (h *Handler) closeConn(c *conn) {
 	}
 
 	if len(client.conns) == 0 {
-		delete(h.clients, client.id)
+		delete(h.clients, client.ID)
 	}
 }
 
