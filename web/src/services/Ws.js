@@ -1,4 +1,5 @@
 import Chat from "../views/ChatView.js";
+import Chats from "../views/ChatsView.js"
 
 var connection
 
@@ -45,13 +46,15 @@ const getConnection = () => {
                     case "notification":
                         // console.log(obj)
                         break
+                    case "onlineUsersResponse":
+                        Chats.drawOnlineUsers(obj.body)
+                        break
                     case "error":
                         alert(obj.body)
                         break
                     case "pingMessage":
                         conn.send(JSON.stringify({ type: "pongMessage" }))
                         break
-
                 }
             };
 
@@ -59,12 +62,10 @@ const getConnection = () => {
                 conn.send(JSON.stringify({ type: "token", body: token }))
                 resolve(conn)
             }
-
         } else {
             alert("Your browser does not support WebSockets")
         }
     })
-
 }
 
 
@@ -77,6 +78,7 @@ const Ws = {
         connection = await getConnection()
         connection.send(e)
     }
+
 }
 
 export default Ws

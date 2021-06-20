@@ -40,6 +40,9 @@ func (h *Handler) connReadPump(conn *conn) {
 		case model.WSEventTypes.ReadMessageRequest:
 			err = h.readMessage(conn.clientID, &event)
 
+		case model.WSEventTypes.OnlineUsersRequst:
+			err = h.getOnlineUsers(conn)
+
 		case model.WSEventTypes.PongMessage:
 			err = conn.conn.SetReadDeadline(time.Now().Add(h.pongWait))
 

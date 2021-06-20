@@ -4,7 +4,7 @@ import Ws from "../services/Ws.js"
 
 var loadMessages
 
-const newMessageElemet = (message) => {
+const newMessageElement = (message) => {
     const el = document.createElement("div");
     el.id = `message-${message.id}`
 
@@ -96,7 +96,7 @@ export default class extends AbstractView {
     static async appendNewMessage(message) {
         const chatMessages = document.getElementById("chat-messages");
         const doScroll = chatMessages.scrollTop > chatMessages.scrollHeight - chatMessages.clientHeight - 1;
-        const el = newMessageElemet(message)
+        const el = newMessageElement(message)
         chatMessages.appendChild(el);
         if (doScroll) {
             chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
@@ -113,7 +113,7 @@ export default class extends AbstractView {
         }
 
         messages.forEach((message) => {
-            const el = newMessageElemet(message)
+            const el = newMessageElement(message)
             chatMessages.prepend(el)
 
             if (scrollToEnd) {

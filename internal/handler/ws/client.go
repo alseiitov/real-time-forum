@@ -33,3 +33,15 @@ func (h *Handler) sendEventToClient(event *model.WSEvent) {
 		}
 	}
 }
+
+func (h *Handler) getOnlineUsers(conn *conn) error {
+	var users []model.User
+	for _, client := range h.clients {
+		users = append(users, client.User)
+	}
+
+	return conn.writeJSON(&model.WSEvent{
+		Type: model.WSEventTypes.OnlineUsersResponse,
+		Body: users,
+	})
+}
