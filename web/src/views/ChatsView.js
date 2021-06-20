@@ -1,7 +1,7 @@
 import Ws from "../services/Ws.js";
 import AbstractView from "./AbstractView.js";
 
-var requestOnlineUsersInterval 
+var requestOnlineUsersInterval
 
 const requestOnlineUsers = () => {
     Ws.send(JSON.stringify({ type: "onlineUsersRequest" }))
@@ -11,7 +11,13 @@ const newUserElement = (user) => {
     const el = document.createElement("div");
     el.classList.add("user")
     el.id = `user-${user.id}`
-    el.innerText = `${user.firstName} ${user.lastName}\n`
+
+    const link = document.createElement("a")
+    link.setAttribute("href", `/chat/${user.id}`)
+    link.setAttribute("data-link", "")
+    link.innerText = `${user.firstName} ${user.lastName}`
+
+    el.append(link)
 
     return el
 }
@@ -25,17 +31,15 @@ export default class extends AbstractView {
     async getHtml() {
         return `
             Your chats:<br>
-            <div id="chats">
-                <a href="/chat/1" data-link>Chat with user 1</a>
-                <a href="/chat/2" data-link>Chat with user 2</a>
-            </div>
-                Online users:<br>
-            <div id="online-users">
-            </div>
+            <div id="chats"></div>
+
+            Online users:<br>
+            <div id="online-users"></div>
         `;
     }
 
     async init() {
+      
         requestOnlineUsers()
         clearInterval(requestOnlineUsersInterval)
         requestOnlineUsersInterval = setInterval(requestOnlineUsers, 10_000)
