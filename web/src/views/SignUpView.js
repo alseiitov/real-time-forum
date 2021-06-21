@@ -11,26 +11,31 @@ const signUp = async (input) => {
     }
 
 
-    const response = await fetch(url, options)
-    // if (response.ok) {
-    //     const data = await response.json()
+    fetch(url, options).then((response) => {
+        switch (response.status) {
+            case 201:
+                router.navigateTo("/sign-in")
+                break
+            case 400: case 409:
+                response.json().then((data) => {
+                    drawError(data.error)
+                })
+                break
+            case 500:
+                router.navigateTo("/500")
+                break
+        }
+    })
 
-    //     localStorage.setItem("accessToken", data.accessToken)
-    //     localStorage.setItem("refreshToken", data.refreshToken)
 
-    //     const payload = utils.parseJwt(data.accessToken)
-    //     localStorage.setItem("sub", parseInt(payload.sub))
-    //     localStorage.setItem("role", parseInt(payload.role))
 
-    //     router.navigateTo("/chats")
-    // }
-    if (response.status != 201) {
-        const data = await response.json()
-        console.log(data)
-    } else {
-        router.navigateTo("/sign-in")
-    }
 }
+
+const drawError = (err) => {
+    const inputError = document.getElementById("input-error")
+    inputError.innerText = err
+}
+
 
 export default class extends AbstractView {
     constructor(params) {
@@ -75,16 +80,13 @@ export default class extends AbstractView {
 
     async init() {
         const signUpForm = document.getElementById("sign-up-form")
-        const inputError = document.getElementById("input-error")
 
         signUpForm.addEventListener("submit", function () {
-            inputError.innerText = ""
-
             const password = document.getElementById("password")
             const passwordConfirm = document.getElementById("password-confirm")
 
             if (password.value != passwordConfirm.value) {
-                inputError.innerText = "Passwords Don't Match"
+                showError("Passwords Don't Match")
             } else {
                 let input = {
                     username: document.getElementById("username").value,
