@@ -10,7 +10,6 @@ const signUp = async (input) => {
         body: JSON.stringify(input)
     }
 
-
     fetch(url, options).then((response) => {
         switch (response.status) {
             case 201:
@@ -26,9 +25,6 @@ const signUp = async (input) => {
                 break
         }
     })
-
-
-
 }
 
 const drawError = (err) => {

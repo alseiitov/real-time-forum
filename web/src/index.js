@@ -3,8 +3,12 @@ import SignUp from "./views/SignUpView.js";
 import SignIn from "./views/SignInView.js";
 import Chats from "./views/ChatsView.js";
 import Chat from "./views/ChatView.js";
-import Ws from "./services/Ws.js"
 
+import Error404 from "./views/error404View.js";
+import Error500 from "./views/error500View.js";
+import Error503 from "./views/error503View.js";
+
+import Ws from "./services/Ws.js"
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -28,7 +32,10 @@ const router = async () => {
         { path: "/sign-up", view: SignUp },
         { path: "/sign-in", view: SignIn },
         { path: "/chats", view: Chats },
-        { path: "/chat/:userID", view: Chat }
+        { path: "/chat/:userID", view: Chat },
+        { path: "/404", view: Error404 },
+        { path: "/500", view: Error500 },
+        { path: "/503", view: Error503 },
     ];
 
     // Test each route for potential match
@@ -56,7 +63,7 @@ const router = async () => {
 
 window.addEventListener("popstate", router);
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     document.body.addEventListener("click", function (e) {
         if (e.target.matches("[data-link]")) {
             e.preventDefault();
@@ -64,9 +71,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    Ws.connect().then(() => {
-        router()
-    })
+    if (localStorage.getItem("accessToken")) {
+        await Ws.connect()
+    }
+
+    router()
 });
 
 

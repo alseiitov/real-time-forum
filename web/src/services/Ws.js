@@ -1,5 +1,6 @@
 import Chat from "../views/ChatView.js";
 import Chats from "../views/ChatsView.js"
+import router from "../index.js"
 
 var connection
 
@@ -18,15 +19,17 @@ const getConnection = () => {
                 return
             }
 
-            let conn = new WebSocket(`ws://${API_HOST_NAME}/ws`)
+
+
+            const conn = new WebSocket(`ws://${API_HOST_NAME}/ws`)
 
             conn.onerror = function (evt) {
-                alert(evt.data)
-                reject(evt)
+                router.navigateTo("/503")
+                return
             }
 
-            conn.onclose = function (evt) {
-                alert("connection closed")
+            conn.onclose = function () {
+                console.log("weboscket connection closed")
             };
 
             conn.onmessage = function (evt) {
