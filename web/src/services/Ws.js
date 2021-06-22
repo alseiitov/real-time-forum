@@ -42,6 +42,9 @@ const getConnection = () => {
                     case "messagesResponse":
                         Chat.prependMessages(obj.body)
                         break
+                    case "chatsResponse":
+                        Chats.drawChats(obj.body)
+                        break
                     case "readMessageResponse":
                         let el = document.getElementById(`message-${obj.body}`)
                         el.style.color = ""

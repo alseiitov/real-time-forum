@@ -56,6 +56,7 @@ type Notifications interface {
 }
 
 type Chats interface {
+	GetChats(userID int) ([]model.Chat, error)
 	CreateMessage(senderID, recipientID int, message string) error
 	GetMessages(senderID, recipientID, lastMessageID int) ([]model.Message, error)
 	ReadMessage(recipientID int, messageID int) error
@@ -103,7 +104,7 @@ func NewServices(deps ServicesDeps) *Services {
 		deps.Repos.Users, deps.Hasher, deps.TokenManager, deps.AccessTokenTTL,
 		deps.RefreshTokenTTL, deps.ImagesDir, deps.DefaultMaleAvatar, deps.DefaultFemaleAvatar,
 	)
-	chatsService := NewChatsService(deps.Repos.Chats, deps.EventsChan)
+	chatsService := NewChatsService(deps.Repos.Chats, deps.Repos.Users, deps.EventsChan)
 	moderatorsService := NewModeratorsService(deps.Repos.Moderators)
 	adminsService := NewAdminsService(deps.Repos.Admins, notificationsService, usersService)
 

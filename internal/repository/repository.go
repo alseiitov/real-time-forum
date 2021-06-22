@@ -54,6 +54,7 @@ type Notifications interface {
 }
 
 type Chats interface {
+	GetChats(userID int) ([]model.Chat, error)
 	CreateMessage(message *model.Message) (int, error)
 	GetMessages(senderID, recipientID, lastMessageID, limit int) ([]model.Message, error)
 	ReadMessage(recipientID int, messageID int) (model.Message, error)

@@ -9,14 +9,36 @@ import (
 
 type ChatsService struct {
 	repo       repository.Chats
+	userRepo   repository.Users
 	eventsChan chan *model.WSEvent
 }
 
-func NewChatsService(repo repository.Chats, eventsChan chan *model.WSEvent) *ChatsService {
+func NewChatsService(repo repository.Chats, usersRepo repository.Users, eventsChan chan *model.WSEvent) *ChatsService {
 	return &ChatsService{
 		repo:       repo,
+		userRepo:   usersRepo,
 		eventsChan: eventsChan,
 	}
+}
+
+func (s *ChatsService) GetChats(userID int) ([]model.Chat, error) {
+	chats, err := s.repo.GetChats(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range chats {
+		if chats[i].LastMessage.RecipientID == userID {
+			chats[i].User, err = s.userRepo.GetByID(chats[i].LastMessage.SenderID)
+		} else {
+			chats[i].User, err = s.userRepo.GetByID(chats[i].LastMessage.RecipientID)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return chats, nil
 }
 
 func (s *ChatsService) CreateMessage(senderID, recipientID int, message string) error {

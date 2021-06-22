@@ -14,6 +14,53 @@ func NewChatsRepo(db *sql.DB) *ChatsRepo {
 	return &ChatsRepo{db: db}
 }
 
+func (r *ChatsRepo) GetChats(userID int) ([]model.Chat, error) {
+	var chats []model.Chat
+
+	rows, err := r.db.Query(`
+		SELECT 
+			MAX(id), sender_id, recipient_id, message, date, read 
+		FROM 
+			messages 
+		WHERE 
+			sender_id = $1 
+			OR 
+			recipient_id = $1 
+		GROUP BY 
+			MIN(sender_id, recipient_id), MAX(sender_id, recipient_id)
+		ORDER BY 
+			date 
+		DESC
+	`,
+		userID)
+
+	if err != nil {
+		return chats, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var chat model.Chat
+
+		err := rows.Scan(
+			&chat.LastMessage.ID,
+			&chat.LastMessage.SenderID,
+			&chat.LastMessage.RecipientID,
+			&chat.LastMessage.Message,
+			&chat.LastMessage.Date,
+			&chat.LastMessage.Read,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		chats = append(chats, chat)
+	}
+
+	return chats, nil
+}
+
 func (r *ChatsRepo) CreateMessage(message *model.Message) (int, error) {
 	stmt, err := r.db.Prepare(`INSERT INTO messages (sender_id, recipient_id, message, date, read) VALUES (?, ?, ?, ?, ?)`)
 	if err != nil {

@@ -7,6 +7,11 @@ const requestOnlineUsers = () => {
     Ws.send(JSON.stringify({ type: "onlineUsersRequest" }))
 }
 
+const requestChats = () => {
+    Ws.send(JSON.stringify({ type: "chatsRequest" }))
+}
+
+
 const newUserElement = (user) => {
     const el = document.createElement("div");
     el.classList.add("user")
@@ -18,6 +23,23 @@ const newUserElement = (user) => {
     link.innerText = `${user.firstName} ${user.lastName}`
 
     el.append(link)
+
+    return el
+}
+
+
+const newChatElement = (chat) => {
+    const el = document.createElement("div");
+    el.classList.add("chat")
+    el.id = `chat-${chat.user.id}`
+
+
+    const link = newUserElement(chat.user)
+    const lastMessage = document.createElement("p")
+    lastMessage.innerText = `${chat.lastMessage.message}\n${new Date(chat.lastMessage.date).toLocaleString()}`
+
+    el.append(link)
+    el.append(lastMessage)
 
     return el
 }
@@ -39,8 +61,9 @@ export default class extends AbstractView {
     }
 
     async init() {
-      
+        requestChats()
         requestOnlineUsers()
+
         clearInterval(requestOnlineUsersInterval)
         requestOnlineUsersInterval = setInterval(requestOnlineUsers, 10_000)
     }
@@ -55,6 +78,16 @@ export default class extends AbstractView {
                     onlineUsersEl.prepend(el)
                 })
             }
+        }
+    }
+
+    static drawChats(chats) {
+        if (chats != null) {
+            const chatsEl = document.getElementById("chats");
+            chats.forEach((chat) => {
+                const el = newChatElement(chat)
+                chatsEl.append(el)
+            })
         }
     }
 }

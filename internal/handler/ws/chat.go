@@ -5,6 +5,18 @@ import (
 	"github.com/alseiitov/validator"
 )
 
+func (h *Handler) getChats(conn *conn) error {
+	chats, err := h.chatsService.GetChats(conn.clientID)
+	if err != nil {
+		return err
+	}
+
+	return conn.writeJSON(&model.WSEvent{
+		Type: model.WSEventTypes.ChatsResponse,
+		Body: chats,
+	})
+}
+
 type messageInput struct {
 	RecipientID int    `json:"recipientID" validator:"required"`
 	Message     string `json:"message,omitempty" validator:"required"`
@@ -31,7 +43,7 @@ type getMessagesInput struct {
 	LastMessageID int `json:"lastMessageID"`
 }
 
-func (h *Handler) getMessages(clientID int, conn *conn, event *model.WSEvent) error {
+func (h *Handler) getMessages(conn *conn, event *model.WSEvent) error {
 	var input getMessagesInput
 
 	err := unmarshalEventBody(event, &input)
@@ -44,18 +56,16 @@ func (h *Handler) getMessages(clientID int, conn *conn, event *model.WSEvent) er
 		return err
 	}
 
-	messages, err := h.chatsService.GetMessages(clientID, input.UserID, input.LastMessageID)
+	messages, err := h.chatsService.GetMessages(conn.clientID, input.UserID, input.LastMessageID)
 	if err != nil {
 		return err
 	}
 
-	conn.writeJSON(&model.WSEvent{
+	return conn.writeJSON(&model.WSEvent{
 		Type:        model.WSEventTypes.MessagesResponse,
 		Body:        messages,
-		RecipientID: clientID,
+		RecipientID: conn.clientID,
 	})
-
-	return nil
 }
 
 type readMessageInput struct {

@@ -8,6 +8,8 @@ type WSEvent struct {
 
 var WSEventTypes = struct {
 	Message             string
+	ChatsRequest        string
+	ChatsResponse       string
 	MessagesRequest     string
 	MessagesResponse    string
 	ReadMessageRequest  string
@@ -20,6 +22,8 @@ var WSEventTypes = struct {
 	PongMessage         string
 }{
 	Message:             "message",
+	ChatsRequest:        "chatsRequest",
+	ChatsResponse:       "chatsResponse",
 	MessagesRequest:     "messagesRequest",
 	MessagesResponse:    "messagesResponse",
 	ReadMessageRequest:  "readMessageRequest",

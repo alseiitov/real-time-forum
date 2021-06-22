@@ -34,8 +34,11 @@ func (h *Handler) connReadPump(conn *conn) {
 		case model.WSEventTypes.Message:
 			err = h.newMessage(conn.clientID, &event)
 
+		case model.WSEventTypes.ChatsRequest:
+			err = h.getChats(conn)
+
 		case model.WSEventTypes.MessagesRequest:
-			err = h.getMessages(conn.clientID, conn, &event)
+			err = h.getMessages(conn, &event)
 
 		case model.WSEventTypes.ReadMessageRequest:
 			err = h.readMessage(conn.clientID, &event)
