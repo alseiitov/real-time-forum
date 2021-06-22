@@ -17,5 +17,12 @@ const getUser = () => {
     }
 }
 
+const logOut = () => {
+    localStorage.removeItem('sub')
+    localStorage.removeItem('role')
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+}
 
-export default {parseJwt, getUser}
+
+export default { parseJwt, getUser, logOut }

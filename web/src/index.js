@@ -84,6 +84,7 @@ const router = async () => {
     document.querySelector("#app").innerHTML = await pageView.getHtml();
 
     pageView.init()
+    navBarView.init()
 };
 
 window.addEventListener("popstate", router);
