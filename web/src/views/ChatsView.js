@@ -36,7 +36,7 @@ const newChatElement = (chat) => {
 
     const link = newUserElement(chat.user)
     const lastMessage = document.createElement("p")
-    lastMessage.innerText = `${chat.lastMessage.message}\n${new Date(chat.lastMessage.date).toLocaleString()}`
+    lastMessage.innerText = `${chat.user.firstName}: ${chat.lastMessage.message}\n${new Date(chat.lastMessage.date).toLocaleString()}`
 
     el.append(link)
     el.append(lastMessage)
