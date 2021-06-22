@@ -17,9 +17,15 @@ const newMessageElement = (message) => {
     if (!message.read && message.senderID == userID) {
         el.style.color = "gray"
     }
+    
+    el.innerText = `${message.message}\n${new Date(Date.parse(message.date)).toLocaleString()}\n`
 
     el.classList.add("message")
-    el.innerText = `user ${message.senderID} sends to user ${message.recipientID}\n${new Date(Date.parse(message.date)).toLocaleString()}\n${message.message}\n`
+    if (message.senderID == userID) {
+        el.classList.add("sended-message")
+    } else{
+        el.classList.add("recived-message")
+    }
 
     return el
 }
@@ -43,10 +49,11 @@ const debounce = (func, wait, immediate) => {
 
 
 export default class extends AbstractView {
-    constructor(params) {
+    constructor(params, user) {
         super(params);
         this.setTitle("Chat");
-        this.userID = params.userID
+        this.user = user
+        this.recipientID = params.userID
     }
 
     async getHtml() {
@@ -62,7 +69,7 @@ export default class extends AbstractView {
         const chatMessages = document.getElementById("chat-messages");
         const messageForm = document.getElementById("message-form");
         const messageInput = document.getElementById("message-input");
-        const recipientID = parseInt(this.userID)
+        const recipientID = parseInt(this.recipientID)
 
         loadMessages = debounce(function () {
             if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {

@@ -33,6 +33,7 @@ export default class extends AbstractView {
         signOutButton.addEventListener('click', () => {
             Utils.logOut()
             Router.navigateTo("/")
+            location.reload()
         })
     }
 }

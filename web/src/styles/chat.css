@@ -14,5 +14,10 @@
 }
 
 .message {
-    margin-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.sended-message {
+    display: flex;
+    justify-content: flex-end;
 }
