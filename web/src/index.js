@@ -5,12 +5,20 @@ import SignIn from "./views/SignInView.js";
 import Chats from "./views/ChatsView.js";
 import Chat from "./views/ChatView.js";
 
+import Error401 from "./views/error401View.js";
 import Error404 from "./views/error404View.js";
 import Error500 from "./views/error500View.js";
 import Error503 from "./views/error503View.js";
 
 import Ws from "./services/Ws.js"
 import Utils from "./services/Utils.js"
+
+const roles = {
+    guest: 1,
+    user: 2,
+    moderator: 3,
+    admins: 4,
+}
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -30,14 +38,15 @@ const navigateTo = url => {
 
 const router = async () => {
     const routes = [
-        { path: "/", view: Home },
-        { path: "/sign-up", view: SignUp },
-        { path: "/sign-in", view: SignIn },
-        { path: "/chats", view: Chats },
-        { path: "/chat/:userID", view: Chat },
-        { path: "/404", view: Error404 },
-        { path: "/500", view: Error500 },
-        { path: "/503", view: Error503 },
+        { path: "/", view: Home, minRole: roles.guest },
+        { path: "/sign-up", view: SignUp, minRole: roles.guest },
+        { path: "/sign-in", view: SignIn, minRole: roles.guest },
+        { path: "/chats", view: Chats, minRole: roles.user },
+        { path: "/chat/:userID", view: Chat, minRole: roles.user },
+        { path: "/401", view: Error401, minRole: roles.guest },
+        { path: "/404", view: Error404, minRole: roles.guest },
+        { path: "/500", view: Error500, minRole: roles.guest },
+        { path: "/503", view: Error503, minRole: roles.guest },
     ];
 
     // Test each route for potential match
@@ -58,13 +67,22 @@ const router = async () => {
     }
 
     const user = Utils.getUser()
+    if (!user.role) {
+        user.role = roles.guest
+        localStorage.setItem('role', user.role)
+    }
+
+    if (user.role < match.route.minRole) {
+        navigateTo("/401")
+        return
+    }
 
     const navBarView = new NavBar(null, user);
     const pageView = new match.route.view(getParams(match), user);
 
     document.querySelector("#navbar").innerHTML = await navBarView.getHtml();
     document.querySelector("#app").innerHTML = await pageView.getHtml();
-    
+
     pageView.init()
 };
 
