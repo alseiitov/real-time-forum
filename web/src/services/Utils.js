@@ -8,5 +8,14 @@ const parseJwt = (token) => {
     return JSON.parse(jsonPayload);
 };
 
+const getUser = () => {
+    return {
+        id: localStorage.getItem('sub'),
+        role: localStorage.getItem('role'),
+        accessToken: localStorage.getItem('accessToken'),
+        refreshToken: localStorage.getItem('refreshToken')
+    }
+}
 
-export default {parseJwt}
+
+export default {parseJwt, getUser}

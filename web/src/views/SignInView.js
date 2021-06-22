@@ -13,33 +13,6 @@ const signIn = async (usernameOrEmail, password) => {
         password: password
     }
 
-    // fetch(url, options).then((response) => {
-    //     switch (response.status) {
-    //         case 200:
-    //             response.json().then((data) => {
-    //                 localStorage.setItem("accessToken", data.accessToken)
-    //                 localStorage.setItem("refreshToken", data.refreshToken)
-
-    //                 const payload = utils.parseJwt(data.accessToken)
-    //                 localStorage.setItem("sub", parseInt(payload.sub))
-    //                 localStorage.setItem("role", parseInt(payload.role))
-
-    //                 Ws.connect().then(() => {
-    //                     router.navigateTo("/")
-    //                 })
-    //             })
-    //             break
-    //         case 400: case 401:
-    //             response.json().then((data) => {
-    //                 drawError(data.error)
-    //             })
-    //             break
-    //         case 500:
-    //             router.navigateTo("/500")
-    //             break
-    //     }
-    // })
-
     const response = await fetcher.post(path, body)
 
     switch (response.status) {

@@ -1,3 +1,4 @@
+import NavBar from "./views/NavBarView.js";
 import Home from "./views/HomeView.js";
 import SignUp from "./views/SignUpView.js";
 import SignIn from "./views/SignInView.js";
@@ -9,6 +10,7 @@ import Error500 from "./views/error500View.js";
 import Error503 from "./views/error503View.js";
 
 import Ws from "./services/Ws.js"
+import Utils from "./services/Utils.js"
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
@@ -55,10 +57,15 @@ const router = async () => {
         };
     }
 
-    const view = new match.route.view(getParams(match));
+    const user = Utils.getUser()
 
-    document.querySelector("#app").innerHTML = await view.getHtml();
-    view.init()
+    const navBarView = new NavBar(null, user);
+    const pageView = new match.route.view(getParams(match), user);
+
+    document.querySelector("#navbar").innerHTML = await navBarView.getHtml();
+    document.querySelector("#app").innerHTML = await pageView.getHtml();
+    
+    pageView.init()
 };
 
 window.addEventListener("popstate", router);
