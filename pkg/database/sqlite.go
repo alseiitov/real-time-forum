@@ -31,7 +31,7 @@ func ConnectDB(driver, dir, fileName, schemesDir string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	db.SetMaxOpenConns(1)
+	// db.SetMaxOpenConns(1)
 
 	if isNewDB {
 		if err = prepareDB(db, schemesDir); err != nil {

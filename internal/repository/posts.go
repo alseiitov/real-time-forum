@@ -187,9 +187,11 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 				FROM 
 					posts_categories 
 				WHERE 
-					category_id = $1 LIMIT $2 OFFSET $3
+					category_id = $1 
 			)
-		)`,
+		) 
+		ORDER BY id DESC 
+		LIMIT $2 OFFSET $3`,
 		categoryID, limit, offset,
 	)
 

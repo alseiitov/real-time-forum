@@ -43,6 +43,7 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 		return 0, err
 	}
 
+	input.Categories = append(input.Categories, 1) // add category "All" for every post
 	categories := model.CategoriesFromInts(input.Categories)
 	if len(categories) > 3 {
 		return 0, ErrTooManyCategories

@@ -61,7 +61,7 @@ const router = async () => {
 
     if (!match) {
         match = {
-            route: routes[0],
+            route: routes.find(route => route.path == "/404"),
             result: [location.pathname]
         };
     }

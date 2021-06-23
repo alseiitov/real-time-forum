@@ -17,3 +17,11 @@ body {
 a {
     color: #a9a9b3;
 }
+
+#category-title{
+    font-size:  30px;
+}
+
+.post{
+    margin-bottom: 10px;
+}
