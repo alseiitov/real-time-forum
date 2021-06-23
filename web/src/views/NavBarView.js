@@ -1,6 +1,9 @@
 import AbstractView from "./AbstractView.js";
 import Utils from "../services/Utils.js"
 import Router from "../index.js"
+import Ws from "../services/Ws.js";
+import intervals from "../services/Intervals.js";
+
 
 export default class extends AbstractView {
     constructor(params, user) {
@@ -30,10 +33,13 @@ export default class extends AbstractView {
 
     async init() {
         const signOutButton = document.getElementById("sign-out-button")
-        signOutButton.addEventListener('click', () => {
-            Utils.logOut()
-            Router.navigateTo("/")
-            location.reload()
-        })
+        if (signOutButton) {
+            signOutButton.addEventListener('click', () => {
+                Utils.logOut()
+                Router.navigateTo("/")
+                Ws.disconnect()
+                intervals.clearAll()
+            })
+        }
     }
 }

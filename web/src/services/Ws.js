@@ -5,12 +5,11 @@ import router from "../index.js"
 var connection
 
 const getConnection = () => {
-    return new Promise((resolve, reject) => {
-        if (connection != undefined && connection.readyState) {
-            resolve(connection)
-            return
-        }
+    if (connection && connection.readyState < 2) {
+        return Promise.resolve(connection)
+    }
 
+    return new Promise((resolve, reject) => {
         if (window["WebSocket"]) {
             let token = localStorage.getItem("accessToken")
 
@@ -18,8 +17,6 @@ const getConnection = () => {
                 alert("error opening websocket connection, no access token in localStorage")
                 return
             }
-
-
 
             const conn = new WebSocket(`ws://${API_HOST_NAME}/ws`)
 
@@ -83,6 +80,10 @@ const Ws = {
     send: async (e) => {
         connection = await getConnection()
         connection.send(e)
+    },
+
+    disconnect: async () => {
+        connection.close()
     }
 
 }

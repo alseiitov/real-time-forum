@@ -1,3 +1,4 @@
+import intervals from "../services/Intervals.js";
 import Ws from "../services/Ws.js";
 import AbstractView from "./AbstractView.js";
 
@@ -64,8 +65,9 @@ export default class extends AbstractView {
         requestChats()
         requestOnlineUsers()
 
-        clearInterval(requestOnlineUsersInterval)
+        intervals.clear(requestOnlineUsersInterval)
         requestOnlineUsersInterval = setInterval(requestOnlineUsers, 10_000)
+        intervals.add(requestOnlineUsersInterval)
     }
 
     static drawOnlineUsers(users) {
