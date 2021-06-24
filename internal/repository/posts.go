@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -79,18 +80,35 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 	return int(id), tx.Commit()
 }
 
-func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
+func (r *PostsRepo) GetByID(postID int, userID int) (model.Post, error) {
 	var post model.Post
 
 	row := r.db.QueryRow(`
 		SELECT 
-			id, user_id, title, data, date, image 
+			posts.id, posts.user_id, posts.title, posts.data, posts.date, posts.image, 
+			IFNULL(pr.type, 0) AS user_rate, 
+			count(distinct pl.id) - count(distinct pd.id) AS rating
 		FROM 
 			posts 
+		LEFT JOIN posts_likes pr 
+		ON 
+			pr.post_id = posts.id 
+		AND 
+			pr.user_id = $1
+		LEFT JOIN posts_likes pl 
+		ON 
+			pl.post_id = posts.id 
+		AND 
+			pl.type = $2
+		LEFT JOIN posts_likes pd 
+		ON 
+			pd.post_id = posts.id 
+		AND 
+			pd.type = $3
 		WHERE 
-			id = $1
+			posts.id = $4
 		`,
-		postID,
+		userID, model.LikeTypes.Like, model.LikeTypes.Dislike, postID,
 	)
 
 	err := row.Scan(
@@ -100,7 +118,11 @@ func (r *PostsRepo) GetByID(postID int) (model.Post, error) {
 		&post.Data,
 		&post.Date,
 		&post.Image,
+		&post.UserRate,
+		&post.Rating,
 	)
+
+	fmt.Printf("%+v\n", post)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

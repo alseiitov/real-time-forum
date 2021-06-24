@@ -27,7 +27,9 @@ func (h *Handler) getPost(ctx *gorouter.Context) {
 		return
 	}
 
-	post, err := h.postsService.GetByID(postID)
+	userID, _ := ctx.GetIntParam("sub")
+
+	post, err := h.postsService.GetByID(postID, userID)
 	if err != nil {
 		if err == service.ErrPostDoesntExist {
 			ctx.WriteError(http.StatusNotFound, err.Error())

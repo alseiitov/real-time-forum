@@ -72,8 +72,8 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 	return id, err
 }
 
-func (s *PostsService) GetByID(postID int) (model.Post, error) {
-	post, err := s.repo.GetByID(postID)
+func (s *PostsService) GetByID(postID, userID int) (model.Post, error) {
+	post, err := s.repo.GetByID(postID, userID)
 	if err != nil {
 		if err == repository.ErrNoRows {
 			return post, ErrPostDoesntExist
@@ -114,7 +114,7 @@ func (s *PostsService) LikePost(postID, userID, likeType int) error {
 	}
 
 	if likeCreated {
-		post, err := s.GetByID(postID)
+		post, err := s.GetByID(postID, 0)
 		if err != nil {
 			return err
 		}

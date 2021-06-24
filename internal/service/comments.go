@@ -66,7 +66,7 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 	}
 
 	// Create notification for post author
-	post, err := s.postsRepo.GetByID(input.PostID)
+	post, err := s.postsRepo.GetByID(input.PostID, 0)
 	if err != nil {
 		if err == repository.ErrForeignKeyConstraint {
 			return 0, ErrPostDoesntExist

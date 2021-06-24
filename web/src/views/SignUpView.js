@@ -1,6 +1,6 @@
 import AbstractView from "./AbstractView.js";
 import router from "../index.js"
-import utils from "../services/Utils.js"
+// import utils from "../services/Utils.js"
 
 const signUp = async (input) => {
     const url = `http://${API_HOST_NAME}/api/users/sign-up`
@@ -82,7 +82,7 @@ export default class extends AbstractView {
             const passwordConfirm = document.getElementById("password-confirm")
 
             if (password.value != passwordConfirm.value) {
-                showError("Passwords Don't Match")
+                drawError("Passwords Don't Match")
             } else {
                 let input = {
                     username: document.getElementById("username").value,

@@ -110,7 +110,9 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([
 		FROM 
 			comments 
 		WHERE 
-			post_id = $1 LIMIT $2 OFFSET $3
+			post_id = $1 
+		ORDER BY id DESC 
+		LIMIT $2 OFFSET $3
 		`,
 		postID, limit, offset,
 	)

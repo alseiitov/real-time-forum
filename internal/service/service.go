@@ -37,7 +37,7 @@ type Categories interface {
 
 type Posts interface {
 	Create(input CreatePostInput) (int, error)
-	GetByID(postID int) (model.Post, error)
+	GetByID(postID int, userID int) (model.Post, error)
 	Delete(userID int, postID int) error
 	GetPostsByCategoryID(categoryID int, page int) ([]model.Post, error)
 	LikePost(postID, userID, likeType int) error

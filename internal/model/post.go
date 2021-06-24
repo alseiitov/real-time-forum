@@ -12,6 +12,8 @@ type Post struct {
 	Image      string     `json:"image,omitempty"`
 	Categories []Category `json:"categories,omitempty"`
 	Comments   []Comment  `json:"comments,omitempty"`
+	Rating     int        `json:"rating"`
+	UserRate   int        `json:"userRate"`
 }
 
 var PostStatus = struct {
