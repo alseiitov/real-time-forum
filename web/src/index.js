@@ -2,6 +2,7 @@ import NavBar from "./views/NavBarView.js";
 import Home from "./views/HomeView.js";
 import SignUp from "./views/SignUpView.js";
 import SignIn from "./views/SignInView.js";
+import Post from "./views/PostView.js";
 import Chats from "./views/ChatsView.js";
 import Chat from "./views/ChatView.js";
 
@@ -41,6 +42,7 @@ const router = async () => {
         { path: "/", view: Home, minRole: roles.guest },
         { path: "/sign-up", view: SignUp, minRole: roles.guest },
         { path: "/sign-in", view: SignIn, minRole: roles.guest },
+        { path: "/post/:postID", view: Post, minRole: roles.guest },
         { path: "/chats", view: Chats, minRole: roles.user },
         { path: "/chat/:userID", view: Chat, minRole: roles.user },
         { path: "/401", view: Error401, minRole: roles.guest },

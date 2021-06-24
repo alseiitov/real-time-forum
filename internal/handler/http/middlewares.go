@@ -13,8 +13,13 @@ import (
 func (h *Handler) cors(next gorouter.Handler) gorouter.Handler {
 	return func(ctx *gorouter.Context) {
 		(ctx.ResponseWriter).Header().Set("Access-Control-Allow-Origin", "*")
-		(ctx.ResponseWriter).Header().Set("Access-Control-Allow-Methods", "POST, GET, PATCH, DELETE")
-		(ctx.ResponseWriter).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
+		(ctx.ResponseWriter).Header().Set("Access-Control-Allow-Methods", "*")
+		(ctx.ResponseWriter).Header().Set("Access-Control-Allow-Headers", "*")
+
+		if ctx.Request.Method == http.MethodOptions {
+			ctx.WriteHeader(http.StatusOK)
+			return
+		}
 
 		next(ctx)
 	}

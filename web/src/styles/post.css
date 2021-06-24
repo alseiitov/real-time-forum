@@ -1,0 +1,13 @@
+#post-image img {
+    width: 50%;
+    max-width: 600px;
+}
+
+.post-comment {
+    margin-bottom: 20px;
+    border: 1px solid;
+}
+
+ .rated {
+    color: red;
+}
