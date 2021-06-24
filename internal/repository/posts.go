@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -121,8 +120,6 @@ func (r *PostsRepo) GetByID(postID int, userID int) (model.Post, error) {
 		&post.UserRate,
 		&post.Rating,
 	)
-
-	fmt.Printf("%+v\n", post)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
