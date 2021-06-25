@@ -142,26 +142,31 @@ const drawPost = async (post) => {
     document.getElementById("post-creation-date").innerText = new Date(post.date).toLocaleString();
 
     const likeButton = document.getElementById("like-post-button")
-    likeButton.addEventListener("click", () => { likePost(post.id, likeTypes.like) })
-    if (post.userRate == likeTypes.like) {
-        likeButton.classList.add('rated')
+    if (likeButton) {
+        likeButton.addEventListener("click", () => { likePost(post.id, likeTypes.like) })
+        if (post.userRate == likeTypes.like) {
+            likeButton.classList.add('rated')
+        }
     }
 
     const dislikeButton = document.getElementById("dislike-post-button")
-    dislikeButton.addEventListener("click", () => { likePost(post.id, likeTypes.dislike) })
-    if (post.userRate == likeTypes.dislike) {
-        dislikeButton.classList.add('rated')
+    if (dislikeButton) {
+        dislikeButton.addEventListener("click", () => { likePost(post.id, likeTypes.dislike) })
+        if (post.userRate == likeTypes.dislike) {
+            dislikeButton.classList.add('rated')
+        }
     }
 
     document.getElementById("post-rating").innerText = post.rating;
 
     const categoriesEl = document.getElementById("post-categories")
-    post.categories.forEach(category => {
-        const el = document.createElement("a")
-        el.innerText = category.name
-        el.href = `/category/${category.id}/1`
-        categoriesEl.append(el)
-    })
+    categoriesEl.innerText = `Categories: ${post.categories.map(c=>c.name).join(", ")}`
+//     post.categories.forEach(category => {
+//         const el = document.createElement("a")
+//         el.innerText = category.name
+//         el.href = `/category/${category.id}/1`
+//         categoriesEl.append(el)
+//     })
 }
 
 const drawPostCommentsPage = async (postID, page) => {
@@ -195,7 +200,7 @@ const drawPostComments = async (comments) => {
         const likeButton = document.createElement("button")
         likeButton.classList.add("rate-button")
         likeButton.id = `like-comment-${comment.id}`
-        likeButton.innerText = "like"
+        likeButton.innerText = "⏶"
         likeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.like) })
         if (comment.userRate == likeTypes.like) {
             likeButton.classList.add('rated')
@@ -204,7 +209,7 @@ const drawPostComments = async (comments) => {
         const dislikeButton = document.createElement("button")
         dislikeButton.classList.add("rate-button")
         dislikeButton.id = `dislike-comment-${comment.id}`
-        dislikeButton.innerText = "dislike"
+        dislikeButton.innerText = "⏷"
         dislikeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.dislike) })
         if (comment.userRate == likeTypes.dislike) {
             dislikeButton.classList.add('rated')
@@ -213,7 +218,6 @@ const drawPostComments = async (comments) => {
         const rating = document.createElement("p")
         rating.id = `comment-${comment.id}-rating`
         rating.innerText = comment.rating
-
 
         commentEl.append(commentAuthor)
         commentEl.append(commentText)
@@ -250,15 +254,15 @@ export default class extends AbstractView {
             +
             (authorized ?
                 `
-                <button class="rate-button" id="like-post-button">like</button>
-                <button class="rate-button" id="dislike-post-button">dislike</button>
+                <button class="rate-button" id="like-post-button">⏶</button>
+                <button class="rate-button" id="dislike-post-button">⏷</button>
                 `
                 :
                 `<p>Sign-in to rate a post</p>`
             )
             +
             `
-                <p id="post-rating">0</p>
+                <p id="post-rating"></p>
             </div>
             <div id="post-categories"></div>
             `

@@ -8,6 +8,14 @@
     border: 1px solid;
 }
 
- .rated {
-    color: red;
+.rate-button {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    font-size: 40px;
+    color: white;
+}
+
+.rated {
+    color :deepskyblue;
 }
