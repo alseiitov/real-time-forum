@@ -30,6 +30,53 @@ const getComments = async (postID, page) => {
     }
 }
 
+
+const likePost = async (postID, likeType) => {
+    const path = `/api/posts/${postID}/likes`
+    const body = { likeType: likeType }
+
+    const response = await fetcher.post(path, body)
+    if (response.status == 400) {
+        router.navigateTo("/400")
+        return
+    }
+
+    const likeButton = document.getElementById(`like-post-button`)
+    const dislikeButton = document.getElementById(`dislike-post-button`)
+    const rating = document.getElementById("post-rating")
+
+    const alreadyLiked = likeButton.classList.contains('rated')
+    const alreadyDisliked = dislikeButton.classList.contains('rated')
+
+    likeButton.classList.remove('rated')
+    dislikeButton.classList.remove('rated')
+
+    if (likeType == likeTypes.like) {
+        if (alreadyLiked) {
+            rating.innerText--
+        } else {
+            likeButton.classList.add('rated')
+            rating.innerText++
+        }
+        if(alreadyDisliked) {
+            rating.innerText++
+        }
+    }
+
+
+    if (likeType == likeTypes.dislike) {
+        if (alreadyDisliked) {
+            rating.innerText++
+        } else {
+            dislikeButton.classList.add('rated')
+            rating.innerText--
+        }
+        if(alreadyLiked) {
+            rating.innerText--
+        }
+    }
+}
+
 const likeComment = async (commentID, likeType) => {
     const path = `/api/comments/${commentID}/likes`
     const body = { likeType: likeType }
@@ -59,6 +106,7 @@ const likeComment = async (commentID, likeType) => {
 }
 
 const drawPost = async (post) => {
+    console.log(post)
     document.getElementById("post-title").innerText = post.title;
 
     if (post.image) {
@@ -69,6 +117,20 @@ const drawPost = async (post) => {
     //TODO: parse user name
     document.getElementById("post-author").innerText = post.userID;
     document.getElementById("post-creation-date").innerText = new Date(post.date).toLocaleString();
+
+    const likeButton = document.getElementById("like-post-button")
+    likeButton.addEventListener("click", () => { likePost(post.id, likeTypes.like) })
+    if (post.userRate == likeTypes.like) {
+        likeButton.classList.add('rated')
+    }
+
+    const dislikeButton = document.getElementById("dislike-post-button")
+    dislikeButton.addEventListener("click", () => { likePost(post.id, likeTypes.dislike) })
+    if (post.userRate == likeTypes.dislike) {
+        dislikeButton.classList.add('rated')
+    }
+
+    document.getElementById("post-rating").innerText = post.rating;
 
     const categoriesEl = document.getElementById("post-categories")
     post.categories.forEach(category => {
@@ -148,7 +210,7 @@ export default class extends AbstractView {
             )
             +
             `
-                <p id="likes-count">0</p>
+                <p id="post-rating">0</p>
             </div>
             <div id="post-categories"></div>
             `
@@ -181,3 +243,4 @@ export default class extends AbstractView {
         }
     }
 }
+
