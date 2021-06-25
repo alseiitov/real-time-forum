@@ -161,12 +161,6 @@ const drawPost = async (post) => {
 
     const categoriesEl = document.getElementById("post-categories")
     categoriesEl.innerText = `Categories: ${post.categories.map(c=>c.name).join(", ")}`
-//     post.categories.forEach(category => {
-//         const el = document.createElement("a")
-//         el.innerText = category.name
-//         el.href = `/category/${category.id}/1`
-//         categoriesEl.append(el)
-//     })
 }
 
 const drawPostCommentsPage = async (postID, page) => {

@@ -21,7 +21,7 @@ export default class extends AbstractView {
             (authorized ?
                 `
                 <a href="/chats" class="nav__link" id="chats-button" data-link>chats</a>
-                <a href="" class="nav__link"id="sign-out-button" data-link>sign-out</a>
+                <a href="/" class="nav__link" id="sign-out-button" data-link>sign-out</a>
                 `
                 :
                 `
@@ -36,7 +36,6 @@ export default class extends AbstractView {
         if (signOutButton) {
             signOutButton.addEventListener('click', () => {
                 Utils.logOut()
-                Router.navigateTo("/")
                 Ws.disconnect()
                 intervals.clearAll()
             })
