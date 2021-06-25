@@ -267,6 +267,7 @@ export default class extends AbstractView {
                 `
                 <div id="post-comments"></div>
                 <button id="prev-button">prev</button>
+                <p id="page-number">1</p>
                 <button id="next-button">next</button>
                 `
                 :
@@ -290,12 +291,14 @@ export default class extends AbstractView {
 
             const nextButtonEl = document.getElementById(`next-button`)
             const prevButtonEl = document.getElementById(`prev-button`)
+            const pageNumber = document.getElementById(`page-number`)
 
             nextButtonEl.addEventListener("click", () => {
                 if (commentsEnded) {
                     return
                 }
                 currCommentPageNum++
+                pageNumber.innerText = currCommentPageNum
                 drawPostCommentsPage(this.postID, currCommentPageNum)
             })
 
@@ -305,6 +308,7 @@ export default class extends AbstractView {
                 }
                 commentsEnded = false
                 currCommentPageNum--
+                pageNumber.innerText = currCommentPageNum
                 drawPostCommentsPage(this.postID, currCommentPageNum)
             })
         }

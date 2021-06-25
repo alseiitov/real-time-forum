@@ -29,6 +29,7 @@ const drawCategories = async (categories) => {
             currPageNum = 1
             postsEnded = false
             titleEl.innerText = category.name
+            document.getElementById("page-number").innerText = currPageNum
 
             drawPostsByCategoryID(category.id, currPageNum)
         })
@@ -93,6 +94,7 @@ export default class extends AbstractView {
            
             <div id="posts"></div>
             <button id="prev-button">prev</button>
+            <p id="page-number"></p>
             <button id="next-button">next</button>
         `;
     }
@@ -105,12 +107,15 @@ export default class extends AbstractView {
 
         const nextButtonEl = document.getElementById(`next-button`)
         const prevButtonEl = document.getElementById(`prev-button`)
+        const pageNumber = document.getElementById(`page-number`)
 
         nextButtonEl.addEventListener("click", () => {
             if (postsEnded) {
                 return
             }
             currPageNum++
+            pageNumber.innerText = currPageNum
+
             drawPostsByCategoryID(currCategoryID, currPageNum)
         })
 
@@ -120,6 +125,8 @@ export default class extends AbstractView {
             }
             postsEnded = false
             currPageNum--
+            pageNumber.innerText = currPageNum
+
             drawPostsByCategoryID(currCategoryID, currPageNum)
         })
     }
