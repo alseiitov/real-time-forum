@@ -92,8 +92,8 @@ export default class extends AbstractView {
             <div id="category-title"></div>
            
             <div id="posts"></div>
-            <button id="prev-button" value="1">prev</button>
-            <button id="next-button" value="1">next</button>
+            <button id="prev-button">prev</button>
+            <button id="next-button">next</button>
         `;
     }
 

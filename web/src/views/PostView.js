@@ -7,6 +7,9 @@ const likeTypes = {
     dislike: 2
 }
 
+var currCommentPageNum = 1
+var commentsEnded = false
+
 const getPost = async (postID) => {
     const path = `/api/posts/${postID}`
 
@@ -161,9 +164,21 @@ const drawPost = async (post) => {
     })
 }
 
+const drawPostCommentsPage = async (postID, page) => {
+    const data = await getComments(postID, page)
+    drawPostComments(data)
+}
 
-const drawPostComments = async (comments, userID) => {
+const drawPostComments = async (comments) => {
     const commentsEl = document.getElementById("post-comments")
+    if (!comments) {
+        commentsEnded = true
+        commentsEl.innerText = "No comments"
+        return
+    }
+
+    commentsEl.innerText = ""
+
     comments.forEach(comment => {
         const commentEl = document.createElement("div")
         commentEl.classList.add("post-comment")
@@ -185,7 +200,7 @@ const drawPostComments = async (comments, userID) => {
         if (comment.userRate == likeTypes.like) {
             likeButton.classList.add('rated')
         }
-        
+
         const dislikeButton = document.createElement("button")
         dislikeButton.classList.add("rate-button")
         dislikeButton.id = `dislike-comment-${comment.id}`
@@ -251,6 +266,8 @@ export default class extends AbstractView {
             (authorized ?
                 `
                 <div id="post-comments"></div>
+                <button id="prev-button">prev</button>
+                <button id="next-button">next</button>
                 `
                 :
                 `
@@ -269,10 +286,27 @@ export default class extends AbstractView {
 
         const authorized = Boolean(this.user.id)
         if (authorized) {
-            const data = await getComments(this.postID, 1)
-            if (data) {
-                drawPostComments(data, this.userID)
-            }
+            drawPostCommentsPage(this.postID, currCommentPageNum)
+
+            const nextButtonEl = document.getElementById(`next-button`)
+            const prevButtonEl = document.getElementById(`prev-button`)
+
+            nextButtonEl.addEventListener("click", () => {
+                if (commentsEnded) {
+                    return
+                }
+                currCommentPageNum++
+                drawPostCommentsPage(this.postID, currCommentPageNum)
+            })
+
+            prevButtonEl.addEventListener("click", () => {
+                if (currCommentPageNum == 1) {
+                    return
+                }
+                commentsEnded = false
+                currCommentPageNum--
+                drawPostCommentsPage(this.postID, currCommentPageNum)
+            })
         }
     }
 }
