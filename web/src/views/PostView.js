@@ -58,7 +58,7 @@ const likePost = async (postID, likeType) => {
             likeButton.classList.add('rated')
             rating.innerText++
         }
-        if(alreadyDisliked) {
+        if (alreadyDisliked) {
             rating.innerText++
         }
     }
@@ -71,7 +71,7 @@ const likePost = async (postID, likeType) => {
             dislikeButton.classList.add('rated')
             rating.innerText--
         }
-        if(alreadyLiked) {
+        if (alreadyLiked) {
             rating.innerText--
         }
     }
@@ -92,16 +92,36 @@ const likeComment = async (commentID, likeType) => {
 
     const alreadyLiked = likeButton.classList.contains('rated')
     const alreadyDisliked = dislikeButton.classList.contains('rated')
+    const rating = document.getElementById(`comment-${commentID}-rating`)
+
 
     likeButton.classList.remove('rated')
     dislikeButton.classList.remove('rated')
 
-    if (likeType == likeTypes.like && !alreadyLiked) {
-        likeButton.classList.add('rated')
+
+    if (likeType == likeTypes.like) {
+        if (alreadyLiked) {
+            rating.innerText--
+        } else {
+            likeButton.classList.add('rated')
+            rating.innerText++
+        }
+        if (alreadyDisliked) {
+            rating.innerText++
+        }
     }
 
-    if (likeType == likeTypes.dislike && !alreadyDisliked) {
-        dislikeButton.classList.add('rated')
+
+    if (likeType == likeTypes.dislike) {
+        if (alreadyDisliked) {
+            rating.innerText++
+        } else {
+            dislikeButton.classList.add('rated')
+            rating.innerText--
+        }
+        if (alreadyLiked) {
+            rating.innerText--
+        }
     }
 }
 
@@ -162,17 +182,30 @@ const drawPostComments = async (comments, userID) => {
         likeButton.id = `like-comment-${comment.id}`
         likeButton.innerText = "like"
         likeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.like) })
-
+        if (comment.userRate == likeTypes.like) {
+            likeButton.classList.add('rated')
+        }
+        
         const dislikeButton = document.createElement("button")
         dislikeButton.classList.add("rate-button")
         dislikeButton.id = `dislike-comment-${comment.id}`
         dislikeButton.innerText = "dislike"
         dislikeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.dislike) })
+        if (comment.userRate == likeTypes.dislike) {
+            dislikeButton.classList.add('rated')
+        }
+
+        const rating = document.createElement("p")
+        rating.id = `comment-${comment.id}-rating`
+        rating.innerText = comment.rating
+
 
         commentEl.append(commentAuthor)
         commentEl.append(commentText)
         commentEl.append(likeButton)
         commentEl.append(dislikeButton)
+        commentEl.append(rating)
+
         commentsEl.append(commentEl)
     })
 }

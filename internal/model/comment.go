@@ -10,8 +10,8 @@ type Comment struct {
 	Data     string    `json:"data,omitempty"`
 	Image    string    `json:"image,omitempty"`
 	Date     time.Time `json:"date,omitempty"`
-	Rate     int       `json:"rate,omitempty"`
-	UserRate int       `json:"userRate,omitempty"`
+	UserRate int       `json:"userRate"`
+	Rating   int       `json:"rating"`
 }
 
 var CommentStatus = struct {

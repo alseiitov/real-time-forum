@@ -95,7 +95,7 @@ func (r *CommentsRepo) Delete(userID, commentID int) error {
 	return err
 }
 
-func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([]model.Comment, error) {
+func (r *CommentsRepo) GetCommentsByPostID(postID int, userID int, limit int, offset int) ([]model.Comment, error) {
 	var comments []model.Comment
 	var postExists bool
 
@@ -105,13 +105,30 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([
 	}
 
 	rows, err := r.db.Query(`
-		SELECT 
-			id, user_id, post_id, data, image, date 
+		SELECT
+			comments.id, comments.user_id, comments.post_id, comments.data, comments.image, comments.date, 
+			IFNULL(cr.type, 0) AS user_rate, 
+			COUNT(DISTINCT cl.id) - COUNT(DISTINCT cd.id) AS rating
 		FROM 
 			comments 
-		WHERE 
-			post_id = $1 
-		ORDER BY id DESC 
+		LEFT JOIN comments_likes cr 
+		ON 
+			cr.comment_id = comments.id 
+		AND
+			cr.user_id = 1 
+		LEFT JOIN comments_likes cl 
+		ON 
+			cl.comment_id = comments.id 
+		AND 
+			cl.type = 1   
+		LEFT JOIN comments_likes cd 
+		ON 
+			cd.comment_id = comments.id 
+		AND 
+			cd.type = 2 
+		WHERE comments.post_id = $1 
+		GROUP BY comments.id 
+		ORDER BY comments.id DESC
 		LIMIT $2 OFFSET $3
 		`,
 		postID, limit, offset,
@@ -132,6 +149,8 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, limit int, offset int) ([
 			&comment.Data,
 			&comment.Image,
 			&comment.Date,
+			&comment.UserRate,
+			&comment.Rating,
 		)
 
 		if err != nil {

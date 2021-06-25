@@ -137,7 +137,9 @@ func (h *Handler) getCommentsOfPost(ctx *gorouter.Context) {
 		return
 	}
 
-	comments, err := h.commentsService.GetCommentsByPostID(postID, page)
+	userID, _ := ctx.GetIntParam("sub")
+
+	comments, err := h.commentsService.GetCommentsByPostID(postID, userID, page)
 	if err != nil {
 		if err == service.ErrPostDoesntExist {
 			ctx.WriteError(http.StatusNotFound, err.Error())

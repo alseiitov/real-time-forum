@@ -95,10 +95,10 @@ func (s *CommentsService) Delete(userID, postID int) error {
 	return err
 }
 
-func (s *CommentsService) GetCommentsByPostID(postID int, page int) ([]model.Comment, error) {
+func (s *CommentsService) GetCommentsByPostID(postID int, userID int, page int) ([]model.Comment, error) {
 	offset := (page - 1) * s.commentsForPage
 
-	comments, err := s.repo.GetCommentsByPostID(postID, s.commentsForPage, offset)
+	comments, err := s.repo.GetCommentsByPostID(postID, userID, s.commentsForPage, offset)
 	if err != nil {
 		if err == repository.ErrNoRows {
 			return nil, ErrPostDoesntExist
