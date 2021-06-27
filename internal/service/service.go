@@ -44,7 +44,7 @@ type Posts interface {
 }
 
 type Comments interface {
-	Create(input CreateCommentInput) (int, error)
+	Create(input CreateCommentInput) (model.Comment, error)
 	Delete(userID, postID int) error
 	GetCommentsByPostID(postID int, userID int, page int) ([]model.Comment, error)
 	LikeComment(comentID, userID, likeType int) error

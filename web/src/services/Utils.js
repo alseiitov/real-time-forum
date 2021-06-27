@@ -25,4 +25,21 @@ const logOut = () => {
 }
 
 
-export default { parseJwt, getUser, logOut }
+const fileToBase64 = (file) => {
+    return new Promise(resolve => {
+        let fileReader = new FileReader();
+
+        fileReader.onload = (fileLoadedEvent) => {
+            resolve(fileLoadedEvent.target.result)
+        }
+
+        fileReader.readAsDataURL(file)
+    })
+}
+
+const base64isImage = (base64string) => {
+    return /image\/(jpeg|png|gif)/.test(base64string)
+}
+
+
+export default { parseJwt, getUser, logOut, fileToBase64, base64isImage }

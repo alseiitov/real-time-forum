@@ -1,6 +1,7 @@
 import AbstractView from "./AbstractView.js";
 import fetcher from "../services/Fetcher.js"
 import router from "../index.js"
+import Utils from "../services/Utils.js";
 
 const likeTypes = {
     like: 1,
@@ -25,6 +26,21 @@ const getComments = async (postID, page) => {
     const response = await fetcher.get(path)
     switch (response.status) {
         case 200:
+            const data = await response.json()
+            return data
+        case 400:
+            router.navigateTo("/400")
+            break
+    }
+}
+
+const addComment = async (postID, data, image) => {
+    const path = `/api/posts/${postID}/comments`
+    const body = { data: data, image: image }
+
+    const response = await fetcher.post(path, body)
+    switch (response.status) {
+        case 201:
             const data = await response.json()
             return data
         case 400:
@@ -160,7 +176,7 @@ const drawPost = async (post) => {
     document.getElementById("post-rating").innerText = post.rating;
 
     const categoriesEl = document.getElementById("post-categories")
-    categoriesEl.innerText = `Categories: ${post.categories.map(c=>c.name).join(", ")}`
+    categoriesEl.innerText = `Categories: ${post.categories.map(c => c.name).join(", ")}`
 }
 
 const drawPostCommentsPage = async (postID, page) => {
@@ -178,49 +194,63 @@ const drawPostComments = async (comments) => {
 
     commentsEl.innerText = ""
 
-    comments.forEach(comment => {
-        const commentEl = document.createElement("div")
-        commentEl.classList.add("post-comment")
+    comments.forEach(comment => {drawComment(comment, false)})
+}
 
-        const commentAuthor = document.createElement("a")
-        //TODO: parse user name
-        commentAuthor.innerText = `user ${comment.userID}`
-        commentAuthor.setAttribute("href", `/user/${comment.userID}`)
-        commentAuthor.setAttribute("data-link", "")
+const drawComment = (comment, isNewComment) => {
+    const commentsEl = document.getElementById("post-comments")
 
-        const commentText = document.createElement("p")
-        commentText.innerText = `${comment.data}\n${new Date(comment.date).toLocaleString()}`
+    const commentEl = document.createElement("div")
+    commentEl.classList.add("post-comment")
 
-        const likeButton = document.createElement("button")
-        likeButton.classList.add("rate-button")
-        likeButton.id = `like-comment-${comment.id}`
-        likeButton.innerText = "⏶"
-        likeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.like) })
-        if (comment.userRate == likeTypes.like) {
-            likeButton.classList.add('rated')
-        }
+    const commentAuthor = document.createElement("a")
+    //TODO: parse user name
+    commentAuthor.innerText = `user ${comment.userID}`
+    commentAuthor.setAttribute("href", `/user/${comment.userID}`)
+    commentAuthor.setAttribute("data-link", "")
+    commentEl.append(commentAuthor)
 
-        const dislikeButton = document.createElement("button")
-        dislikeButton.classList.add("rate-button")
-        dislikeButton.id = `dislike-comment-${comment.id}`
-        dislikeButton.innerText = "⏷"
-        dislikeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.dislike) })
-        if (comment.userRate == likeTypes.dislike) {
-            dislikeButton.classList.add('rated')
-        }
+    if (comment.image) {
+        const commentImage = document.createElement("img")
+        commentImage.src = `http://${API_HOST_NAME}/images/${comment.image}`
+        commentEl.append(commentImage)
+    }
 
-        const rating = document.createElement("p")
-        rating.id = `comment-${comment.id}-rating`
-        rating.innerText = comment.rating
+    const commentText = document.createElement("p")
+    commentText.innerText = `${comment.data}\n${new Date(comment.date).toLocaleString()}`
+    commentEl.append(commentText)
 
-        commentEl.append(commentAuthor)
-        commentEl.append(commentText)
-        commentEl.append(likeButton)
-        commentEl.append(dislikeButton)
-        commentEl.append(rating)
+    const likeButton = document.createElement("button")
+    likeButton.classList.add("rate-button")
+    likeButton.id = `like-comment-${comment.id}`
+    likeButton.innerText = "⏶"
+    likeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.like) })
+    if (comment.userRate == likeTypes.like) {
+        likeButton.classList.add('rated')
+    }
+    commentEl.append(likeButton)
 
+    const dislikeButton = document.createElement("button")
+    dislikeButton.classList.add("rate-button")
+    dislikeButton.id = `dislike-comment-${comment.id}`
+    dislikeButton.innerText = "⏷"
+    dislikeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.dislike) })
+    if (comment.userRate == likeTypes.dislike) {
+        dislikeButton.classList.add('rated')
+    }
+    commentEl.append(dislikeButton)
+
+    const rating = document.createElement("p")
+    rating.id = `comment-${comment.id}-rating`
+    rating.innerText = comment.rating
+    commentEl.append(rating)
+
+  
+    if (isNewComment) {
+        commentsEl.prepend(commentEl)
+    } else {
         commentsEl.append(commentEl)
-    })
+    }
 }
 
 export default class extends AbstractView {
@@ -267,6 +297,12 @@ export default class extends AbstractView {
                 <button id="prev-button">prev</button>
                 <p id="page-number">1</p>
                 <button id="next-button">next</button>
+                <form id="comment-form" onsubmit="return false;">
+                    <textarea id="comment-input" cols="30" rows="5" maxlength="128" placeholder="Leave a comment" required></textarea><br>
+                    <input type="file" id="comment-image-input" accept="image/jpeg, image/png, image/gif">
+                    <div id="comment-image-preview"></div>
+                    <button>Send</button>
+                </form>
                 `
                 :
                 `
@@ -310,6 +346,25 @@ export default class extends AbstractView {
                 drawPostCommentsPage(this.postID, currCommentPageNum)
             })
         }
+
+        const commentText = document.getElementById("comment-input")
+        const imageInput = document.getElementById("comment-image-input")
+        var imageBase64
+
+        imageInput.addEventListener("change", async () => {
+            const image = imageInput.files[0]
+            imageBase64 = await Utils.fileToBase64(image)
+            document.getElementById("comment-image-preview").innerHTML = `<img src="${base64string}">`
+        })
+
+
+        document.getElementById("comment-form").addEventListener("submit", async () => {
+            const comment = await addComment(this.postID, commentText.value, imageBase64)
+            drawComment(comment, true)
+
+            imageInput.value = ""
+            commentText.value = ""
+        })
     }
 }
 

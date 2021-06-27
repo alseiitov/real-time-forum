@@ -36,20 +36,19 @@ type CreateCommentInput struct {
 	Image  string
 }
 
-func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
+func (s *CommentsService) Create(input CreateCommentInput) (model.Comment, error) {
+	var comment model.Comment
 	// Create comment
 	imageName, err := image.Save(input.Image, s.imagesDir)
 	if err != nil {
-		return 0, err
+		return comment, err
 	}
 
-	comment := model.Comment{
-		UserID: input.UserID,
-		PostID: input.PostID,
-		Data:   input.Data,
-		Image:  imageName,
-		Date:   time.Now(),
-	}
+	comment.UserID = input.UserID
+	comment.PostID = input.PostID
+	comment.Data = input.Data
+	comment.Image = imageName
+	comment.Date = time.Now()
 
 	if s.commentsPreModerationIsEnabled {
 		comment.Status = model.CommentStatus.Pending
@@ -57,21 +56,21 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 		comment.Status = model.CommentStatus.Approved
 	}
 
-	id, err := s.repo.Create(comment)
+	comment.ID, err = s.repo.Create(comment)
 	if err != nil {
 		if err == repository.ErrForeignKeyConstraint {
-			return 0, ErrPostDoesntExist
+			return comment, ErrPostDoesntExist
 		}
-		return 0, err
+		return comment, err
 	}
 
 	// Create notification for post author
 	post, err := s.postsRepo.GetByID(input.PostID, 0)
 	if err != nil {
 		if err == repository.ErrForeignKeyConstraint {
-			return 0, ErrPostDoesntExist
+			return comment, ErrPostDoesntExist
 		}
-		return 0, err
+		return comment, err
 	}
 
 	notification := model.Notification{
@@ -83,7 +82,7 @@ func (s *CommentsService) Create(input CreateCommentInput) (int, error) {
 		Read:         false,
 	}
 
-	return id, s.notificationsService.Create(notification)
+	return comment, s.notificationsService.Create(notification)
 }
 
 func (s *CommentsService) Delete(userID, postID int) error {

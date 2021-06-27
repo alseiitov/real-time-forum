@@ -14,10 +14,6 @@ type createCommentInput struct {
 	Image string `json:"image"`
 }
 
-type createCommentResponse struct {
-	CommentID int `json:"commentID" example:"1"`
-}
-
 // @Summary Create comment
 // @Security Auth
 // @Tags comments
@@ -26,7 +22,7 @@ type createCommentResponse struct {
 // @Produce  json
 // @Param post_id path int true "ID of post"
 // @Param input body createCommentInput true "comment input"
-// @Success 201 {object} createCommentResponse
+// @Success 201 {object} model.Comment
 // @Failure 400,401,403,404,500 {object} gorouter.Error
 // @Failure default {object} gorouter.Error
 // @Router /posts/{post_id}/comments [POST]
@@ -55,7 +51,7 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 		return
 	}
 
-	newCommentID, err := h.commentsService.Create(service.CreateCommentInput{
+	newComment, err := h.commentsService.Create(service.CreateCommentInput{
 		UserID: userID,
 		PostID: postID,
 		Data:   input.Data,
@@ -71,8 +67,7 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 		return
 	}
 
-	resp := createCommentResponse{CommentID: newCommentID}
-	ctx.WriteJSON(http.StatusCreated, resp)
+	ctx.WriteJSON(http.StatusCreated, newComment)
 }
 
 // @Summary Delete comment

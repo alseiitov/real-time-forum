@@ -60,7 +60,7 @@ export default class extends AbstractView {
 
                 <div id="input-error"></div>
 
-                <button class="button">Sign in</button>
+                <button>Sign in</button>
             </form>
 
         `;
