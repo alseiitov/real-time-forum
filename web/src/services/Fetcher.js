@@ -32,11 +32,6 @@ const makeRequest = async (path, body, method) => {
         return
     })
 
-    if (response.status == 401) {
-        router.navigateTo("/401")
-        return
-    }
-
     if (response.status == 404) {
         router.navigateTo("/404")
         return
