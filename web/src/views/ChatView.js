@@ -1,5 +1,6 @@
 import AbstractView from "./AbstractView.js";
 import Ws from "../services/Ws.js"
+import Utils from "../services/Utils.js"
 
 
 var loadMessages
@@ -17,13 +18,13 @@ const newMessageElement = (message) => {
     if (!message.read && message.senderID == userID) {
         el.style.color = "gray"
     }
-    
+
     el.innerText = `${message.message}\n${new Date(Date.parse(message.date)).toLocaleString()}\n`
 
     el.classList.add("message")
     if (message.senderID == userID) {
         el.classList.add("sended-message")
-    } else{
+    } else {
         el.classList.add("recived-message")
     }
 
@@ -101,11 +102,12 @@ export default class extends AbstractView {
     }
 
     static async appendNewMessage(message) {
-        const chatMessages = document.getElementById("chat-messages");
-        const doScroll = chatMessages.scrollTop > chatMessages.scrollHeight - chatMessages.clientHeight - 1;
-        const el = newMessageElement(message)
-        chatMessages.appendChild(el);
-        if (doScroll) {
+        const user = Utils.getUser()
+        const currChatUserID = location.pathname.split("/").pop()
+        if ((message.senderID == currChatUserID || message.senderID == user.id) && !(document.getElementById(`message-${message.id}`))) {
+            const chatMessages = document.getElementById("chat-messages");
+            const el = newMessageElement(message)
+            chatMessages.appendChild(el)
             chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
         }
     }
