@@ -5,7 +5,7 @@ import "time"
 type Comment struct {
 	ID       int       `json:"id,omitempty"`
 	Status   int       `json:"status,omitempty"`
-	UserID   int       `json:"userID,omitempty"`
+	Author   User      `json:"author,omitempty"`
 	PostID   int       `json:"postID,omitempty"`
 	Data     string    `json:"data,omitempty"`
 	Image    string    `json:"image,omitempty"`

@@ -44,7 +44,7 @@ func (s *CommentsService) Create(input CreateCommentInput) (model.Comment, error
 		return comment, err
 	}
 
-	comment.UserID = input.UserID
+	comment.Author.ID = input.UserID
 	comment.PostID = input.PostID
 	comment.Data = input.Data
 	comment.Image = imageName
@@ -139,7 +139,7 @@ func (s *CommentsService) LikeComment(comentID, userID, likeType int) error {
 		}
 
 		notification := model.Notification{
-			RecipientID:  comment.UserID,
+			RecipientID:  comment.Author.ID,
 			SenderID:     userID,
 			ActivityType: activityType,
 			Date:         time.Now(),

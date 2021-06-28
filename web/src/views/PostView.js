@@ -198,15 +198,20 @@ const drawPostComments = async (comments) => {
 }
 
 const drawComment = (comment, isNewComment) => {
+    const user = Utils.getUser()
     const commentsEl = document.getElementById("post-comments")
 
     const commentEl = document.createElement("div")
     commentEl.classList.add("post-comment")
 
     const commentAuthor = document.createElement("a")
-    //TODO: parse user name
-    commentAuthor.innerText = `user ${comment.userID}`
-    commentAuthor.setAttribute("href", `/user/${comment.userID}`)
+    if (comment.author.id == user.id) {
+        commentAuthor.innerText = `You`
+    } else {
+        commentAuthor.innerText = `${comment.author.firstName} ${comment.author.lastName}`
+
+    }
+    commentAuthor.setAttribute("href", `/user/${comment.author.id}`)
     commentAuthor.setAttribute("data-link", "")
     commentEl.append(commentAuthor)
 
@@ -361,7 +366,7 @@ export default class extends AbstractView {
         document.getElementById("comment-form").addEventListener("submit", async () => {
             const comment = await addComment(this.postID, commentText.value, imageBase64)
             drawComment(comment, true)
-
+            
             imageInput.value = ""
             commentText.value = ""
         })

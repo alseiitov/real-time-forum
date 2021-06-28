@@ -29,7 +29,7 @@ func (r *CommentsRepo) Create(comment model.Comment) (int, error) {
 
 	res, err := stmt.Exec(
 		&comment.Status,
-		&comment.UserID,
+		&comment.Author.ID,
 		&comment.PostID,
 		&comment.Data,
 		&comment.Image,
@@ -51,11 +51,11 @@ func (r *CommentsRepo) GetByID(commentID int) (model.Comment, error) {
 	var comment model.Comment
 
 	row := r.db.QueryRow(`
-		SELECT 
-			id, status, user_id, post_id, data, image, date 
-		FROM 
-			comments 
-		WHERE 
+		SELECT
+			id, status, user_id, post_id, data, image, date
+		FROM
+			comments
+		WHERE
 			id = $1
 		`,
 		commentID,
@@ -64,7 +64,7 @@ func (r *CommentsRepo) GetByID(commentID int) (model.Comment, error) {
 	err := row.Scan(
 		&comment.ID,
 		&comment.Status,
-		&comment.UserID,
+		&comment.Author.ID,
 		&comment.PostID,
 		&comment.Data,
 		&comment.Image,
@@ -106,32 +106,35 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, userID int, limit int, of
 
 	rows, err := r.db.Query(`
 		SELECT
-			comments.id, comments.user_id, comments.post_id, comments.data, comments.image, comments.date, 
+			comments.id, comments.post_id, 
+			comments.user_id AS author_id, u.first_name AS author_first_name, u.last_name AS author_last_name, 
+			comments.data, comments.image, comments.date, 
 			IFNULL(cr.type, 0) AS user_rate, 
 			COUNT(DISTINCT cl.id) - COUNT(DISTINCT cd.id) AS rating
+		
 		FROM 
 			comments 
+		LEFT JOIN users u 
+		ON u.id == comments.user_id
+			
 		LEFT JOIN comments_likes cr 
-		ON 
-			cr.comment_id = comments.id 
-		AND
-			cr.user_id = 1 
+		ON cr.comment_id = comments.id 
+		AND cr.user_id = $1 
+		
 		LEFT JOIN comments_likes cl 
-		ON 
-			cl.comment_id = comments.id 
-		AND 
-			cl.type = 1   
+		ON cl.comment_id = comments.id 
+		AND cl.type = 1 
+
 		LEFT JOIN comments_likes cd 
-		ON 
-			cd.comment_id = comments.id 
-		AND 
-			cd.type = 2 
-		WHERE comments.post_id = $1 
+		ON cd.comment_id = comments.id 
+		AND cd.type = 2 
+		
+		WHERE comments.post_id = $2 
 		GROUP BY comments.id 
 		ORDER BY comments.id DESC
-		LIMIT $2 OFFSET $3
+		LIMIT $3 OFFSET $4
 		`,
-		postID, limit, offset,
+		userID, postID, limit, offset,
 	)
 
 	if err != nil {
@@ -144,8 +147,10 @@ func (r *CommentsRepo) GetCommentsByPostID(postID int, userID int, limit int, of
 
 		err = rows.Scan(
 			&comment.ID,
-			&comment.UserID,
 			&comment.PostID,
+			&comment.Author.ID,
+			&comment.Author.FirstName,
+			&comment.Author.LastName,
 			&comment.Data,
 			&comment.Image,
 			&comment.Date,
