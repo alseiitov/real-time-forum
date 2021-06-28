@@ -510,7 +510,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http.RequestForModeratorActionInput"
+                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.RequestForModeratorActionInput"
                         }
                     }
                 ],
@@ -1502,6 +1502,9 @@
         "model.Comment": {
             "type": "object",
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/model.User"
+                },
                 "data": {
                     "type": "string"
                 },
@@ -1523,9 +1526,6 @@
                 "status": {
                     "type": "integer"
                 },
-                "userID": {
-                    "type": "integer"
-                },
                 "userRate": {
                     "type": "integer"
                 }
@@ -1545,6 +1545,9 @@
         "model.Post": {
             "type": "object",
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/model.User"
+                },
                 "categories": {
                     "type": "array",
                     "items": {
@@ -1577,9 +1580,6 @@
                 },
                 "title": {
                     "type": "string"
-                },
-                "userID": {
-                    "type": "integer"
                 },
                 "userRate": {
                     "type": "integer"

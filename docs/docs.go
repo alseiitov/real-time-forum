@@ -524,7 +524,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_handler_http.RequestForModeratorActionInput"
+                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.RequestForModeratorActionInput"
                         }
                     }
                 ],
@@ -1516,6 +1516,9 @@ var doc = `{
         "model.Comment": {
             "type": "object",
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/model.User"
+                },
                 "data": {
                     "type": "string"
                 },
@@ -1537,9 +1540,6 @@ var doc = `{
                 "status": {
                     "type": "integer"
                 },
-                "userID": {
-                    "type": "integer"
-                },
                 "userRate": {
                     "type": "integer"
                 }
@@ -1559,6 +1559,9 @@ var doc = `{
         "model.Post": {
             "type": "object",
             "properties": {
+                "author": {
+                    "$ref": "#/definitions/model.User"
+                },
                 "categories": {
                     "type": "array",
                     "items": {
@@ -1591,9 +1594,6 @@ var doc = `{
                 },
                 "title": {
                     "type": "string"
-                },
-                "userID": {
-                    "type": "integer"
                 },
                 "userRate": {
                     "type": "integer"

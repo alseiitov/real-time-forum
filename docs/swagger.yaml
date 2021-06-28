@@ -210,6 +210,8 @@ definitions:
     type: object
   model.Comment:
     properties:
+      author:
+        $ref: '#/definitions/model.User'
       data:
         type: string
       date:
@@ -224,8 +226,6 @@ definitions:
         type: integer
       status:
         type: integer
-      userID:
-        type: integer
       userRate:
         type: integer
     type: object
@@ -238,6 +238,8 @@ definitions:
     type: object
   model.Post:
     properties:
+      author:
+        $ref: '#/definitions/model.User'
       categories:
         items:
           $ref: '#/definitions/model.Category'
@@ -260,8 +262,6 @@ definitions:
         type: integer
       title:
         type: string
-      userID:
-        type: integer
       userRate:
         type: integer
     type: object
@@ -611,7 +611,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/internal_handler_http.RequestForModeratorActionInput'
+          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.RequestForModeratorActionInput'
       produces:
       - application/json
       responses:

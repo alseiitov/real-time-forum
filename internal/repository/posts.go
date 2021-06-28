@@ -35,7 +35,7 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 
 	res, err := stmt.Exec(
 		&post.Status,
-		&post.UserID,
+		&post.Author.ID,
 		&post.Title,
 		&post.Data,
 		&post.Date,
@@ -84,35 +84,42 @@ func (r *PostsRepo) GetByID(postID int, userID int) (model.Post, error) {
 
 	row := r.db.QueryRow(`
 		SELECT 
-			posts.id, posts.user_id, posts.title, posts.data, posts.date, posts.image, 
+			posts.id, 
+			posts.user_id AS author_id, 
+			u.first_name AS author_first_name, 
+			u.last_name AS author_last_name, 
+			posts.title, 
+			posts.data, 
+			posts.date, 
+			posts.image, 
 			IFNULL(pr.type, 0) AS user_rate, 
-			count(distinct pl.id) - count(distinct pd.id) AS rating
+			COUNT(DISTINCT pl.id) - COUNT(DISTINCT pd.id) AS rating 
 		FROM 
 			posts 
-		LEFT JOIN posts_likes pr 
-		ON 
-			pr.post_id = posts.id 
-		AND 
-			pr.user_id = $1
-		LEFT JOIN posts_likes pl 
-		ON 
-			pl.post_id = posts.id 
-		AND 
-			pl.type = $2
-		LEFT JOIN posts_likes pd 
-		ON 
-			pd.post_id = posts.id 
-		AND 
-			pd.type = $3
+			LEFT JOIN users u 
+			ON posts.user_id = u.id 
+			
+			LEFT JOIN posts_likes pr 
+			ON pr.post_id = posts.id 
+			AND pr.user_id = $1 
+
+			LEFT JOIN posts_likes pl 
+			ON pl.post_id = posts.id 
+			AND pl.type = $2 
+			
+			LEFT JOIN posts_likes pd ON pd.post_id = posts.id 
+			AND pd.type = $3 
 		WHERE 
-			posts.id = $4
+			posts.id = $4 
 		`,
 		userID, model.LikeTypes.Like, model.LikeTypes.Dislike, postID,
 	)
 
 	err := row.Scan(
 		&post.ID,
-		&post.UserID,
+		&post.Author.ID,
+		&post.Author.FirstName,
+		&post.Author.LastName,
 		&post.Title,
 		&post.Data,
 		&post.Date,
@@ -195,22 +202,32 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 	var posts []model.Post
 
 	rows, err := r.db.Query(`
-		SELECT 
-			id, user_id, title, date 
-		FROM 
-			posts 
-		WHERE (
-			id IN (
-				SELECT 
-					post_id 
-				FROM 
-					posts_categories 
-				WHERE 
-					category_id = $1 
+		SELECT
+			posts.id,
+			posts.user_id AS author_id,
+			u.first_name AS author_first_name,
+			u.last_name AS author_last_name,
+			posts.title,
+			posts.date
+		FROM
+			posts
+			LEFT JOIN users u ON posts.user_id = u.id
+		WHERE
+			posts.id IN (
+				SELECT
+					post_id
+				FROM
+					posts_categories
+				WHERE
+					category_id = $1
 			)
-		) 
-		ORDER BY id DESC 
-		LIMIT $2 OFFSET $3`,
+		GROUP BY
+			posts.id
+		ORDER BY
+			posts.id DESC
+		LIMIT
+			$2 OFFSET $3
+		`,
 		categoryID, limit, offset,
 	)
 
@@ -221,7 +238,14 @@ func (r *PostsRepo) GetPostsByCategoryID(categoryID int, limit int, offset int) 
 
 	for rows.Next() {
 		var post model.Post
-		err = rows.Scan(&post.ID, &post.UserID, &post.Title, &post.Date)
+		err = rows.Scan(
+			&post.ID,
+			&post.Author.ID,
+			&post.Author.FirstName,
+			&post.Author.LastName,
+			&post.Title,
+			&post.Date,
+		)
 		if err != nil {
 			return nil, err
 		}

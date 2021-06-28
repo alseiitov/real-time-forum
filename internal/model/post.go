@@ -5,7 +5,7 @@ import "time"
 type Post struct {
 	ID         int        `json:"id,omitempty"`
 	Status     int        `json:"status,omitempty"`
-	UserID     int        `json:"userID,omitempty"`
+	Author     User       `json:"author,omitempty"`
 	Title      string     `json:"title,omitempty"`
 	Data       string     `json:"data,omitempty"`
 	Date       time.Time  `json:"date,omitempty"`

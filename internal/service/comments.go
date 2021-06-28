@@ -74,7 +74,7 @@ func (s *CommentsService) Create(input CreateCommentInput) (model.Comment, error
 	}
 
 	notification := model.Notification{
-		RecipientID:  post.UserID,
+		RecipientID:  post.Author.ID,
 		SenderID:     input.UserID,
 		ActivityType: model.NotificationActivities.PostCommented,
 		ObjectID:     input.PostID,

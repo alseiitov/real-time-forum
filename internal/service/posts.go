@@ -50,7 +50,7 @@ func (s *PostsService) Create(input CreatePostInput) (int, error) {
 	}
 
 	post := model.Post{
-		UserID:     input.UserID,
+		Author:     model.User{ID: input.UserID},
 		Title:      input.Title,
 		Data:       input.Data,
 		Date:       time.Now(),
@@ -128,7 +128,7 @@ func (s *PostsService) LikePost(postID, userID, likeType int) error {
 		}
 
 		notification := model.Notification{
-			RecipientID:  post.UserID,
+			RecipientID:  post.Author.ID,
 			SenderID:     userID,
 			ActivityType: activityType,
 			Date:         time.Now(),

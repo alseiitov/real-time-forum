@@ -69,12 +69,22 @@ const newPostElement = (post) => {
     const el = document.createElement("div")
     el.classList.add("post")
 
-    const link = document.createElement("a")
-    link.setAttribute("href", `/post/${post.id}`)
-    link.setAttribute("data-link", "")
-    link.innerText = `${post.title}\n${new Date(post.date).toLocaleString()}`
+    const linkToPost = document.createElement("a")
+    linkToPost.setAttribute("href", `/post/${post.id}`)
+    linkToPost.setAttribute("data-link", "")
+    linkToPost.innerText = `${post.title}`
 
-    el.append(link)
+    const postDate = document.createElement("p")
+    postDate.innerText = new Date(post.date).toLocaleString()
+
+    const linkToAuthor = document.createElement("a")
+    linkToAuthor.setAttribute("href", `/users/${post.author.id}`)
+    linkToAuthor.setAttribute("data-link", "")
+    linkToAuthor.innerText = `${post.author.firstName} ${post.author.lastName}`
+
+    el.append(linkToPost)
+    el.append(postDate)
+    el.append(linkToAuthor)
 
     return el
 }
