@@ -27,7 +27,7 @@
     "forum": {
         "defaultMaleAvatar": "default-male-avatar.jpg",
         "defaultFemaleAvatar": "default-female-avatar.jpg",
-        "postsForPage": 20,
+        "postsForPage": 10,
         "commentsForPage": 5,
         "postsPreModerationIsEnabled": true,
         "commentsPreModerationIsEnabled": true

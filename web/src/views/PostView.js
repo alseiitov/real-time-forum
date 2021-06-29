@@ -382,6 +382,9 @@ export default class extends AbstractView {
         const imagePreview = document.getElementById("comment-image-preview")
         const inputError = document.getElementById("input-error")
 
+        const imageMaxSize = 20 * 1024 * 1024
+        const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
+        
         var imageBase64 = ""
 
         imageInput.addEventListener("change", async () => {
