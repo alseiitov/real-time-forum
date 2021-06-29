@@ -181,14 +181,25 @@ const drawPost = async (post) => {
     document.getElementById("post-rating").innerText = post.rating;
 
     const categoriesEl = document.getElementById("post-categories")
-    post.categories.forEach((category) => {
+
+    for (let i = 1; i < post.categories.length; i++) {
+        const category = post.categories[i];
+
         const categoryEl = document.createElement("a")
         categoryEl.innerText = `${category.name}`
         categoryEl.setAttribute("href", `/?category=${category.id}&page=1}`)
         categoryEl.setAttribute("data-link", "")
 
         categoriesEl.append(categoryEl)
-    })
+    }
+    // post.categories.forEach((category) => {
+    //     const categoryEl = document.createElement("a")
+    //     categoryEl.innerText = `${category.name}`
+    //     categoryEl.setAttribute("href", `/?category=${category.id}&page=1}`)
+    //     categoryEl.setAttribute("data-link", "")
+
+    //     categoriesEl.append(categoryEl)
+    // })
 }
 
 const drawPostCommentsPage = async (postID, page) => {
@@ -319,7 +330,9 @@ export default class extends AbstractView {
                     <input type="file" id="comment-image-input" accept="image/jpeg, image/png, image/gif">
                     <div id="comment-image-preview"></div>
                     <button>Send</button>
+                    <div id="input-error"></div>
                 </form>
+
                 `
                 :
                 `
@@ -366,12 +379,32 @@ export default class extends AbstractView {
 
         const commentText = document.getElementById("comment-input")
         const imageInput = document.getElementById("comment-image-input")
-        var imageBase64
+        const imagePreview = document.getElementById("comment-image-preview")
+        const inputError = document.getElementById("input-error")
+
+        var imageBase64 = ""
 
         imageInput.addEventListener("change", async () => {
+            inputError.innerText = ""
+            imagePreview.innerHTML = ""
+
             const image = imageInput.files[0]
+            if (image.size > imageMaxSize) {
+                inputError.innerText = "Too big image! Max image size is 20 Mb"
+                imageInput.value = ""
+                imageBase64 = ""
+                return
+            }
+
+            if (!allowedImageTypes.includes(image.type)) {
+                inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
+                imageInput.value = ""
+                imageBase64 = ""
+                return
+            }
+
             imageBase64 = await Utils.fileToBase64(image)
-            document.getElementById("comment-image-preview").innerHTML = `<img src="${base64string}">`
+            imagePreview.innerHTML = `<img src="${imageBase64}">`
         })
 
 

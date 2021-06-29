@@ -20,6 +20,7 @@ export default class extends AbstractView {
             +
             (authorized ?
                 `
+                <a href="/new-post" class="nav__link" id="new-post-button" data-link>new-post</a>
                 <a href="/chats" class="nav__link" id="chats-button" data-link>chats</a>
                 <a href="/" class="nav__link" id="sign-out-button" data-link>sign-out</a>
                 `
