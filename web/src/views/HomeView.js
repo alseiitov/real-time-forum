@@ -2,8 +2,8 @@ import AbstractView from "./AbstractView.js";
 import fetcher from "../services/Fetcher.js"
 import router from "../index.js"
 
-var currCategoryID = 1
-var currPageNum = 1
+var currCategoryID
+var currPageNum
 var postsEnded = false
 
 const getCategories = async () => {
@@ -31,6 +31,7 @@ const drawCategories = async (categories) => {
             titleEl.innerText = category.name
             document.getElementById("page-number").innerText = currPageNum
 
+            updateQueryParams()
             drawPostsByCategoryID(category.id, currPageNum)
         })
 
@@ -89,6 +90,13 @@ const newPostElement = (post) => {
     return el
 }
 
+const updateQueryParams = () => {
+    const urlParams = new URLSearchParams(window.location.search)
+    urlParams.set('category', currCategoryID)
+    urlParams.set('page', currPageNum)
+    history.replaceState(null, null, "?" + urlParams.toString())
+}
+
 export default class extends AbstractView {
     constructor(params) {
         super(params);
@@ -110,6 +118,11 @@ export default class extends AbstractView {
     }
 
     async init() {
+        const urlParams = new URLSearchParams(window.location.search)
+        currCategoryID = urlParams.get('category') || 1
+        currPageNum = urlParams.get('page') || 1
+        updateQueryParams()
+
         const categories = await getCategories()
         drawCategories(categories)
 
@@ -118,6 +131,7 @@ export default class extends AbstractView {
         const nextButtonEl = document.getElementById(`next-button`)
         const prevButtonEl = document.getElementById(`prev-button`)
         const pageNumber = document.getElementById(`page-number`)
+        pageNumber.innerText = currPageNum
 
         nextButtonEl.addEventListener("click", () => {
             if (postsEnded) {
@@ -125,6 +139,7 @@ export default class extends AbstractView {
             }
             currPageNum++
             pageNumber.innerText = currPageNum
+            updateQueryParams()
 
             drawPostsByCategoryID(currCategoryID, currPageNum)
         })
@@ -136,6 +151,7 @@ export default class extends AbstractView {
             postsEnded = false
             currPageNum--
             pageNumber.innerText = currPageNum
+            updateQueryParams()
 
             drawPostsByCategoryID(currCategoryID, currPageNum)
         })

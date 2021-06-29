@@ -153,8 +153,13 @@ const drawPost = async (post) => {
     }
 
     document.getElementById("post-data").innerText = post.data;
-    //TODO: parse user name
-    document.getElementById("post-author").innerText = post.userID;
+
+    const postAuthor = document.createElement("a")
+    postAuthor.innerText = `${post.author.firstName} ${post.author.lastName}`
+    postAuthor.setAttribute("href", `/user/${post.author.id}`)
+    postAuthor.setAttribute("data-link", "")
+    document.getElementById("post-author").append(postAuthor)
+
     document.getElementById("post-creation-date").innerText = new Date(post.date).toLocaleString();
 
     const likeButton = document.getElementById("like-post-button")
@@ -176,7 +181,14 @@ const drawPost = async (post) => {
     document.getElementById("post-rating").innerText = post.rating;
 
     const categoriesEl = document.getElementById("post-categories")
-    categoriesEl.innerText = `Categories: ${post.categories.map(c => c.name).join(", ")}`
+    post.categories.forEach((category) => {
+        const categoryEl = document.createElement("a")
+        categoryEl.innerText = `${category.name}`
+        categoryEl.setAttribute("href", `/?category=${category.id}&page=1}`)
+        categoryEl.setAttribute("data-link", "")
+
+        categoriesEl.append(categoryEl)
+    })
 }
 
 const drawPostCommentsPage = async (postID, page) => {
@@ -194,7 +206,7 @@ const drawPostComments = async (comments) => {
 
     commentsEl.innerText = ""
 
-    comments.forEach(comment => {drawComment(comment, false)})
+    comments.forEach(comment => { drawComment(comment, false) })
 }
 
 const drawComment = (comment, isNewComment) => {
@@ -209,8 +221,8 @@ const drawComment = (comment, isNewComment) => {
         commentAuthor.innerText = `You`
     } else {
         commentAuthor.innerText = `${comment.author.firstName} ${comment.author.lastName}`
-
     }
+
     commentAuthor.setAttribute("href", `/user/${comment.author.id}`)
     commentAuthor.setAttribute("data-link", "")
     commentEl.append(commentAuthor)
@@ -250,7 +262,7 @@ const drawComment = (comment, isNewComment) => {
     rating.innerText = comment.rating
     commentEl.append(rating)
 
-  
+
     if (isNewComment) {
         commentsEl.prepend(commentEl)
     } else {
@@ -366,7 +378,7 @@ export default class extends AbstractView {
         document.getElementById("comment-form").addEventListener("submit", async () => {
             const comment = await addComment(this.postID, commentText.value, imageBase64)
             drawComment(comment, true)
-            
+
             imageInput.value = ""
             commentText.value = ""
         })
