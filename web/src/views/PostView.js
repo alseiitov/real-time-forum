@@ -13,40 +13,19 @@ var commentsEnded = false
 
 const getPost = async (postID) => {
     const path = `/api/posts/${postID}`
-
-    const response = await fetcher.get(path)
-    if (response.ok) {
-        return await response.json()
-    }
+    return await fetcher.get(path)
 }
 
 const getComments = async (postID, page) => {
     const path = `/api/posts/${postID}/comments/${page}`
-
-    const response = await fetcher.get(path)
-    switch (response.status) {
-        case 200:
-            const data = await response.json()
-            return data
-        case 400:
-            router.navigateTo("/400")
-            break
-    }
+    return await fetcher.get(path)
 }
 
 const addComment = async (postID, data, image) => {
     const path = `/api/posts/${postID}/comments`
     const body = { data: data, image: image }
 
-    const response = await fetcher.post(path, body)
-    switch (response.status) {
-        case 201:
-            const data = await response.json()
-            return data
-        case 400:
-            router.navigateTo("/400")
-            break
-    }
+    fetcher.post(path, body)
 }
 
 
@@ -54,11 +33,7 @@ const likePost = async (postID, likeType) => {
     const path = `/api/posts/${postID}/likes`
     const body = { likeType: likeType }
 
-    const response = await fetcher.post(path, body)
-    if (response.status == 400) {
-        router.navigateTo("/400")
-        return
-    }
+    fetcher.post(path, body)
 
     const likeButton = document.getElementById(`like-post-button`)
     const dislikeButton = document.getElementById(`dislike-post-button`)
@@ -145,7 +120,6 @@ const likeComment = async (commentID, likeType) => {
 }
 
 const drawPost = async (post) => {
-    console.log(post)
     document.getElementById("post-title").innerText = post.title;
 
     if (post.image) {
@@ -347,77 +321,79 @@ export default class extends AbstractView {
 
     async init() {
         const post = await getPost(this.postID)
-        drawPost(post, this.user)
+        if (post) {
+            drawPost(post, this.user)
 
-        const authorized = Boolean(this.user.id)
-        if (authorized) {
-            drawPostCommentsPage(this.postID, currCommentPageNum)
+            const authorized = Boolean(this.user.id)
+            if (authorized) {
+                drawPostCommentsPage(this.postID, currCommentPageNum)
 
-            const nextButtonEl = document.getElementById(`next-button`)
-            const prevButtonEl = document.getElementById(`prev-button`)
-            const pageNumber = document.getElementById(`page-number`)
+                const nextButtonEl = document.getElementById(`next-button`)
+                const prevButtonEl = document.getElementById(`prev-button`)
+                const pageNumber = document.getElementById(`page-number`)
 
-            nextButtonEl.addEventListener("click", () => {
-                if (commentsEnded) {
+                nextButtonEl.addEventListener("click", () => {
+                    if (commentsEnded) {
+                        return
+                    }
+                    currCommentPageNum++
+                    pageNumber.innerText = currCommentPageNum
+                    drawPostCommentsPage(this.postID, currCommentPageNum)
+                })
+
+                prevButtonEl.addEventListener("click", () => {
+                    if (currCommentPageNum == 1) {
+                        return
+                    }
+                    commentsEnded = false
+                    currCommentPageNum--
+                    pageNumber.innerText = currCommentPageNum
+                    drawPostCommentsPage(this.postID, currCommentPageNum)
+                })
+            }
+
+            const commentText = document.getElementById("comment-input")
+            const imageInput = document.getElementById("comment-image-input")
+            const imagePreview = document.getElementById("comment-image-preview")
+            const inputError = document.getElementById("input-error")
+
+            const imageMaxSize = 20 * 1024 * 1024
+            const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
+
+            var imageBase64 = ""
+
+            imageInput.addEventListener("change", async () => {
+                inputError.innerText = ""
+                imagePreview.innerHTML = ""
+
+                const image = imageInput.files[0]
+                if (image.size > imageMaxSize) {
+                    inputError.innerText = "Too big image! Max image size is 20 Mb"
+                    imageInput.value = ""
+                    imageBase64 = ""
                     return
                 }
-                currCommentPageNum++
-                pageNumber.innerText = currCommentPageNum
-                drawPostCommentsPage(this.postID, currCommentPageNum)
+
+                if (!allowedImageTypes.includes(image.type)) {
+                    inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
+                    imageInput.value = ""
+                    imageBase64 = ""
+                    return
+                }
+
+                imageBase64 = await Utils.fileToBase64(image)
+                imagePreview.innerHTML = `<img src="${imageBase64}">`
             })
 
-            prevButtonEl.addEventListener("click", () => {
-                if (currCommentPageNum == 1) {
-                    return
-                }
-                commentsEnded = false
-                currCommentPageNum--
-                pageNumber.innerText = currCommentPageNum
-                drawPostCommentsPage(this.postID, currCommentPageNum)
+
+            document.getElementById("comment-form").addEventListener("submit", async () => {
+                const comment = await addComment(this.postID, commentText.value, imageBase64)
+                drawComment(comment, true)
+
+                imageInput.value = ""
+                commentText.value = ""
             })
         }
-
-        const commentText = document.getElementById("comment-input")
-        const imageInput = document.getElementById("comment-image-input")
-        const imagePreview = document.getElementById("comment-image-preview")
-        const inputError = document.getElementById("input-error")
-
-        const imageMaxSize = 20 * 1024 * 1024
-        const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
-        
-        var imageBase64 = ""
-
-        imageInput.addEventListener("change", async () => {
-            inputError.innerText = ""
-            imagePreview.innerHTML = ""
-
-            const image = imageInput.files[0]
-            if (image.size > imageMaxSize) {
-                inputError.innerText = "Too big image! Max image size is 20 Mb"
-                imageInput.value = ""
-                imageBase64 = ""
-                return
-            }
-
-            if (!allowedImageTypes.includes(image.type)) {
-                inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
-                imageInput.value = ""
-                imageBase64 = ""
-                return
-            }
-
-            imageBase64 = await Utils.fileToBase64(image)
-            imagePreview.innerHTML = `<img src="${imageBase64}">`
-        })
-
-
-        document.getElementById("comment-form").addEventListener("submit", async () => {
-            const comment = await addComment(this.postID, commentText.value, imageBase64)
-            drawComment(comment, true)
-
-            imageInput.value = ""
-            commentText.value = ""
-        })
     }
 }
 

@@ -1,6 +1,7 @@
 import Chat from "../views/ChatView.js";
 import Chats from "../views/ChatsView.js"
 import router from "../index.js"
+import Utils from "./Utils.js";
 
 var connection
 
@@ -21,7 +22,7 @@ const getConnection = () => {
             const conn = new WebSocket(`ws://${API_HOST_NAME}/ws`)
 
             conn.onerror = function (evt) {
-                router.navigateTo("/503")
+                Utils.showError(503)
                 return
             }
 

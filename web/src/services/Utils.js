@@ -42,4 +42,31 @@ const base64isImage = (base64string) => {
 }
 
 
-export default { parseJwt, getUser, logOut, fileToBase64, base64isImage }
+const showError = (status, message) => {
+    if (status == 401) {
+        alert("wrong username or password")
+        return
+    }
+
+    const app = document.querySelector("#app")
+
+    const titles = {
+        400: "400 Bad Request",
+        401: "401 Unauthorized",
+        403: "403 Forbidden",
+        404: "404 Not Found",
+        500: "500 Internal Server Error",
+        503: "503 Service Unavailable"
+    }
+
+
+    app.innerHTML = `
+        <h1>${titles[status]}</h1><br>
+        <h2>${message || ''}</h2>
+    `
+}
+
+
+
+
+export default { parseJwt, getUser, logOut, fileToBase64, base64isImage, showError }

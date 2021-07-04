@@ -7,11 +7,6 @@ import NewPost from "./views/NewPostView.js";
 import Chats from "./views/ChatsView.js";
 import Chat from "./views/ChatView.js";
 
-import Error401 from "./views/error401View.js";
-import Error404 from "./views/error404View.js";
-import Error500 from "./views/error500View.js";
-import Error503 from "./views/error503View.js";
-
 import Ws from "./services/Ws.js"
 import Utils from "./services/Utils.js"
 
@@ -47,10 +42,6 @@ const router = async () => {
         { path: "/post/:postID", view: Post, minRole: roles.guest },
         { path: "/chats", view: Chats, minRole: roles.user },
         { path: "/chat/:userID", view: Chat, minRole: roles.user },
-        { path: "/401", view: Error401, minRole: roles.guest },
-        { path: "/404", view: Error404, minRole: roles.guest },
-        { path: "/500", view: Error500, minRole: roles.guest },
-        { path: "/503", view: Error503, minRole: roles.guest },
     ];
 
     // Test each route for potential match
@@ -61,13 +52,11 @@ const router = async () => {
         };
     });
 
-    let match = potentialMatches.find(potentialMatch => potentialMatch.result !== null);
 
+    let match = potentialMatches.find(potentialMatch => potentialMatch.result !== null);
     if (!match) {
-        match = {
-            route: routes.find(route => route.path == "/404"),
-            result: [location.pathname]
-        };
+        Utils.showError(404)
+        return
     }
 
     const user = Utils.getUser()
@@ -77,7 +66,7 @@ const router = async () => {
     }
 
     if (user.role < match.route.minRole) {
-        navigateTo("/401")
+        Utils.showError(401)
         return
     }
 
@@ -85,10 +74,10 @@ const router = async () => {
     const pageView = new match.route.view(getParams(match), user);
 
     document.querySelector("#navbar").innerHTML = await navBarView.getHtml();
-    document.querySelector("#app").innerHTML = await pageView.getHtml();
-
-    pageView.init()
     navBarView.init()
+
+    document.querySelector("#app").innerHTML = await pageView.getHtml();
+    pageView.init()
 };
 
 window.addEventListener("popstate", router);

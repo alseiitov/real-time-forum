@@ -5,27 +5,13 @@ import Utils from "../services/Utils.js"
 
 const getCategories = async () => {
     const path = "/api/categories"
-
-    const response = await fetcher.get(path)
-    if (response.ok) {
-        const data = await response.json()
-        return data
-    }
+    return await fetcher.get(path)
 }
 
 
 const createPost = async (post) => {
     const path = `/api/posts`
-
-    const response = await fetcher.post(path, post)
-    switch (response.status) {
-        case 201:
-            const data = await response.json()
-            return data
-        case 400:
-            router.navigateTo("/400")
-            break
-    }
+    return await fetcher.post(path, post)
 }
 
 

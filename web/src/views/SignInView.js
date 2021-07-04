@@ -7,35 +7,27 @@ import fetcher from "../services/Fetcher.js"
 const path = `/api/users/sign-in`
 
 const signIn = async (usernameOrEmail, password) => {
-
     let body = {
         usernameOrEmail: usernameOrEmail,
         password: password
     }
 
-    const response = await fetcher.post(path, body)
-
-    switch (response.status) {
-        case 200:
-            response.json().then((data) => {
-                localStorage.setItem("accessToken", data.accessToken)
-                localStorage.setItem("refreshToken", data.refreshToken)
-
-                const payload = utils.parseJwt(data.accessToken)
-                localStorage.setItem("sub", parseInt(payload.sub))
-                localStorage.setItem("role", parseInt(payload.role))
-
-                Ws.connect().then(() => {
-                    router.navigateTo("/")
-                })
-            })
-            break
-        case 400: case 401:
-            response.json().then((data) => {
-                drawError(data.error)
-            })
-            break
+    const data = await fetcher.post(path, body)
+    if (data.error) {
+        drawError(data.error)
+        return
     }
+    
+    localStorage.setItem("accessToken", data.accessToken)
+    localStorage.setItem("refreshToken", data.refreshToken)
+
+    const payload = utils.parseJwt(data.accessToken)
+    localStorage.setItem("sub", parseInt(payload.sub))
+    localStorage.setItem("role", parseInt(payload.role))
+
+    Ws.connect().then(() => {
+        router.navigateTo("/")
+    })
 }
 
 const drawError = (err) => {

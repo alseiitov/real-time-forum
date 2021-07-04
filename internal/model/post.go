@@ -1,19 +1,17 @@
 package model
 
-import "time"
-
 type Post struct {
-	ID         int        `json:"id,omitempty"`
-	Status     int        `json:"status,omitempty"`
-	Author     User       `json:"author,omitempty"`
-	Title      string     `json:"title,omitempty"`
-	Data       string     `json:"data,omitempty"`
-	Date       time.Time  `json:"date,omitempty"`
-	Image      string     `json:"image,omitempty"`
-	Categories []Category `json:"categories,omitempty"`
-	Comments   []Comment  `json:"comments,omitempty"`
-	Rating     int        `json:"rating"`
-	UserRate   int        `json:"userRate"`
+	ID         int         `json:"id"`
+	Status     int         `json:"status,omitempty"`
+	Author     User        `json:"author"`
+	Title      string      `json:"title"`
+	Data       string      `json:"data,omitempty"`
+	Date       interface{} `json:"date"`
+	Image      string      `json:"image,omitempty"`
+	Categories []Category  `json:"categories,omitempty"`
+	Comments   []Comment   `json:"comments,omitempty"`
+	Rating     int         `json:"rating"`
+	UserRate   int         `json:"userRate"`
 }
 
 var PostStatus = struct {

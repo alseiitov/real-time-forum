@@ -1,16 +1,14 @@
 package model
 
-import "time"
-
 type Notification struct {
-	ID           int       `json:"id,omitempty"`
-	RecipientID  int       `json:"recipientID,omitempty"`
-	SenderID     int       `json:"senderID,omitempty"`
-	ActivityType int       `json:"activityType,omitempty"`
-	ObjectID     int       `json:"objectID,omitempty"`
-	Date         time.Time `json:"date,omitempty"`
-	Message      string    `json:"message,omitempty"`
-	Read         bool      `json:"read,omitempty"`
+	ID           int         `json:"id,omitempty"`
+	RecipientID  int         `json:"recipientID,omitempty"`
+	SenderID     int         `json:"senderID,omitempty"`
+	ActivityType int         `json:"activityType,omitempty"`
+	ObjectID     int         `json:"objectID,omitempty"`
+	Date         interface{} `json:"date,omitempty"`
+	Message      string      `json:"message,omitempty"`
+	Read         bool        `json:"read,omitempty"`
 }
 
 var NotificationActivities = struct {

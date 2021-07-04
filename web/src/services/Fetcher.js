@@ -1,12 +1,13 @@
 import router from "../index.js"
+import Utils from "./Utils.js"
 
 const fetcher = {
     get: async (path, body) => {
-        return await makeRequest(path, body, "GET")
+        return makeRequest(path, body, "GET")
     },
 
     post: async (path, body) => {
-        return await makeRequest(path, body, "POST")
+        return makeRequest(path, body, "POST")
     }
 }
 
@@ -27,22 +28,29 @@ const makeRequest = async (path, body, method) => {
         })
     }
 
-    const response = await fetch(url, options).catch(() => {
-        router.navigateTo("/503")
+    const response = await fetch(url, options).catch((e) => {
+        Utils.showError(503)
         return
     })
 
-    if (response.status == 404) {
-        router.navigateTo("/404")
+    var respBody
+
+    try {
+        respBody = await response.json()
+    } catch {
         return
     }
 
-    if (response.status == 500) {
-        router.navigateTo("/500")
+    if (response.status == 401) {
+        return respBody
+    }
+
+    if (!response.ok) {
+        Utils.showError(response.status, respBody.error)
         return
     }
 
-    return response
+    return respBody
 }
 
 export default fetcher

@@ -81,6 +81,12 @@ func (r *PostsRepo) Create(post model.Post) (int, error) {
 
 func (r *PostsRepo) GetByID(postID int, userID int) (model.Post, error) {
 	var post model.Post
+	var postExists bool
+
+	r.db.QueryRow(`SELECT EXISTS (SELECT id FROM posts WHERE id = $1)`, postID).Scan(&postExists)
+	if !postExists {
+		return post, ErrNoRows
+	}
 
 	row := r.db.QueryRow(`
 		SELECT 

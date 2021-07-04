@@ -1,6 +1,7 @@
 import AbstractView from "./AbstractView.js";
 import fetcher from "../services/Fetcher.js"
 import router from "../index.js"
+import Utils from "../services/Utils.js";
 
 var currCategoryID
 var currPageNum
@@ -9,11 +10,7 @@ var postsEnded = false
 const getCategories = async () => {
     const path = "/api/categories"
 
-    const response = await fetcher.get(path)
-    if (response.ok) {
-        const data = await response.json()
-        return data
-    }
+    return await fetcher.get(path)
 }
 
 const drawCategories = async (categories) => {
@@ -45,24 +42,16 @@ const drawPostsByCategoryID = async (categoryID, page) => {
 
     const path = `/api/categories/${categoryID}/${page}`
 
-    const response = await fetcher.get(path)
-    switch (response.status) {
-        case 200:
-            const data = await response.json()
-            if (data.posts) {
-                console.log(data.posts)
-                data.posts.forEach((post) => {
-                    const postEl = newPostElement(post)
-                    postsEl.append(postEl)
-                })
-            } else {
-                postsEl.innerText = "No posts"
-                postsEnded = true
-            }
-            break
-        case 404:
-            router.navigateTo("/404")
-            break
+    const data = await fetcher.get(path)
+
+    if (data.posts) {
+        data.posts.forEach((post) => {
+            const postEl = newPostElement(post)
+            postsEl.append(postEl)
+        })
+    } else {
+        postsEl.innerText = "No posts"
+        postsEnded = true
     }
 }
 
@@ -126,7 +115,13 @@ export default class extends AbstractView {
         const categories = await getCategories()
         drawCategories(categories)
 
-        document.getElementById(`category-${currCategoryID}`).click()
+        const categoryEl = document.getElementById(`category-${currCategoryID}`)
+        if (!categoryEl) {
+            Utils.showError(404, `Cannot find category`)
+            return
+        } else {
+            categoryEl.click()
+        }
 
         const nextButtonEl = document.getElementById(`next-button`)
         const prevButtonEl = document.getElementById(`prev-button`)
