@@ -25,7 +25,7 @@ const addComment = async (postID, data, image) => {
     const path = `/api/posts/${postID}/comments`
     const body = { data: data, image: image }
 
-    fetcher.post(path, body)
+    return await fetcher.post(path, body)
 }
 
 
@@ -376,10 +376,12 @@ export default class extends AbstractView {
 
             document.getElementById("comment-form").addEventListener("submit", async () => {
                 const comment = await addComment(this.postID, commentText.value, imageBase64)
+                console.log(comment)
                 drawComment(comment, true)
 
                 imageInput.value = ""
                 commentText.value = ""
+                imagePreview.innerHTML = ""
             })
         }
     }
