@@ -75,11 +75,7 @@ const likeComment = async (commentID, likeType) => {
     const path = `/api/comments/${commentID}/likes`
     const body = { likeType: likeType }
 
-    const response = await fetcher.post(path, body)
-    if (response.status == 400) {
-        router.navigateTo("/400")
-        return
-    }
+    await fetcher.post(path, body)
 
     const likeButton = document.getElementById(`like-comment-${commentID}`)
     const dislikeButton = document.getElementById(`dislike-comment-${commentID}`)
@@ -166,14 +162,6 @@ const drawPost = async (post) => {
 
         categoriesEl.append(categoryEl)
     }
-    // post.categories.forEach((category) => {
-    //     const categoryEl = document.createElement("a")
-    //     categoryEl.innerText = `${category.name}`
-    //     categoryEl.setAttribute("href", `/?category=${category.id}&page=1}`)
-    //     categoryEl.setAttribute("data-link", "")
-
-    //     categoriesEl.append(categoryEl)
-    // })
 }
 
 const drawPostCommentsPage = async (postID, page) => {
@@ -225,7 +213,7 @@ const drawComment = (comment, isNewComment) => {
     const likeButton = document.createElement("button")
     likeButton.classList.add("rate-button")
     likeButton.id = `like-comment-${comment.id}`
-    likeButton.innerText = "⏶"
+    likeButton.innerText = "▴"
     likeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.like) })
     if (comment.userRate == likeTypes.like) {
         likeButton.classList.add('rated')
@@ -235,7 +223,7 @@ const drawComment = (comment, isNewComment) => {
     const dislikeButton = document.createElement("button")
     dislikeButton.classList.add("rate-button")
     dislikeButton.id = `dislike-comment-${comment.id}`
-    dislikeButton.innerText = "⏷"
+    dislikeButton.innerText = "▾"
     dislikeButton.addEventListener("click", () => { likeComment(comment.id, likeTypes.dislike) })
     if (comment.userRate == likeTypes.dislike) {
         dislikeButton.classList.add('rated')
@@ -280,8 +268,8 @@ export default class extends AbstractView {
             +
             (authorized ?
                 `
-                <button class="rate-button" id="like-post-button">⏶</button>
-                <button class="rate-button" id="dislike-post-button">⏷</button>
+                <button class="rate-button" id="like-post-button">▴</button>
+                <button class="rate-button" id="dislike-post-button">▾</button>
                 `
                 :
                 `<p>Sign-in to rate a post</p>`
