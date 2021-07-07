@@ -43,11 +43,6 @@ const base64isImage = (base64string) => {
 
 
 const showError = (status, message) => {
-    if (status == 401) {
-        alert("wrong username or password")
-        return
-    }
-
     const app = document.querySelector("#app")
 
     const titles = {

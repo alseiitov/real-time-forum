@@ -338,51 +338,51 @@ export default class extends AbstractView {
                     pageNumber.innerText = currCommentPageNum
                     drawPostCommentsPage(this.postID, currCommentPageNum)
                 })
+
+                const commentText = document.getElementById("comment-input")
+                const imageInput = document.getElementById("comment-image-input")
+                const imagePreview = document.getElementById("comment-image-preview")
+                const inputError = document.getElementById("input-error")
+
+                const imageMaxSize = 20 * 1024 * 1024
+                const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
+
+                var imageBase64 = ""
+
+                imageInput.addEventListener("change", async () => {
+                    inputError.innerText = ""
+                    imagePreview.innerHTML = ""
+
+                    const image = imageInput.files[0]
+                    if (image.size > imageMaxSize) {
+                        inputError.innerText = "Too big image! Max image size is 20 Mb"
+                        imageInput.value = ""
+                        imageBase64 = ""
+                        return
+                    }
+
+                    if (!allowedImageTypes.includes(image.type)) {
+                        inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
+                        imageInput.value = ""
+                        imageBase64 = ""
+                        return
+                    }
+
+                    imageBase64 = await Utils.fileToBase64(image)
+                    imagePreview.innerHTML = `<img src="${imageBase64}">`
+                })
+
+
+                document.getElementById("comment-form").addEventListener("submit", async () => {
+                    const comment = await addComment(this.postID, commentText.value, imageBase64)
+                    console.log(comment)
+                    drawComment(comment, true)
+
+                    imageInput.value = ""
+                    commentText.value = ""
+                    imagePreview.innerHTML = ""
+                })
             }
-
-            const commentText = document.getElementById("comment-input")
-            const imageInput = document.getElementById("comment-image-input")
-            const imagePreview = document.getElementById("comment-image-preview")
-            const inputError = document.getElementById("input-error")
-
-            const imageMaxSize = 20 * 1024 * 1024
-            const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
-
-            var imageBase64 = ""
-
-            imageInput.addEventListener("change", async () => {
-                inputError.innerText = ""
-                imagePreview.innerHTML = ""
-
-                const image = imageInput.files[0]
-                if (image.size > imageMaxSize) {
-                    inputError.innerText = "Too big image! Max image size is 20 Mb"
-                    imageInput.value = ""
-                    imageBase64 = ""
-                    return
-                }
-
-                if (!allowedImageTypes.includes(image.type)) {
-                    inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
-                    imageInput.value = ""
-                    imageBase64 = ""
-                    return
-                }
-
-                imageBase64 = await Utils.fileToBase64(image)
-                imagePreview.innerHTML = `<img src="${imageBase64}">`
-            })
-
-
-            document.getElementById("comment-form").addEventListener("submit", async () => {
-                const comment = await addComment(this.postID, commentText.value, imageBase64)
-                console.log(comment)
-                drawComment(comment, true)
-
-                imageInput.value = ""
-                commentText.value = ""
-                imagePreview.innerHTML = ""
-            })
         }
     }
 }

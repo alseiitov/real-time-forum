@@ -1,3 +1,10 @@
 #chats {
     margin-bottom: 20px;
 }
+
+.chat {
+    margin: 0 15px 20px 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #292a2d;
+}

@@ -1,6 +1,5 @@
 import Chat from "../views/ChatView.js";
 import Chats from "../views/ChatsView.js"
-import router from "../index.js"
 import Utils from "./Utils.js";
 
 var connection
@@ -26,16 +25,19 @@ const getConnection = () => {
                 return
             }
 
-            conn.onclose = function () {
-                console.log("weboscket connection closed")
-            };
-
             conn.onmessage = function (evt) {
                 let obj = JSON.parse(evt.data)
-                console.log(obj)
+
                 switch (obj.type) {
                     case "message":
-                        Chat.appendNewMessage(obj.body)
+                        switch (true) {
+                            case location.pathname.startsWith("/chat/"):
+                                Chat.appendNewMessage(obj.body)
+                                break
+                            case location.pathname == "/chats":
+                                conn.send(JSON.stringify({ type: "chatsRequest" }))
+                                break
+                        }
                         break
                     case "messagesResponse":
                         Chat.prependMessages(obj.body)
@@ -45,7 +47,9 @@ const getConnection = () => {
                         break
                     case "readMessageResponse":
                         let el = document.getElementById(`message-${obj.body}`)
-                        el.style.color = ""
+                        if (el) {
+                            el.classList.remove('unread')
+                        }
 
                     case "notification":
                         // console.log(obj)
@@ -86,7 +90,6 @@ const Ws = {
     disconnect: async () => {
         connection.close()
     }
-
 }
 
 export default Ws

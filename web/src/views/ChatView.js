@@ -16,17 +16,26 @@ const newMessageElement = (message) => {
     }
 
     if (!message.read && message.senderID == userID) {
-        el.style.color = "gray"
+        el.classList.add("unread")
     }
-
-    el.innerText = `${message.message}\n${new Date(Date.parse(message.date)).toLocaleString()}\n`
 
     el.classList.add("message")
     if (message.senderID == userID) {
         el.classList.add("sended-message")
     } else {
-        el.classList.add("recived-message")
+        el.classList.add("received-message")
     }
+
+    const messageText = document.createElement('p')
+    messageText.classList.add('message-text')
+    messageText.innerText = message.message
+
+    const messageDate = document.createElement('p')
+    messageDate.classList.add('message-date')
+    messageDate.innerText = new Date(Date.parse(message.date)).toLocaleString()
+
+    el.append(messageText)
+    el.append(messageDate)
 
     return el
 }

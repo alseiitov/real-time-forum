@@ -34,13 +34,16 @@ const newChatElement = (chat) => {
     el.classList.add("chat")
     el.id = `chat-${chat.user.id}`
 
-
     const link = newUserElement(chat.user)
     const lastMessage = document.createElement("p")
-    lastMessage.innerText = `${chat.user.firstName}: ${chat.lastMessage.message}\n${new Date(chat.lastMessage.date).toLocaleString()}`
+    lastMessage.innerText = `${chat.lastMessage.message}`
+
+    const lastMessageDate = document.createElement("p")
+    lastMessageDate.innerText = `${new Date(chat.lastMessage.date).toLocaleString()}`
 
     el.append(link)
     el.append(lastMessage)
+    el.append(lastMessageDate)
 
     return el
 }
@@ -86,6 +89,7 @@ export default class extends AbstractView {
     static drawChats(chats) {
         if (chats != null) {
             const chatsEl = document.getElementById("chats");
+            chatsEl.innerHTML = ""
             chats.forEach((chat) => {
                 const el = newChatElement(chat)
                 chatsEl.append(el)
