@@ -6,6 +6,7 @@ import Post from "./views/PostView.js";
 import NewPost from "./views/NewPostView.js";
 import Chats from "./views/ChatsView.js";
 import Chat from "./views/ChatView.js";
+import Profile from "./views/ProfileView.js";
 
 import Ws from "./services/Ws.js"
 import Utils from "./services/Utils.js"
@@ -42,6 +43,7 @@ const router = async () => {
         { path: "/post/:postID", view: Post, minRole: roles.guest },
         { path: "/chats", view: Chats, minRole: roles.user },
         { path: "/chat/:userID", view: Chat, minRole: roles.user },
+        { path: "/users/:userID", view: Profile, minRole: roles.user },
     ];
 
     // Test each route for potential match
