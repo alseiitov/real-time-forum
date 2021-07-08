@@ -128,6 +128,7 @@ func (r *UsersRepo) GetUsersPosts(userID int) ([]model.Post, error) {
 			LEFT JOIN users u ON posts.user_id = u.id
 		WHERE
 			posts.user_id = $1
+		ORDER BY posts.id DESC
 		`,
 		userID,
 	)
