@@ -13,9 +13,9 @@ type Users interface {
 	SignUp(input UsersSignUpInput) error
 	SignIn(input UsersSignInInput) (Tokens, error)
 	GetByID(userID int) (model.User, error)
-
+	GetUsersPosts(userID int) ([]model.Post, error)
+	GetUsersRatedPosts(userID int) ([]model.Post, error)
 	RefreshTokens(input UsersRefreshTokensInput) (Tokens, error)
-
 	CreateModeratorRequest(userID int) error
 }
 
@@ -26,7 +26,6 @@ type Admins interface {
 	GetModeratorRequests() ([]model.ModeratorRequest, error)
 	AcceptRequestForModerator(adminID, requestID int) error
 	DeclineRequestForModerator(adminID, requestID int, message string) error
-
 	UpdateUserRole(userID int, role int) error
 }
 

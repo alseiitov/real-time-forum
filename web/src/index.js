@@ -43,7 +43,7 @@ const router = async () => {
         { path: "/post/:postID", view: Post, minRole: roles.guest },
         { path: "/chats", view: Chats, minRole: roles.user },
         { path: "/chat/:userID", view: Chat, minRole: roles.user },
-        { path: "/users/:userID", view: Profile, minRole: roles.user },
+        { path: "/user/:userID", view: Profile, minRole: roles.user },
     ];
 
     // Test each route for potential match

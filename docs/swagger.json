@@ -28,7 +28,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersRefreshTokensInput"
+                            "$ref": "#/definitions/internal_handler_http.usersRefreshTokensInput"
                         }
                     }
                 ],
@@ -36,7 +36,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse"
+                            "$ref": "#/definitions/internal_handler_http.tokenResponse"
                         }
                     },
                     "400": {
@@ -510,7 +510,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.RequestForModeratorActionInput"
+                            "$ref": "#/definitions/internal_handler_http.RequestForModeratorActionInput"
                         }
                     }
                 ],
@@ -1021,7 +1021,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignInInput"
+                            "$ref": "#/definitions/internal_handler_http.usersSignInInput"
                         }
                     }
                 ],
@@ -1029,7 +1029,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse"
+                            "$ref": "#/definitions/internal_handler_http.tokenResponse"
                         }
                     },
                     "400": {
@@ -1084,7 +1084,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput"
+                            "$ref": "#/definitions/internal_handler_http.usersSignUpInput"
                         }
                     }
                 ],
@@ -1159,6 +1159,132 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/posts": {
+            "get": {
+                "security": [
+                    {
+                        "Auth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get posts created by user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of user",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Post"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/gorouter.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{user_id}/rated-posts": {
+            "get": {
+                "security": [
+                    {
+                        "Auth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get posts rated by user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of user",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Post"
+                            }
                         }
                     },
                     "400": {
@@ -1509,7 +1635,7 @@
                     "type": "string"
                 },
                 "date": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -1564,7 +1690,7 @@
                     "type": "string"
                 },
                 "date": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "id": {
                     "type": "integer"
@@ -1611,7 +1737,7 @@
                     "type": "string"
                 },
                 "registered": {
-                    "type": "string"
+                    "type": "object"
                 },
                 "role": {
                     "type": "integer"

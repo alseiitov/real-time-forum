@@ -68,7 +68,7 @@ const newPostElement = (post) => {
     postDate.innerText = new Date(post.date).toLocaleString()
 
     const linkToAuthor = document.createElement("a")
-    linkToAuthor.setAttribute("href", `/users/${post.author.id}`)
+    linkToAuthor.setAttribute("href", `/user/${post.author.id}`)
     linkToAuthor.setAttribute("data-link", "")
     linkToAuthor.innerText = `${post.author.firstName} ${post.author.lastName}`
 

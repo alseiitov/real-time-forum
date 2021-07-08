@@ -151,6 +151,68 @@ func (h *Handler) getUser(ctx *gorouter.Context) {
 	ctx.WriteJSON(http.StatusOK, user)
 }
 
+// @Summary Get posts created by user
+// @Security Auth
+// @Tags users
+// @ModuleID getUsersPosts
+// @Accept  json
+// @Produce  json
+// @Param user_id path int true "ID of user"
+// @Success 200 {array} model.Post
+// @Failure 400,404,500 {object} gorouter.Error
+// @Failure default {object} gorouter.Error
+// @Router /users/{user_id}/posts [GET]
+func (h *Handler) getUsersPosts(ctx *gorouter.Context) {
+	userID, err := ctx.GetIntParam("user_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	posts, err := h.usersService.GetUsersPosts(userID)
+	if err != nil {
+		if err == service.ErrUserDoesNotExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	ctx.WriteJSON(http.StatusOK, posts)
+}
+
+// @Summary Get posts rated by user
+// @Security Auth
+// @Tags users
+// @ModuleID getUsersRatedPosts
+// @Accept  json
+// @Produce  json
+// @Param user_id path int true "ID of user"
+// @Success 200 {array} model.Post
+// @Failure 400,404,500 {object} gorouter.Error
+// @Failure default {object} gorouter.Error
+// @Router /users/{user_id}/rated-posts [GET]
+func (h *Handler) getUsersRatedPosts(ctx *gorouter.Context) {
+	userID, err := ctx.GetIntParam("user_id")
+	if err != nil {
+		ctx.WriteError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	posts, err := h.usersService.GetUsersRatedPosts(userID)
+	if err != nil {
+		if err == service.ErrUserDoesNotExist {
+			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else {
+			ctx.WriteError(http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	ctx.WriteJSON(http.StatusOK, posts)
+}
+
 type usersRefreshTokensInput struct {
 	AccessToken  string `json:"accessToken" validator:"required"`
 	RefreshToken string `json:"refreshToken" validator:"required"`

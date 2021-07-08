@@ -1,6 +1,5 @@
 import AbstractView from "./AbstractView.js";
 import Utils from "../services/Utils.js"
-import Router from "../index.js"
 import Ws from "../services/Ws.js";
 import intervals from "../services/Intervals.js";
 
@@ -22,6 +21,7 @@ export default class extends AbstractView {
                 `
                 <a href="/new-post" class="nav__link" id="new-post-button" data-link>new-post</a>
                 <a href="/chats" class="nav__link" id="chats-button" data-link>chats</a>
+                <a href="/user/${this.user.id}" class="nav__link" id="chats-button" data-link>profile</a>
                 <a href="/" class="nav__link" id="sign-out-button" data-link>sign-out</a>
                 `
                 :

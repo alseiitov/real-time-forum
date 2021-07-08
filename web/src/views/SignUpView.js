@@ -1,30 +1,15 @@
 import AbstractView from "./AbstractView.js";
+import fetcher from "../services/Fetcher.js";
 import router from "../index.js"
-// import utils from "../services/Utils.js"
 
-const signUp = async (input) => {
-    const url = `http://${API_HOST_NAME}/api/users/sign-up`
-
-    const options = {
-        method: "POST",
-        body: JSON.stringify(input)
+const signUp = async (body) => {
+    const path = `/api/users/sign-up`
+    const data = await fetcher.post(path, body)
+    if (data && data.error) {
+        drawError(data.error)
+        return
     }
-
-    fetch(url, options).then((response) => {
-        switch (response.status) {
-            case 201:
-                router.navigateTo("/sign-in")
-                break
-            case 400: case 409:
-                response.json().then((data) => {
-                    drawError(data.error)
-                })
-                break
-            case 500:
-                router.navigateTo("/500")
-                break
-        }
-    })
+    router.navigateTo("/sign-in")
 }
 
 const drawError = (err) => {

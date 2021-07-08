@@ -215,7 +215,7 @@ definitions:
       data:
         type: string
       date:
-        type: string
+        type: object
       id:
         type: integer
       image:
@@ -251,7 +251,7 @@ definitions:
       data:
         type: string
       date:
-        type: string
+        type: object
       id:
         type: integer
       image:
@@ -282,7 +282,7 @@ definitions:
       lastName:
         type: string
       registered:
-        type: string
+        type: object
       role:
         type: integer
       username:
@@ -305,14 +305,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersRefreshTokensInput'
+          $ref: '#/definitions/internal_handler_http.usersRefreshTokensInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse'
+            $ref: '#/definitions/internal_handler_http.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -611,7 +611,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.RequestForModeratorActionInput'
+          $ref: '#/definitions/internal_handler_http.RequestForModeratorActionInput'
       produces:
       - application/json
       responses:
@@ -969,6 +969,86 @@ paths:
       summary: Get user by ID
       tags:
       - users
+  /users/{user_id}/posts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of user
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Post'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get posts created by user
+      tags:
+      - users
+  /users/{user_id}/rated-posts:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID of user
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Post'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/gorouter.Error'
+      security:
+      - Auth: []
+      summary: Get posts rated by user
+      tags:
+      - users
   /users/sign-in:
     post:
       consumes:
@@ -979,14 +1059,14 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignInInput'
+          $ref: '#/definitions/internal_handler_http.usersSignInInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.tokenResponse'
+            $ref: '#/definitions/internal_handler_http.tokenResponse'
         "400":
           description: Bad Request
           schema:
@@ -1020,7 +1100,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/github.com_alseiitov_real-time-forum_internal_handler_http.usersSignUpInput'
+          $ref: '#/definitions/internal_handler_http.usersSignUpInput'
       produces:
       - application/json
       responses:

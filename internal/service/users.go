@@ -109,6 +109,30 @@ func (s *UsersService) GetByID(userID int) (model.User, error) {
 	return user, nil
 }
 
+func (s *UsersService) GetUsersPosts(userID int) ([]model.Post, error) {
+	posts, err := s.repo.GetUsersPosts(userID)
+	if err != nil {
+		if err == repository.ErrNoRows {
+			return posts, ErrUserDoesNotExist
+		}
+		return posts, err
+	}
+
+	return posts, err
+}
+
+func (s *UsersService) GetUsersRatedPosts(userID int) ([]model.Post, error) {
+	posts, err := s.repo.GetUsersRatedPosts(userID)
+	if err != nil {
+		if err == repository.ErrNoRows {
+			return posts, ErrUserDoesNotExist
+		}
+		return posts, err
+	}
+
+	return posts, err
+}
+
 func (s *UsersService) CreateModeratorRequest(userID int) error {
 	err := s.repo.CreateModeratorRequest(userID)
 	if err == repository.ErrAlreadyExist {

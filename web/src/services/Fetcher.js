@@ -1,4 +1,3 @@
-import router from "../index.js"
 import Utils from "./Utils.js"
 
 const fetcher = {
@@ -41,7 +40,7 @@ const makeRequest = async (path, body, method) => {
         return
     }
 
-    if (response.status == 401) {
+    if (response.status == 401 || response.status == 409) {
         return respBody
     }
 

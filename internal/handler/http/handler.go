@@ -76,6 +76,18 @@ func (h *Handler) Init() {
 			Handler: h.getUser,
 		},
 		{
+			Path:    "/api/users/:user_id/posts",
+			Method:  "GET",
+			MinRole: model.Roles.User,
+			Handler: h.getUsersPosts,
+		},
+		{
+			Path:    "/api/users/:user_id/rated-posts",
+			Method:  "GET",
+			MinRole: model.Roles.User,
+			Handler: h.getUsersRatedPosts,
+		},
+		{
 			Path:    "/api/auth/refresh",
 			Method:  "POST",
 			MinRole: model.Roles.Guest,

@@ -105,6 +105,121 @@ func (r *UsersRepo) GetByID(userID int) (model.User, error) {
 	return user, err
 }
 
+func (r *UsersRepo) GetUsersPosts(userID int) ([]model.Post, error) {
+	var userExists bool
+
+	r.db.QueryRow(`SELECT EXISTS (SELECT id FROM users WHERE id = $1)`, userID).Scan(&userExists)
+	if !userExists {
+		return nil, ErrNoRows
+	}
+
+	var posts []model.Post
+
+	rows, err := r.db.Query(`
+		SELECT
+			posts.id,
+			posts.user_id AS author_id,
+			u.first_name AS author_first_name,
+			u.last_name AS author_last_name,
+			posts.title,
+			posts.date
+		FROM
+			posts
+			LEFT JOIN users u ON posts.user_id = u.id
+		WHERE
+			posts.user_id = $1
+		`,
+		userID,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post model.Post
+		err = rows.Scan(
+			&post.ID,
+			&post.Author.ID,
+			&post.Author.FirstName,
+			&post.Author.LastName,
+			&post.Title,
+			&post.Date,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
+
+func (r *UsersRepo) GetUsersRatedPosts(userID int) ([]model.Post, error) {
+	var userExists bool
+
+	r.db.QueryRow(`SELECT EXISTS (SELECT id FROM users WHERE id = $1)`, userID).Scan(&userExists)
+	if !userExists {
+		return nil, ErrNoRows
+	}
+
+	var posts []model.Post
+
+	rows, err := r.db.Query(`
+		SELECT
+			posts.id,
+			posts.user_id AS author_id,
+			u.first_name AS author_first_name,
+			u.last_name AS author_last_name,
+			posts.title,
+			posts.date,
+            pl.type AS user_rate
+		FROM
+			posts
+			LEFT JOIN users u ON posts.user_id = u.id
+            LEFT JOIN posts_likes pl ON posts.id = pl.post_id
+		WHERE
+			posts.id IN (
+            	SELECT 
+              		post_id 
+              	FROM 
+              		posts_likes 
+              	WHERE 
+              		user_id = $1
+            )
+		ORDER BY posts.id DESC
+		`,
+		userID,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post model.Post
+		err = rows.Scan(
+			&post.ID,
+			&post.Author.ID,
+			&post.Author.FirstName,
+			&post.Author.LastName,
+			&post.Title,
+			&post.Date,
+			&post.UserRate,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
+
 func (r *UsersRepo) CreateModeratorRequest(userID int) error {
 	_, err := r.db.Exec(`INSERT INTO moderator_requests (user_id) VALUES ($1)`, userID)
 
