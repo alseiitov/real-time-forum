@@ -17,7 +17,6 @@ const drawError = (err) => {
     inputError.innerText = err
 }
 
-
 export default class extends AbstractView {
     constructor(params) {
         super(params);
@@ -28,13 +27,13 @@ export default class extends AbstractView {
         return `
             <form id="sign-up-form" onsubmit="return false;">
                 Username: <br>
-                <input type="text" id="username" placeholder="Username" required minlength="2" maxlength="64"> <br> <br>
+                <input type="text" id="username" placeholder="Username" required minlength="2" maxlength="64" pattern="^(?![_.])(?!.*[_.-]{2})[a-zA-Z0-9._-]+(?<![_.-])$" title="Username should only contain alphanumerical and '.', '_', '-' symbols, no symbol at the beginnig and at the end, no alternation of special characters"> <br> <br>
 
                 First name: <br>
-                <input type="text" id="first-name" placeholder="First name" required minlength="2" maxlength="64"> <br> <br>
+                <input type="text" id="first-name" placeholder="First name" required minlength="2" maxlength="64" pattern="[a-zA-Z]+$" title="First name should only contain latin letters">  <br> <br>
 
                 Last name: <br>
-                <input type="text" id="last-name" placeholder="Last name" required minlength="2" maxlength="64"> <br> <br>
+                <input type="text" id="last-name" placeholder="Last name" required minlength="2" maxlength="64"  pattern="[a-zA-Z]+$" title="Last name should only contain latin letters"> <br> <br>
 
                 Age: <br>
                 <input type="number" id="age" placeholder="Age" required min="12" max="110"> <br> <br>
@@ -44,10 +43,10 @@ export default class extends AbstractView {
                 <input type="radio" name="gender" id="gender-female" value="2"> Female <br> <br>
 
                 E-mail: <br>
-                <input type="email" id="email" placeholder="E-mail" required maxlength="64"> <br><br>
+                <input type="email" id="email" placeholder="E-mail" required maxlength="64">  <br><br>
                 
                 Password: <br>
-                <input type="password" id="password" placeholder="Password" maxlength="64" required> <br> <br>
+                <input type="password" id="password" placeholder="Password" minlength=7 maxlength="64" required pattern="(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#~$%^&*()+|_]).{7,}" title="Password must contain at least one lowercase, one uppercase, one number and one symbol. Allowed symbols: ! @ # ~ $ % ^ & * ( ) + | _"> <br> <br>
                 
                 Confirm password: <br>
                 <input type="password" id="password-confirm" placeholder="Password" maxlength="64" required> <br> <br>
