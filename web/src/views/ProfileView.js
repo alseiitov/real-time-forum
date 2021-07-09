@@ -64,8 +64,10 @@ export default class extends AbstractView {
             </div>
             <h2>Users posts</h2>
             <div id="users-posts"></div>
-            <h2>Users rated posts</h2>
-            <div id="users-rated-posts"></div>
+            <h2>Users liked posts</h2>
+            <div id="users-liked-posts"></div>
+            <h2>Users disliked posts</h2>
+            <div id="users-disliked-posts"></div>
         `;
     }
 
@@ -81,9 +83,10 @@ export default class extends AbstractView {
         document.querySelector('.profile-info#role').innerText = `Role: ${user.role}`
         document.querySelector('.profile-info#registered').innerText = `Registered: ${new Date(Date.parse(user.registered)).toLocaleString()}`
 
-        const usersPostsEl = document.getElementById('users-posts')
         const usersPosts = await getUsersPosts(this.userID)
+        const usersRatedPosts = await getUsersRatedPosts(this.userID)
 
+        const usersPostsEl = document.getElementById('users-posts')
         if (usersPosts != null) {
             usersPosts.forEach((post) => {
                 const postEl = newPostElement(post)
@@ -93,16 +96,27 @@ export default class extends AbstractView {
             usersPostsEl.innerText = 'No posts'
         }
      
-        const usersRatedPostsEl = document.getElementById('users-rated-posts')
-        const usersRatedPosts = await getUsersRatedPosts(this.userID)
-        console.log(usersRatedPosts)
-        if(usersRatedPosts != null) {
-            usersRatedPosts.forEach((post) => {
+        
+        const usersLikedPosts = usersRatedPosts.filter((post) => post.userRate == 1)
+        const usersLikedPostsEl = document.getElementById('users-liked-posts')
+        if(usersLikedPosts != null) {
+            usersLikedPosts.forEach((post) => {
                 const postEl = newPostElement(post)
-                usersRatedPostsEl.append(postEl)
+                usersLikedPostsEl.append(postEl)
             })
         } else {
-            usersRatedPostsEl.innerText = 'No posts'
+            usersLikedPostsEl.innerText = 'No posts'
+        }
+
+        const usersDisLikedPosts = usersRatedPosts.filter((post) => post.userRate == 2)
+        const usersDislikedPostsEl = document.getElementById('users-disliked-posts')
+        if(usersDisLikedPosts != null) {
+            usersDisLikedPosts.forEach((post) => {
+                const postEl = newPostElement(post)
+                usersDislikedPostsEl.append(postEl)
+            })
+        } else {
+            usersDislikedPostsEl.innerText = 'No posts'
         }
     }
 }
