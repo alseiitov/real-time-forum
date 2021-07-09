@@ -23,6 +23,7 @@ const newPostElement = (post) => {
     el.classList.add("post")
 
     const linkToPost = document.createElement("a")
+    linkToPost.classList.add("post-link")
     linkToPost.setAttribute("href", `/post/${post.id}`)
     linkToPost.setAttribute("data-link", "")
     linkToPost.innerText = `${post.title}`

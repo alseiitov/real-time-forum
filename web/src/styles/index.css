@@ -1,11 +1,30 @@
 body {
     padding: 0;
     margin: 0;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, Roboto, Segoe UI, Helvetica, Arial, sans-serif;
+    font-family: Helvetica, Inter, -apple-system, BlinkMacSystemFont, Roboto, Segoe UI, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: #3b3d42;
     color: #a9a9b3;
+}
+
+a {
+    color: #a9a9b3;
+ 
+}
+
+button {
+    border: none;
+    border-radius: 5px;
+    background-color: #292a2d;
+    padding: 10px;
+    margin-right: 5px;
+    font-size: 15px;
+    color: #a9a9b3;
+}
+
+#app {
+    padding: 20px;
 }
 
 .nav {
@@ -14,17 +33,52 @@ body {
     background-color: #252627;
 }
 
-a {
-    color: #a9a9b3;
+.nav__link {
+    padding: 15px;
+    text-decoration: none; 
 }
 
+#categories {
+    margin-bottom: 10px;
+}
+
+
 #category-title {
-    font-size: 30px;
+    font-size: 40px;
+    font-weight: 900;
+    margin: 15px 0 15px 0;
 }
 
 .post {
-    margin: 0 15px 20px 15px;
-    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 15px;
+    background-color: #292a2d;
+}
+
+.post-link {
+    font-size: 20px;
+}
+
+#posts-msg {
+    font-size: 30px;
+    margin-left: 20px;
+}
+
+.navigation-buttons{
+    display: flex;
+    justify-content: space-between;
+}
+
+.navigation-buttons button {
+    border: none;
     border-radius: 5px;
     background-color: #292a2d;
+    padding: 10px;
+    margin-right: 5px;
+    font-size: 20px;
+}
+
+#posts-navigation p {
+    font-size: 20px;
 }

@@ -155,11 +155,9 @@ const drawPost = async (post) => {
     for (let i = 1; i < post.categories.length; i++) {
         const category = post.categories[i];
 
-        const categoryEl = document.createElement("a")
+        const categoryEl = document.createElement("button")
         categoryEl.innerText = `${category.name}`
-        categoryEl.setAttribute("href", `/?category=${category.id}&page=1}`)
-        categoryEl.setAttribute("data-link", "")
-
+        categoryEl.onclick = () => { router.navigateTo(`/?category=${category.id}&page=1`) }
         categoriesEl.append(categoryEl)
     }
 }
@@ -210,6 +208,10 @@ const drawComment = (comment, isNewComment) => {
     commentText.innerText = `${comment.data}\n${new Date(comment.date).toLocaleString()}`
     commentEl.append(commentText)
 
+    const rateInfoEl = document.createElement('div')
+    rateInfoEl.classList.add('rate-info')
+
+
     const likeButton = document.createElement("button")
     likeButton.classList.add("rate-button")
     likeButton.id = `like-comment-${comment.id}`
@@ -218,7 +220,14 @@ const drawComment = (comment, isNewComment) => {
     if (comment.userRate == likeTypes.like) {
         likeButton.classList.add('rated')
     }
-    commentEl.append(likeButton)
+    rateInfoEl.append(likeButton)
+
+    const rating = document.createElement("p")
+    rating.classList.add('rate-number')
+    rating.id = `comment-${comment.id}-rating`
+    rating.innerText = comment.rating
+    rateInfoEl.append(rating)
+
 
     const dislikeButton = document.createElement("button")
     dislikeButton.classList.add("rate-button")
@@ -228,13 +237,9 @@ const drawComment = (comment, isNewComment) => {
     if (comment.userRate == likeTypes.dislike) {
         dislikeButton.classList.add('rated')
     }
-    commentEl.append(dislikeButton)
+    rateInfoEl.append(dislikeButton)
 
-    const rating = document.createElement("p")
-    rating.id = `comment-${comment.id}-rating`
-    rating.innerText = comment.rating
-    commentEl.append(rating)
-
+    commentEl.append(rateInfoEl)
 
     if (isNewComment) {
         commentsEl.prepend(commentEl)
@@ -255,15 +260,18 @@ export default class extends AbstractView {
         const authorized = Boolean(this.user.id)
 
         return `
-            <div class="post">
+            <div class="post-page">
                 <div id="post-title"></div>
-                <div id="post-image"></div>
+                <div id="post-categories"></div>
+                <div class="image" id="post-image"></div>
                 <div id="post-data"></div>
                 <div id="post-info">
                     <div id="post-author"></div>
                     <div id="post-creation-date"></div>
                 </div>
-                <div id="likes">
+                <div class="rate-info" id="likes">
+                <p>Rating:  </p>
+                <p class="rate-number" id="post-rating"></p>
             `
             +
             (authorized ?
@@ -275,22 +283,20 @@ export default class extends AbstractView {
                 `<p>Sign-in to rate a post</p>`
             )
             +
-            `
-                <p id="post-rating"></p>
-            </div>
-            <div id="post-categories"></div>
-            `
+            `</div>`
             +
             (authorized ?
                 `
                 <div id="post-comments"></div>
-                <button id="prev-button">prev</button>
-                <p id="page-number">1</p>
-                <button id="next-button">next</button>
+                <div class="navigation-buttons">
+                    <button id="prev-button">Newer</button>
+                    <p id="page-number">1</p>
+                    <button id="next-button">Older</button>
+                </div>
                 <form id="comment-form" onsubmit="return false;">
                     <textarea id="comment-input" cols="30" rows="5" maxlength="128" placeholder="Leave a comment" required></textarea><br>
                     <input type="file" id="comment-image-input" accept="image/jpeg, image/png, image/gif">
-                    <div id="comment-image-preview"></div>
+                    <div class="image" id="comment-image-preview"></div>
                     <button>Send</button>
                     <div id="input-error"></div>
                 </form>

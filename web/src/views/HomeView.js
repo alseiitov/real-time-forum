@@ -38,7 +38,9 @@ const drawCategories = async (categories) => {
 
 const drawPostsByCategoryID = async (categoryID, page) => {
     const postsEl = document.getElementById("posts")
+    const postsMsg = document.getElementById("posts-msg")
     postsEl.innerHTML = ""
+    postsMsg.innerText = ""
 
     const path = `/api/categories/${categoryID}/${page}`
 
@@ -50,7 +52,7 @@ const drawPostsByCategoryID = async (categoryID, page) => {
             postsEl.append(postEl)
         })
     } else {
-        postsEl.innerText = "No posts"
+        postsMsg.innerText = "No posts"
         postsEnded = true
     }
 }
@@ -60,6 +62,7 @@ const newPostElement = (post) => {
     el.classList.add("post")
 
     const linkToPost = document.createElement("a")
+    linkToPost.classList.add("post-link")
     linkToPost.setAttribute("href", `/post/${post.id}`)
     linkToPost.setAttribute("data-link", "")
     linkToPost.innerText = `${post.title}`
@@ -94,15 +97,16 @@ export default class extends AbstractView {
 
     async getHtml() {
         return `
-            <h1>Hello</h1>
-
             <div id="categories"></div>
             <div id="category-title"></div>
            
             <div id="posts"></div>
-            <button id="prev-button">prev</button>
-            <p id="page-number"></p>
-            <button id="next-button">next</button>
+            <div id="posts-msg"></div>
+            <div class="navigation-buttons">
+                <button id="prev-button">Newer</button>
+                <p id="page-number"></p>
+                <button id="next-button">Older</button>
+            </div>
         `;
     }
 

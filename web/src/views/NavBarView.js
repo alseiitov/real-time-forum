@@ -14,20 +14,20 @@ export default class extends AbstractView {
         const authorized = Boolean(this.user.id)
 
         return `
-            <a href="/" class="nav__link" id="home-button" data-link>home</a>
+            <a href="/" class="nav__link" id="home-button" data-link>Home</a>
             `
             +
             (authorized ?
                 `
-                <a href="/new-post" class="nav__link" id="new-post-button" data-link>new-post</a>
-                <a href="/chats" class="nav__link" id="chats-button" data-link>chats</a>
-                <a href="/user/${this.user.id}" class="nav__link" id="chats-button" data-link>profile</a>
-                <a href="/" class="nav__link" id="sign-out-button" data-link>sign-out</a>
+                <a href="/new-post" class="nav__link" id="new-post-button" data-link>New post</a>
+                <a href="/chats" class="nav__link" id="chats-button" data-link>Chats</a>
+                <a href="/user/${this.user.id}" class="nav__link" id="chats-button" data-link>Profile</a>
+                <a href="/" class="nav__link" id="sign-out-button" data-link>Logout</a>
                 `
                 :
                 `
-                <a href="/sign-up" class="nav__link" id="sign-in-button" data-link>sign-up</a>
-                <a href="/sign-in" class="nav__link" id="sign-up-button" data-link>sign-in</a>
+                <a href="/sign-up" class="nav__link" id="sign-in-button" data-link>Sign up</a>
+                <a href="/sign-in" class="nav__link" id="sign-up-button" data-link>Sign in</a>
                 `
             )
     }

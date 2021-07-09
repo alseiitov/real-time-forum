@@ -1,21 +1,64 @@
-#post-image img {
-    width: 50%;
-    max-width: 600px;
+
+#post-title {
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 10px;
 }
 
-.post-comment {
+#post-categories {
+    margin-bottom: 10px;
+}
+
+img {
+    max-width: 500px;
+    border-radius: 10px;
     margin-bottom: 20px;
-    border: 1px solid;
+}
+
+#post-data {
+    margin-bottom: 20px;
+}
+
+.rate-info {
+    display: flex;
+}
+
+.rate-number {
+    padding: 0px 10px 0px 10px;
 }
 
 .rate-button {
     border: none;
     background-color: transparent;
     padding: 0;
-    font-size: 40px;
-    color: white;
+    font-size: 30px;
+    color: #91919b;
 }
 
 .rated {
-    color :deepskyblue;
+    color: rgb(255, 255, 255);
+}
+
+.post-comment {
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #292a2d;
+}
+
+#comment-input {
+    margin-top: 10px;
+    border-radius: 5px;
+    border: none;
+    width: 100%;
+    height: 100px;
+    color: #a9a9b3;
+    font-size: 16px;
+    background-color: #292a2d;
+    outline: none;
+    resize: none;
+}
+
+#comment-image-input {
+    margin: 20px 0 20px 0;
 }
