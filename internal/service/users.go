@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strings"
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -57,12 +58,12 @@ func (s *UsersService) SignUp(input UsersSignUpInput) error {
 	password := s.hasher.Hash(input.Password)
 
 	user := model.User{
-		Username:   input.Username,
-		FirstName:  input.FirstName,
-		LastName:   input.LastName,
+		Username:   strings.ToLower(input.Username),
+		FirstName:  strings.Title(strings.ToLower(input.FirstName)),
+		LastName:   strings.Title(strings.ToLower(input.LastName)),
 		Age:        input.Age,
 		Gender:     input.Gender,
-		Email:      input.Email,
+		Email:      strings.ToLower(input.Email),
 		Password:   password,
 		Registered: time.Now(),
 		Role:       model.Roles.User,
@@ -84,6 +85,7 @@ type UsersSignInInput struct {
 }
 
 func (s *UsersService) SignIn(input UsersSignInInput) (Tokens, error) {
+	input.UsernameOrEmail = strings.ToLower(input.UsernameOrEmail)
 	password := s.hasher.Hash(input.Password)
 
 	user, err := s.repo.GetByCredentials(input.UsernameOrEmail, password)
