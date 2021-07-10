@@ -1,0 +1,17 @@
+#user-profile {
+    border-radius: 5px;
+    padding: 15px;
+    background-color: #292a2d;
+    display: grid;
+    grid-template-columns: 320px auto;
+}
+
+#user-profile img {
+    max-width: 300px;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-info {
+    font-size: 18px;
+}
