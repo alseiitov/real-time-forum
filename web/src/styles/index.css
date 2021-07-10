@@ -70,14 +70,6 @@ button {
     justify-content: space-between;
 }
 
-.navigation-buttons button {
-    border: none;
-    border-radius: 5px;
-    background-color: #292a2d;
-    padding: 10px;
-    margin-right: 5px;
-    font-size: 20px;
-}
 
 #posts-navigation p {
     font-size: 20px;

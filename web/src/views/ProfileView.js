@@ -2,6 +2,7 @@ import fetcher from "../services/Fetcher.js";
 import AbstractView from "./AbstractView.js";
 
 const genders = { 1: 'Male', 2: 'Female' }
+const roles = {  1: 'Guest',  2: 'User', 3: 'Moderator',  4: 'Administator' }
 
 const getUserByID = async (id) => {
     const path = `/api/users/${id}`
@@ -32,7 +33,7 @@ const newPostElement = (post) => {
     postDate.innerText = new Date(post.date).toLocaleString()
 
     const linkToAuthor = document.createElement("a")
-    linkToAuthor.setAttribute("href", `/users/${post.author.id}`)
+    linkToAuthor.setAttribute("href", `/user/${post.author.id}`)
     linkToAuthor.setAttribute("data-link", "")
     linkToAuthor.innerText = `${post.author.firstName} ${post.author.lastName}`
 
@@ -55,13 +56,15 @@ export default class extends AbstractView {
         <h2>Users profile</h2>
         <div id="user-profile">
                 <div class="profile-info" id="avatar"></div>
-                <div class="profile-info" id="username"></div>
-                <div class="profile-info" id="first-name"></div>
-                <div class="profile-info" id="last-name"></div>
-                <div class="profile-info" id="age"></div>
-                <div class="profile-info" id="gender"></div>
-                <div class="profile-info" id="role"></div>
-                <div class="profile-info" id="registered"></div>
+                <div>
+                    <div class="profile-info" id="username"></div>
+                    <div class="profile-info" id="first-name"></div>
+                    <div class="profile-info" id="last-name"></div>
+                    <div class="profile-info" id="age"></div>
+                    <div class="profile-info" id="gender"></div>
+                    <div class="profile-info" id="role"></div>
+                    <div class="profile-info" id="registered"></div>
+                </div>
             </div>
             <h2>Users posts</h2>
             <div id="users-posts"></div>
@@ -74,18 +77,18 @@ export default class extends AbstractView {
 
     async init() {
         const user = await getUserByID(this.userID)
-
+        console.log(user)
         document.querySelector('.profile-info#avatar').innerHTML = `<img src="http://${API_HOST_NAME}/images/${user.avatar}">`
         document.querySelector('.profile-info#username').innerText = `Username: ${user.username}`
         document.querySelector('.profile-info#first-name').innerText = `First name: ${user.firstName}`
         document.querySelector('.profile-info#last-name').innerText = `Last name: ${user.lastName}`
         document.querySelector('.profile-info#age').innerText = `Age: ${user.age}`
         document.querySelector('.profile-info#gender').innerText = `Gender: ${genders[user.gender]}`
-        document.querySelector('.profile-info#role').innerText = `Role: ${user.role}`
+        document.querySelector('.profile-info#role').innerText = `Role: ${roles[user.role]}`
         document.querySelector('.profile-info#registered').innerText = `Registered: ${new Date(Date.parse(user.registered)).toLocaleString()}`
 
-        const usersPosts = await getUsersPosts(this.userID)
-        const usersRatedPosts = await getUsersRatedPosts(this.userID)
+        const usersPosts = await getUsersPosts(this.userID) 
+        const usersRatedPosts = await getUsersRatedPosts(this.userID)|| []
 
         const usersPostsEl = document.getElementById('users-posts')
         if (usersPosts != null) {
@@ -96,11 +99,11 @@ export default class extends AbstractView {
         } else {
             usersPostsEl.innerText = 'No posts'
         }
-     
-        
+
+
         const usersLikedPosts = usersRatedPosts.filter((post) => post.userRate == 1)
         const usersLikedPostsEl = document.getElementById('users-liked-posts')
-        if(usersLikedPosts != null) {
+        if (usersLikedPosts.length > 0 ) {
             usersLikedPosts.forEach((post) => {
                 const postEl = newPostElement(post)
                 usersLikedPostsEl.append(postEl)
@@ -111,7 +114,7 @@ export default class extends AbstractView {
 
         const usersDisLikedPosts = usersRatedPosts.filter((post) => post.userRate == 2)
         const usersDislikedPostsEl = document.getElementById('users-disliked-posts')
-        if(usersDisLikedPosts != null) {
+        if (usersDisLikedPosts.length > 0) {
             usersDisLikedPosts.forEach((post) => {
                 const postEl = newPostElement(post)
                 usersDislikedPostsEl.append(postEl)
@@ -119,5 +122,7 @@ export default class extends AbstractView {
         } else {
             usersDislikedPostsEl.innerText = 'No posts'
         }
+        console.log(usersLikedPosts)
+        console.log(usersDisLikedPosts)
     }
 }
