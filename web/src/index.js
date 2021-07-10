@@ -5,7 +5,6 @@ import SignIn from "./views/SignInView.js";
 import Post from "./views/PostView.js";
 import NewPost from "./views/NewPostView.js";
 import Chats from "./views/ChatsView.js";
-import Chat from "./views/ChatView.js";
 import Profile from "./views/ProfileView.js";
 
 import Ws from "./services/Ws.js"
@@ -42,7 +41,6 @@ const router = async () => {
         { path: "/new-post", view: NewPost, minRole: roles.user },
         { path: "/post/:postID", view: Post, minRole: roles.guest },
         { path: "/chats", view: Chats, minRole: roles.user },
-        { path: "/chat/:userID", view: Chat, minRole: roles.user },
         { path: "/user/:userID", view: Profile, minRole: roles.user },
     ];
 

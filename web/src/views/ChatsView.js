@@ -1,8 +1,14 @@
 import intervals from "../services/Intervals.js";
 import Ws from "../services/Ws.js";
 import AbstractView from "./AbstractView.js";
+import Utils from "../services/Utils.js"
+
 
 var requestOnlineUsersInterval
+var recipientID
+
+
+var loadMessages
 
 const requestOnlineUsers = () => {
     Ws.send(JSON.stringify({ type: "onlineUsersRequest" }))
@@ -12,18 +18,53 @@ const requestChats = () => {
     Ws.send(JSON.stringify({ type: "chatsRequest" }))
 }
 
+const debounce = (func, wait, immediate) => {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        var later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
 
-const newUserLinkElement = (user) => {
+
+const newMessageElement = (message) => {
     const el = document.createElement("div");
-    el.classList.add("user")
-    el.id = `user-${user.id}`
+    el.id = `message-${message.id}`
 
-    const link = document.createElement("a")
-    link.setAttribute("href", `/chat/${user.id}`)
-    link.setAttribute("data-link", "")
-    link.innerText = `${user.firstName} ${user.lastName}`
+    const userID = parseInt(localStorage.getItem("sub"))
 
-    el.append(link)
+    if (!message.read && message.recipientID == userID) {
+        Ws.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: message.id } }))
+    }
+
+    if (!message.read && message.senderID == userID) {
+        el.classList.add("unread")
+    }
+
+    el.classList.add("message")
+    if (message.senderID == userID) {
+        el.classList.add("sended-message")
+    } else {
+        el.classList.add("received-message")
+    }
+
+    const messageText = document.createElement('p')
+    messageText.classList.add('message-text')
+    messageText.innerText = message.message
+
+    const messageDate = document.createElement('p')
+    messageDate.classList.add('message-date')
+    messageDate.innerText = new Date(Date.parse(message.date)).toLocaleString()
+
+    el.append(messageText)
+    el.append(messageDate)
 
     return el
 }
@@ -33,6 +74,17 @@ const newChatElement = (chat) => {
     const el = document.createElement("div");
     el.classList.add("chat")
     el.id = `chat-${chat.user.id}`
+    el.style.cursor = 'pointer'
+
+    el.addEventListener("click", () => {
+        Array.from(document.getElementsByClassName("chat")).forEach(el => { el.classList.remove('active-chat') })
+        el.classList.add('active-chat')
+
+        document.getElementById("message-form").style.display = "block"
+        document.getElementById("chat-messages").innerHTML = ""
+        recipientID = chat.user.id
+        Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
+    })
 
     const avatatEl = document.createElement("div")
     avatatEl.innerHTML = `<img src="http://${API_HOST_NAME}/images/${chat.user.avatar}">`;
@@ -40,15 +92,18 @@ const newChatElement = (chat) => {
 
     const messageEl = document.createElement("div")
 
-    const link = newUserLinkElement(chat.user)
-    messageEl.append(link)
+    const name = document.createElement("p")
+    name.innerText = `${chat.user.firstName} ${chat.user.lastName}`
+    messageEl.append(name)
 
     if (chat.lastMessage) {
         const lastMessage = document.createElement("p")
+        lastMessage.id = `chat-${chat.user.id}-lastMessage`
         lastMessage.innerText = `${chat.lastMessage.message}`
         messageEl.append(lastMessage)
 
         const lastMessageDate = document.createElement("p")
+        lastMessageDate.id = `chat-${chat.user.id}-lastMessageDate`
         lastMessageDate.innerText = `${new Date(chat.lastMessage.date).toLocaleString()}`
         messageEl.append(lastMessageDate)
     }
@@ -66,15 +121,56 @@ export default class extends AbstractView {
 
     async getHtml() {
         return `
-            <h3>Your chats:</h3>
-            <div id="chats"></div>
+            <div id="chats-container">
+                <div id="chats">
+                    <p class="chats-title">Your chats:</p>              
+                    <div id="users-chats"></div>
 
-            <h3>Online users:</h3>
-            <div id="online-users"></div>
+                    <p class="chats-title">Online users:</p>
+                    <div id="online-users"></div>
+                </div>
+                <div>
+                    <div id="chat-messages"></div>
+                    <form id="message-form">
+                        <input type="text" id="message-input" size="64" autofocus />
+                    </form>
+                </div>
+            </div>
         `;
     }
 
     async init() {
+        const chatMessages = document.getElementById("chat-messages");
+        const messageForm = document.getElementById("message-form");
+        messageForm.style.display = 'none'
+
+        const messageInput = document.getElementById("message-input");
+
+        loadMessages = debounce(function () {
+            if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {
+                let offsetMsg = document.querySelector('.message')
+                let offsetMsgID = parseInt(offsetMsg.id.split('-')[1]);
+                Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: offsetMsgID } }))
+            }
+
+            if (chatMessages.scrollTop == 0) {
+                chatMessages.scrollTop = 1
+            }
+        }, 100)
+
+        chatMessages.addEventListener("scroll", loadMessages)
+
+        messageForm.onsubmit = function () {
+            if (!messageInput.value) {
+                return false;
+            }
+
+            let message = { recipientID: recipientID, message: messageInput.value }
+            Ws.send(JSON.stringify({ type: "message", body: message }));
+            messageInput.value = "";
+            return false;
+        };
+
         requestChats()
         requestOnlineUsers()
 
@@ -89,7 +185,7 @@ export default class extends AbstractView {
             if (onlineUsersEl) {
                 onlineUsersEl.innerText = ""
                 users.forEach((user) => {
-                    const el = newChatElement({user: user})
+                    const el = newChatElement({ user: user })
                     onlineUsersEl.prepend(el)
                 })
             }
@@ -98,13 +194,55 @@ export default class extends AbstractView {
 
     static drawChats(chats) {
         if (chats != null) {
-            const chatsEl = document.getElementById("chats");
+            const chatsEl = document.getElementById("users-chats");
             chatsEl.innerHTML = ""
             chats.forEach((chat) => {
                 const el = newChatElement(chat)
                 chatsEl.append(el)
-                console.log(chat)
             })
         }
+    }
+
+    static async drawNewMessage(message) {
+        const user = Utils.getUser()
+
+        if ((message.senderID == recipientID || message.senderID == user.id) && !(document.getElementById(`message-${message.id}`))) {
+            const chatMessages = document.getElementById("chat-messages");
+            const el = newMessageElement(message)
+            chatMessages.appendChild(el)
+            chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+
+        }
+
+        var chatId = message.senderID == user.id ? `chat-${message.recipientID}` : `chat-${message.senderID}`
+        const chat = document.getElementById(chatId)
+        if (chat) {
+            document.getElementById(`${chatId}-lastMessage`).innerText = message.message
+            document.getElementById(`${chatId}-lastMessageDate`).innerText = `${new Date(message.date).toLocaleString()}`
+
+            const chatsEl = document.getElementById("users-chats");
+            chatsEl.prepend(chat)
+        } else {
+            requestChats()
+        }
+    }
+
+    static async prependMessages(messages) {
+        const chatMessages = document.getElementById("chat-messages");
+        const scrollToEnd = (chatMessages.childNodes.length == 0)
+
+        if (messages == null) {
+            chatMessages.removeEventListener("scroll", loadMessages)
+            return
+        }
+
+        messages.forEach((message) => {
+            const el = newMessageElement(message)
+            chatMessages.prepend(el)
+
+            if (scrollToEnd) {
+                chatMessages.scrollTop = chatMessages.scrollHeight
+            }
+        })
     }
 }

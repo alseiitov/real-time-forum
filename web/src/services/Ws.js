@@ -1,4 +1,3 @@
-import Chat from "../views/ChatView.js";
 import Chats from "../views/ChatsView.js"
 import Utils from "./Utils.js";
 
@@ -30,17 +29,10 @@ const getConnection = () => {
 
                 switch (obj.type) {
                     case "message":
-                        switch (true) {
-                            case location.pathname.startsWith("/chat/"):
-                                Chat.appendNewMessage(obj.body)
-                                break
-                            case location.pathname == "/chats":
-                                conn.send(JSON.stringify({ type: "chatsRequest" }))
-                                break
-                        }
+                        Chats.drawNewMessage(obj.body)
                         break
                     case "messagesResponse":
-                        Chat.prependMessages(obj.body)
+                        Chats.prependMessages(obj.body)
                         break
                     case "chatsResponse":
                         Chats.drawChats(obj.body)
@@ -50,7 +42,6 @@ const getConnection = () => {
                         if (el) {
                             el.classList.remove('unread')
                         }
-
                     case "notification":
                         // console.log(obj)
                         break
