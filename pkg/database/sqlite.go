@@ -18,7 +18,7 @@ func ConnectDB(driver, dir, fileName, schemesDir string) (*sql.DB, error) {
 		}
 	}
 
-	enableForeignKeys := "?_foreign_keys=on"
+	enableForeignKeys := "?_foreign_keys=on&cache=shared&mode=rwc"
 	dataSourceName := filepath.Join(dir, fileName) + enableForeignKeys
 
 	db, err := sql.Open(driver, dataSourceName)
@@ -31,7 +31,10 @@ func ConnectDB(driver, dir, fileName, schemesDir string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	// db.SetMaxOpenConns(1)
+	_, err = db.Exec("PRAGMA journal_mode=WAL")
+	if err != nil {
+		return nil, err
+	}
 
 	if isNewDB {
 		if err = prepareDB(db, schemesDir); err != nil {
