@@ -13,7 +13,7 @@ const requestChats = () => {
 }
 
 
-const newUserElement = (user) => {
+const newUserLinkElement = (user) => {
     const el = document.createElement("div");
     el.classList.add("user")
     el.id = `user-${user.id}`
@@ -34,16 +34,26 @@ const newChatElement = (chat) => {
     el.classList.add("chat")
     el.id = `chat-${chat.user.id}`
 
-    const link = newUserElement(chat.user)
-    const lastMessage = document.createElement("p")
-    lastMessage.innerText = `${chat.lastMessage.message}`
+    const avatatEl = document.createElement("div")
+    avatatEl.innerHTML = `<img src="http://${API_HOST_NAME}/images/${chat.user.avatar}">`;
+    el.append(avatatEl)
 
-    const lastMessageDate = document.createElement("p")
-    lastMessageDate.innerText = `${new Date(chat.lastMessage.date).toLocaleString()}`
+    const messageEl = document.createElement("div")
 
-    el.append(link)
-    el.append(lastMessage)
-    el.append(lastMessageDate)
+    const link = newUserLinkElement(chat.user)
+    messageEl.append(link)
+
+    if (chat.lastMessage) {
+        const lastMessage = document.createElement("p")
+        lastMessage.innerText = `${chat.lastMessage.message}`
+        messageEl.append(lastMessage)
+
+        const lastMessageDate = document.createElement("p")
+        lastMessageDate.innerText = `${new Date(chat.lastMessage.date).toLocaleString()}`
+        messageEl.append(lastMessageDate)
+    }
+
+    el.append(messageEl)
 
     return el
 }
@@ -56,10 +66,10 @@ export default class extends AbstractView {
 
     async getHtml() {
         return `
-            Your chats:<br>
+            <h3>Your chats:</h3>
             <div id="chats"></div>
 
-            Online users:<br>
+            <h3>Online users:</h3>
             <div id="online-users"></div>
         `;
     }
@@ -79,7 +89,7 @@ export default class extends AbstractView {
             if (onlineUsersEl) {
                 onlineUsersEl.innerText = ""
                 users.forEach((user) => {
-                    const el = newUserElement(user)
+                    const el = newChatElement({user: user})
                     onlineUsersEl.prepend(el)
                 })
             }
@@ -93,6 +103,7 @@ export default class extends AbstractView {
             chats.forEach((chat) => {
                 const el = newChatElement(chat)
                 chatsEl.append(el)
+                console.log(chat)
             })
         }
     }

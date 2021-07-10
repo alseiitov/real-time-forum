@@ -3,7 +3,8 @@
     padding: 15px;
     background-color: #292a2d;
     display: grid;
-    grid-template-columns: 320px auto;
+    grid-template-columns: 300px auto;
+    grid-gap: 20px;
 }
 
 #user-profile img {

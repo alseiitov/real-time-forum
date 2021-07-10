@@ -122,7 +122,5 @@ export default class extends AbstractView {
         } else {
             usersDislikedPostsEl.innerText = 'No posts'
         }
-        console.log(usersLikedPosts)
-        console.log(usersDisLikedPosts)
     }
 }

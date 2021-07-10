@@ -1,10 +1,24 @@
 #chats {
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
 }
 
 .chat {
-    margin: 0 15px 20px 15px;
+    display: grid;
+    grid-template-columns: 50px auto;
+    grid-gap: 10px;
+    margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;
     background-color: #292a2d;
+}
+
+.chat img {
+    max-width: 50px;
+    margin: 0;
+    padding: 0;
+}
+
+.chat p {
+    padding: 0;
+    margin: 0;
 }
