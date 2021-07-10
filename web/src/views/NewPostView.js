@@ -25,14 +25,14 @@ export default class extends AbstractView {
     async getHtml() {
         return `
             <form id="post-form" onsubmit="return false;">
-                Title:
+                <p>Title:</p>
                 <input type="text" id="title-input" minlength="2" maxlength="64" required> <br>
 
-                Image:
+                <p>Image:</p>
                 <input type="file" id="post-image-input" accept="image/jpeg, image/png, image/gif"> <br>
                 <div id="post-image-preview"></div> <br>
 
-                Categories:
+                <p>Categories:</p>
                 <select class="category-selector" id="category-1">
                     <option value="0" selected disabled>Category</option>
                 </select>

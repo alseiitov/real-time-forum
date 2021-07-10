@@ -43,6 +43,7 @@
 }
 
 #chat-messages {
+    padding: 10px;
     overflow: auto;
     height: 600px;
 }

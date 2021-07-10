@@ -172,6 +172,9 @@ const drawPostComments = async (comments) => {
     if (!comments) {
         commentsEnded = true
         commentsEl.innerText = "No comments"
+        if (currCommentPageNum == 1) {
+            document.querySelector('.navigation-buttons').style.display = 'none'
+        }
         return
     }
 
@@ -242,6 +245,9 @@ const drawComment = (comment, isNewComment) => {
     commentEl.append(rateInfoEl)
 
     if (isNewComment) {
+        if (commentsEnded) {
+            commentsEl.innerText = ""
+        }
         commentsEl.prepend(commentEl)
     } else {
         commentsEl.append(commentEl)
@@ -263,15 +269,15 @@ export default class extends AbstractView {
             <div class="post-page">
                 <div id="post-title"></div>
                 <div id="post-categories"></div>
-                <div class="image" id="post-image"></div>
-                <div id="post-data"></div>
                 <div id="post-info">
+                    <div class="image" id="post-image"></div>
+                    <div id="post-data"></div>
                     <div id="post-author"></div>
                     <div id="post-creation-date"></div>
+                    <div class="rate-info" id="likes">
+                    <p>Rating:  </p>
+                    <p class="rate-number" id="post-rating"></p>
                 </div>
-                <div class="rate-info" id="likes">
-                <p>Rating:  </p>
-                <p class="rate-number" id="post-rating"></p>
             `
             +
             (authorized ?
@@ -287,6 +293,7 @@ export default class extends AbstractView {
             +
             (authorized ?
                 `
+                <p id="comments-title">Comments:</p>
                 <div id="post-comments"></div>
                 <div class="navigation-buttons">
                     <button id="prev-button">Newer</button>
@@ -381,8 +388,10 @@ export default class extends AbstractView {
 
                 document.getElementById("comment-form").addEventListener("submit", async () => {
                     const comment = await addComment(this.postID, commentText.value, imageBase64)
-                    console.log(comment)
+
                     drawComment(comment, true)
+
+
 
                     imageInput.value = ""
                     commentText.value = ""

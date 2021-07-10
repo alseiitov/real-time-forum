@@ -96,17 +96,19 @@ const newChatElement = (chat) => {
     name.innerText = `${chat.user.firstName} ${chat.user.lastName}`
     messageEl.append(name)
 
-    if (chat.lastMessage) {
-        const lastMessage = document.createElement("p")
-        lastMessage.id = `chat-${chat.user.id}-lastMessage`
-        lastMessage.innerText = `${chat.lastMessage.message}`
-        messageEl.append(lastMessage)
+    const lastMessage = document.createElement("p")
+    lastMessage.id = `chat-${chat.user.id}-lastMessage`
 
-        const lastMessageDate = document.createElement("p")
-        lastMessageDate.id = `chat-${chat.user.id}-lastMessageDate`
+    const lastMessageDate = document.createElement("p")
+    lastMessageDate.id = `chat-${chat.user.id}-lastMessageDate`
+
+    if (chat.lastMessage) {
+        lastMessage.innerText = `${chat.lastMessage.message}`
         lastMessageDate.innerText = `${new Date(chat.lastMessage.date).toLocaleString()}`
-        messageEl.append(lastMessageDate)
     }
+
+    messageEl.append(lastMessage)
+    messageEl.append(lastMessageDate)
 
     el.append(messageEl)
 
@@ -184,9 +186,12 @@ export default class extends AbstractView {
             const onlineUsersEl = document.getElementById("online-users");
             if (onlineUsersEl) {
                 onlineUsersEl.innerText = ""
+                users.sort((a, b) => a.firstName < b.firstName ? 1 : -1)
                 users.forEach((user) => {
-                    const el = newChatElement({ user: user })
-                    onlineUsersEl.prepend(el)
+                    if (!document.getElementById(`chat-${user.id}`)) {
+                        const el = newChatElement({ user: user })
+                        onlineUsersEl.prepend(el)
+                    }
                 })
             }
         }
