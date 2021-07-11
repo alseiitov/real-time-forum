@@ -20,7 +20,7 @@
 
 .chat {
     display: grid;
-    grid-template-columns: 50px auto 10px;
+    grid-template-columns: 50px 175px 25px;
     grid-gap: 10px;
     padding: 10px;
     margin-bottom: 10px;
@@ -34,6 +34,19 @@
     max-width: 188px;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.chat-unread-messages-count {
+    align-self: center;
+    width: 25px;
+    height: 25px;
+    font-size: 13px;
+    text-align: center;
+    line-height: 25px;
+    border-radius: 100%;
+    vertical-align: middle;
+    background-color: #c9c9d8;
+    color: #292a2d;
 }
 
 .active-chat {
@@ -85,7 +98,6 @@
     margin-left: auto;
     margin-right: 0;
 }
-
 
 .sended-message {
     margin-left: auto;

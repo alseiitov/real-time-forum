@@ -41,6 +41,7 @@ const newMessageElement = (message) => {
     const userID = parseInt(localStorage.getItem("sub"))
     if (!message.read && message.recipientID == userID) {
         Ws.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: message.id } }))
+        changeChatUnreadCount(document.getElementById(`chat-${message.senderID}-unread-messages-count`), -1)
     }
 
     const messageText = document.createElement('p')
@@ -58,10 +59,12 @@ const newMessageElement = (message) => {
     const readStatus = document.createElement('p')
     readStatus.classList.add('message-status')
     readStatus.id = `message-${message.id}-status`
+
     if (!message.read && message.senderID == userID) {
         readStatus.innerText = '✓'
     } else {
-        readStatus.innerText = '✓✓'
+        readStatus.innerText = '✓'
+        setTimeout(() => { readStatus.innerText = '✓✓' }, 1000)
     }
 
     el.classList.add("message")
@@ -122,13 +125,27 @@ const newChatElement = (chat) => {
     messageEl.append(lastMessage)
     messageEl.append(lastMessageDate)
 
-    const unreadMessagesCount = document.createElement("p")
-    unreadMessagesCount.innerText = 0
+    const unreadMessagesCount = document.createElement("div")
+    unreadMessagesCount.classList.add(`chat-unread-messages-count`)
+    unreadMessagesCount.id = `chat-${chat.user.id}-unread-messages-count`
+    changeChatUnreadCount(unreadMessagesCount, chat.unreadMessagesCount)
 
     el.append(messageEl)
     el.append(unreadMessagesCount)
 
+
     return el
+}
+
+const changeChatUnreadCount = (el, n = 0) => {
+    n += parseInt(el.innerText) || 0
+
+    if (n > 0) {
+        el.innerText = n
+        el.style.visibility = 'visible'
+    } else {
+        el.style.visibility = 'hidden'
+    }
 }
 
 export default class extends AbstractView {
@@ -236,12 +253,13 @@ export default class extends AbstractView {
 
         }
 
-        var chatId = message.senderID == user.id ? `chat-${message.recipientID}` : `chat-${message.senderID}`
+        var chatId = message.senderID == user.id ? message.recipientID : message.senderID
         const chat = document.getElementById(chatId)
         if (chat) {
-            document.getElementById(`${chatId}-lastMessage`).innerText = message.message
-            document.getElementById(`${chatId}-lastMessageDate`).innerText = `${new Date(message.date).toLocaleString()}`
-
+            console.log(chatId)
+            document.getElementById(`chat-${chatId}-lastMessage`).innerText = message.message
+            document.getElementById(`chat-${chatId}-lastMessageDate`).innerText = `${new Date(message.date).toLocaleString()}`
+            changeChatUnreadCount(document.getElementById(`chat-${chatId}-unread-messages-count`), 1)
             const chatsEl = document.getElementById("users-chats");
             chatsEl.prepend(chat)
         } else {
