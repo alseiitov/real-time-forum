@@ -39,13 +39,29 @@ const newMessageElement = (message) => {
     el.id = `message-${message.id}`
 
     const userID = parseInt(localStorage.getItem("sub"))
-
     if (!message.read && message.recipientID == userID) {
         Ws.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: message.id } }))
     }
 
+    const messageText = document.createElement('p')
+    messageText.classList.add('message-text')
+    messageText.innerText = message.message
+
+    const messageInfo = document.createElement('div')
+    messageInfo.classList.add('message-info')
+    messageInfo.id = `message-${message.id}-info`
+
+    const messageDate = document.createElement('p')
+    messageDate.classList.add('message-date')
+    messageDate.innerText = new Date(Date.parse(message.date)).toLocaleString()
+
+    const readStatus = document.createElement('p')
+    readStatus.classList.add('message-status')
+    readStatus.id = `message-${message.id}-status`
     if (!message.read && message.senderID == userID) {
-        el.classList.add("unread")
+        readStatus.innerText = '✓'
+    } else {
+        readStatus.innerText = '✓✓'
     }
 
     el.classList.add("message")
@@ -55,16 +71,11 @@ const newMessageElement = (message) => {
         el.classList.add("received-message")
     }
 
-    const messageText = document.createElement('p')
-    messageText.classList.add('message-text')
-    messageText.innerText = message.message
-
-    const messageDate = document.createElement('p')
-    messageDate.classList.add('message-date')
-    messageDate.innerText = new Date(Date.parse(message.date)).toLocaleString()
+    messageInfo.append(messageDate)
+    messageInfo.append(readStatus)
 
     el.append(messageText)
-    el.append(messageDate)
+    el.append(messageInfo)
 
     return el
 }
@@ -111,7 +122,11 @@ const newChatElement = (chat) => {
     messageEl.append(lastMessage)
     messageEl.append(lastMessageDate)
 
+    const unreadMessagesCount = document.createElement("p")
+    unreadMessagesCount.innerText = 0
+
     el.append(messageEl)
+    el.append(unreadMessagesCount)
 
     return el
 }
@@ -135,7 +150,7 @@ export default class extends AbstractView {
                 <div>
                     <div id="chat-messages"></div>
                     <form id="message-form">
-                        <input type="text" id="message-input" size="64" autofocus/>
+                        <input type="text" id="message-input" size="64" placeholder="Send message" autofocus/>
                     </form>
                 </div>
             </div>
@@ -205,6 +220,7 @@ export default class extends AbstractView {
             chats.forEach((chat) => {
                 const el = newChatElement(chat)
                 chatsEl.append(el)
+                console.log(chat)
             })
         }
     }
@@ -250,5 +266,14 @@ export default class extends AbstractView {
                 chatMessages.scrollTop = chatMessages.scrollHeight
             }
         })
+    }
+
+    static async changeMessageToRead(messageID) {
+        setTimeout(() => {
+            let el = document.getElementById(`message-${messageID}-status`)
+            if (el) {
+                el.innerText = '✓✓'
+            }
+        }, 1000)
     }
 }

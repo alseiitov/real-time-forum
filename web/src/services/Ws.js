@@ -38,10 +38,8 @@ const getConnection = () => {
                         Chats.drawChats(obj.body)
                         break
                     case "readMessageResponse":
-                        let el = document.getElementById(`message-${obj.body}`)
-                        if (el) {
-                            el.classList.remove('unread')
-                        }
+                        Chats.changeMessageToRead(obj.body)
+                       break
                     case "notification":
                         // console.log(obj)
                         break

@@ -20,19 +20,21 @@
 
 .chat {
     display: grid;
-    grid-template-columns: 50px auto;
+    grid-template-columns: 50px auto 10px;
     grid-gap: 10px;
     padding: 10px;
+    margin-bottom: 10px;
     border-radius: 5px;
+    background-color: #3b3d42;
+    color: #c9c9d8
 }
 
 .chat-info p {
-    word-wrap:normal;
-    max-width: 200px;
-    overflow:hidden;
+    word-wrap: normal;
+    max-width: 188px;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
-
 
 .active-chat {
     background-color: #c9c9d8;
@@ -58,16 +60,13 @@
 
 .message {
     width: max-content;
+    min-width: 180px;
     max-width: 500px;
     margin: 10px 10px 10px 10px;
     padding: 10px;
     border-radius: 5px;
-    background-color: #c9c9d8;
-    color: #292a2d;
-}
-
-.message.unread {
-    background-color: #75757a;
+    background-color: #3b3d42;
+    color: #c9c9d8
 }
 
 .message-text {
@@ -75,10 +74,18 @@
     margin-bottom: 10px;
 }
 
-.message-date {
+.message-info {
+    display: grid;
+    grid-template-columns: auto 40px;
+}
+
+.message-info p {
     margin: 0;
     font-size: 14px;
+    margin-left: auto;
+    margin-right: 0;
 }
+
 
 .sended-message {
     margin-left: auto;
@@ -93,6 +100,6 @@
     width: 100%;
     height: 40px;
     padding: 10px;
-    background-color: #c9c9d8;
-    color: #292a2d;
+    background-color: #3b3d42;
+    color: #c9c9d8
 }

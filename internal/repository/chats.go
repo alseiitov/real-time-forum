@@ -19,7 +19,7 @@ func (r *ChatsRepo) GetChats(userID int) ([]model.Chat, error) {
 
 	rows, err := r.db.Query(`
 		SELECT 
-			MAX(id), sender_id, recipient_id, message, date, read 
+			MAX(id), sender_id, recipient_id, message, date, SUM(CASE WHEN (read = 0 AND recipient_id = $1) THEN 1 ELSE 0 END) AS unread_count 
 		FROM 
 			messages 
 		WHERE 
@@ -48,7 +48,7 @@ func (r *ChatsRepo) GetChats(userID int) ([]model.Chat, error) {
 			&chat.LastMessage.RecipientID,
 			&chat.LastMessage.Message,
 			&chat.LastMessage.Date,
-			&chat.LastMessage.Read,
+			&chat.UnreadMessagesCount,
 		)
 
 		if err != nil {
