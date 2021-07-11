@@ -91,6 +91,7 @@ const newChatElement = (chat) => {
     el.append(avatatEl)
 
     const messageEl = document.createElement("div")
+    messageEl.classList.add('chat-info')
 
     const name = document.createElement("p")
     name.innerText = `${chat.user.firstName} ${chat.user.lastName}`
@@ -134,7 +135,7 @@ export default class extends AbstractView {
                 <div>
                     <div id="chat-messages"></div>
                     <form id="message-form">
-                        <input type="text" id="message-input" size="64" autofocus />
+                        <input type="text" id="message-input" size="64" autofocus/>
                     </form>
                 </div>
             </div>

@@ -7,7 +7,7 @@
 }
 
 #chats {
-    height: 600px;
+    height: 580px;
     overflow-y: scroll;
 }
 
@@ -25,6 +25,14 @@
     padding: 10px;
     border-radius: 5px;
 }
+
+.chat-info p {
+    word-wrap:normal;
+    max-width: 200px;
+    overflow:hidden;
+    text-overflow: ellipsis;
+}
+
 
 .active-chat {
     background-color: #c9c9d8;
@@ -45,7 +53,7 @@
 #chat-messages {
     padding: 10px;
     overflow: auto;
-    height: 600px;
+    height: 520px;
 }
 
 .message {
@@ -77,9 +85,14 @@
     margin-right: 0;
 }
 
+#message-form {
+    padding-left: 10px;
+}
+
 #message-input {
-    height: 40px;
     width: 100%;
+    height: 40px;
+    padding: 10px;
     background-color: #c9c9d8;
     color: #292a2d;
 }
