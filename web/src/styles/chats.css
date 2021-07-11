@@ -99,6 +99,10 @@
     margin-right: 0;
 }
 
+.message-status {
+    letter-spacing: -5px;
+}
+
 .sended-message {
     margin-left: auto;
     margin-right: 0;
