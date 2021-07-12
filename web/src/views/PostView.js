@@ -275,21 +275,12 @@ export default class extends AbstractView {
                     <div id="post-author"></div>
                     <div id="post-creation-date"></div>
                     <div class="rate-info" id="likes">
-                    <p>Rating:  </p>
-                    <p class="rate-number" id="post-rating"></p>
+                        <button class="rate-button" id="like-post-button">▴</button>
+                        <p class="rate-number" id="post-rating"></p>
+                        <button class="rate-button" id="dislike-post-button">▾</button>
+                    </div>
                 </div>
             `
-            +
-            (authorized ?
-                `
-                <button class="rate-button" id="like-post-button">▴</button>
-                <button class="rate-button" id="dislike-post-button">▾</button>
-                `
-                :
-                `<p>Sign-in to rate a post</p>`
-            )
-            +
-            `</div>`
             +
             (authorized ?
                 `

@@ -49,6 +49,10 @@ img {
     background-color: #292a2d;
 }
 
+#post-creation-date {
+    margin-bottom: 10px;
+}
+
 #comments-title {
     font-size: 24px;
     font-weight: 600;

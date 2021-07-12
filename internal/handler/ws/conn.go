@@ -27,6 +27,7 @@ func (h *Handler) connReadPump(conn *conn) {
 		event, err := conn.readEvent()
 		if err != nil {
 			conn.writeError(err)
+			log.Println(err)
 			return
 		}
 
@@ -54,6 +55,7 @@ func (h *Handler) connReadPump(conn *conn) {
 		}
 
 		if err != nil {
+			log.Println(err.Error())
 			conn.writeError(err)
 			return
 		}

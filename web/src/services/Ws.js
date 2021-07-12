@@ -19,6 +19,11 @@ const getConnection = () => {
 
             const conn = new WebSocket(`ws://${API_HOST_NAME}/ws`)
 
+            conn.onopen = function () {
+                conn.send(JSON.stringify({ type: "token", body: token }))
+                resolve(conn)
+            }
+
             conn.onerror = function (evt) {
                 Utils.showError(503)
                 return
@@ -52,13 +57,10 @@ const getConnection = () => {
                     case "pingMessage":
                         conn.send(JSON.stringify({ type: "pongMessage" }))
                         break
+                    default:
+                        console.log(obj)
                 }
             };
-
-            conn.onopen = function () {
-                conn.send(JSON.stringify({ type: "token", body: token }))
-                resolve(conn)
-            }
         } else {
             alert("Your browser does not support WebSockets")
         }

@@ -2,7 +2,6 @@ package ws
 
 import (
 	"sync"
-	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
 )
@@ -24,7 +23,6 @@ func (h *Handler) sendEventToClient(event *model.WSEvent) {
 
 	for i := 0; i < len(client.conns); i++ {
 		conn := client.conns[i]
-		conn.conn.SetWriteDeadline(time.Now().Add(h.writeWait))
 
 		err := conn.writeJSON(&event)
 		if err != nil {
