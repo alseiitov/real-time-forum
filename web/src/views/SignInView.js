@@ -14,7 +14,7 @@ const signIn = async (usernameOrEmail, password) => {
 
     const data = await fetcher.post(path, body)
     if (data.error) {
-        drawError(data.error)
+        utils.drawErrorMessage(data.error)
         return
     }
     
@@ -30,10 +30,7 @@ const signIn = async (usernameOrEmail, password) => {
     })
 }
 
-const drawError = (err) => {
-    const inputError = document.getElementById("input-error")
-    inputError.innerText = err
-}
+
 
 export default class extends AbstractView {
     constructor(params) {
@@ -50,7 +47,7 @@ export default class extends AbstractView {
                 Password: <br>
                 <input type="password" id="password" placeholder="Password" required> <br> <br>
 
-                <div id="input-error"></div>
+                <div id="error-message"></div>
 
                 <button>Sign in</button>
             </form>

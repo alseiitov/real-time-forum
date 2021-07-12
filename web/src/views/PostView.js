@@ -30,6 +30,11 @@ const addComment = async (postID, data, image) => {
 
 
 const likePost = async (postID, likeType) => {
+    const user = Utils.getUser()
+    if (!user.id) {
+        alert("Sign in to rate the post")
+        return
+    }
     const path = `/api/posts/${postID}/likes`
     const body = { likeType: likeType }
 
@@ -72,6 +77,11 @@ const likePost = async (postID, likeType) => {
 }
 
 const likeComment = async (commentID, likeType) => {
+    const user = Utils.getUser()
+    if (!user.id) {
+        alert("Sign in to rate the comment")
+        return
+    }
     const path = `/api/comments/${commentID}/likes`
     const body = { likeType: likeType }
 
@@ -133,19 +143,15 @@ const drawPost = async (post) => {
     document.getElementById("post-creation-date").innerText = new Date(post.date).toLocaleString();
 
     const likeButton = document.getElementById("like-post-button")
-    if (likeButton) {
-        likeButton.addEventListener("click", () => { likePost(post.id, likeTypes.like) })
-        if (post.userRate == likeTypes.like) {
-            likeButton.classList.add('rated')
-        }
+    likeButton.addEventListener("click", () => { likePost(post.id, likeTypes.like) })
+    if (post.userRate == likeTypes.like) {
+        likeButton.classList.add('rated')
     }
 
     const dislikeButton = document.getElementById("dislike-post-button")
-    if (dislikeButton) {
-        dislikeButton.addEventListener("click", () => { likePost(post.id, likeTypes.dislike) })
-        if (post.userRate == likeTypes.dislike) {
-            dislikeButton.classList.add('rated')
-        }
+    dislikeButton.addEventListener("click", () => { likePost(post.id, likeTypes.dislike) })
+    if (post.userRate == likeTypes.dislike) {
+        dislikeButton.classList.add('rated')
     }
 
     document.getElementById("post-rating").innerText = post.rating;
@@ -280,10 +286,6 @@ export default class extends AbstractView {
                         <button class="rate-button" id="dislike-post-button">▾</button>
                     </div>
                 </div>
-            `
-            +
-            (authorized ?
-                `
                 <p id="comments-title">Comments:</p>
                 <div id="post-comments"></div>
                 <div class="navigation-buttons">
@@ -291,6 +293,10 @@ export default class extends AbstractView {
                     <p id="page-number">1</p>
                     <button id="next-button">Older</button>
                 </div>
+            `
+            +
+            (authorized ?
+                `
                 <form id="comment-form" onsubmit="return false;">
                     <textarea id="comment-input" cols="30" rows="5" maxlength="128" placeholder="Leave a comment" required></textarea><br>
                     <input type="file" id="comment-image-input" accept="image/jpeg, image/png, image/gif">
@@ -302,7 +308,7 @@ export default class extends AbstractView {
                 `
                 :
                 `
-                <p>Sign-in to read or leave a comment</p>
+                <p>Sign-in to leave a comment</p>
                 `
             )
             +
@@ -311,84 +317,79 @@ export default class extends AbstractView {
             `
     }
 
+
     async init() {
         const post = await getPost(this.postID)
         if (post) {
             drawPost(post, this.user)
+            drawPostCommentsPage(this.postID, currCommentPageNum)
 
-            const authorized = Boolean(this.user.id)
-            if (authorized) {
+            const nextButtonEl = document.getElementById(`next-button`)
+            const prevButtonEl = document.getElementById(`prev-button`)
+            const pageNumber = document.getElementById(`page-number`)
+
+            nextButtonEl.addEventListener("click", () => {
+                if (commentsEnded) {
+                    return
+                }
+                currCommentPageNum++
+                pageNumber.innerText = currCommentPageNum
                 drawPostCommentsPage(this.postID, currCommentPageNum)
+            })
 
-                const nextButtonEl = document.getElementById(`next-button`)
-                const prevButtonEl = document.getElementById(`prev-button`)
-                const pageNumber = document.getElementById(`page-number`)
+            prevButtonEl.addEventListener("click", () => {
+                if (currCommentPageNum == 1) {
+                    return
+                }
+                commentsEnded = false
+                currCommentPageNum--
+                pageNumber.innerText = currCommentPageNum
+                drawPostCommentsPage(this.postID, currCommentPageNum)
+            })
 
-                nextButtonEl.addEventListener("click", () => {
-                    if (commentsEnded) {
-                        return
-                    }
-                    currCommentPageNum++
-                    pageNumber.innerText = currCommentPageNum
-                    drawPostCommentsPage(this.postID, currCommentPageNum)
-                })
+            const commentText = document.getElementById("comment-input")
+            const imageInput = document.getElementById("comment-image-input")
+            const imagePreview = document.getElementById("comment-image-preview")
+            const inputError = document.getElementById("input-error")
 
-                prevButtonEl.addEventListener("click", () => {
-                    if (currCommentPageNum == 1) {
-                        return
-                    }
-                    commentsEnded = false
-                    currCommentPageNum--
-                    pageNumber.innerText = currCommentPageNum
-                    drawPostCommentsPage(this.postID, currCommentPageNum)
-                })
+            const imageMaxSize = 20 * 1024 * 1024
+            const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
 
-                const commentText = document.getElementById("comment-input")
-                const imageInput = document.getElementById("comment-image-input")
-                const imagePreview = document.getElementById("comment-image-preview")
-                const inputError = document.getElementById("input-error")
+            var imageBase64 = ""
 
-                const imageMaxSize = 20 * 1024 * 1024
-                const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
+            imageInput.addEventListener("change", async () => {
+                inputError.innerText = ""
+                imagePreview.innerHTML = ""
 
-                var imageBase64 = ""
-
-                imageInput.addEventListener("change", async () => {
-                    inputError.innerText = ""
-                    imagePreview.innerHTML = ""
-
-                    const image = imageInput.files[0]
-                    if (image.size > imageMaxSize) {
-                        inputError.innerText = "Too big image! Max image size is 20 Mb"
-                        imageInput.value = ""
-                        imageBase64 = ""
-                        return
-                    }
-
-                    if (!allowedImageTypes.includes(image.type)) {
-                        inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
-                        imageInput.value = ""
-                        imageBase64 = ""
-                        return
-                    }
-
-                    imageBase64 = await Utils.fileToBase64(image)
-                    imagePreview.innerHTML = `<img src="${imageBase64}">`
-                })
-
-
-                document.getElementById("comment-form").addEventListener("submit", async () => {
-                    const comment = await addComment(this.postID, commentText.value, imageBase64)
-
-                    drawComment(comment, true)
-
-
-
+                const image = imageInput.files[0]
+                if (image.size > imageMaxSize) {
+                    inputError.innerText = "Too big image! Max image size is 20 Mb"
                     imageInput.value = ""
-                    commentText.value = ""
-                    imagePreview.innerHTML = ""
-                })
-            }
+                    imageBase64 = ""
+                    return
+                }
+
+                if (!allowedImageTypes.includes(image.type)) {
+                    inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
+                    imageInput.value = ""
+                    imageBase64 = ""
+                    return
+                }
+
+                imageBase64 = await Utils.fileToBase64(image)
+                imagePreview.innerHTML = `<img src="${imageBase64}">`
+            })
+
+
+            document.getElementById("comment-form").addEventListener("submit", async () => {
+                const comment = await addComment(this.postID, commentText.value, imageBase64)
+
+                drawComment(comment, true)
+
+                imageInput.value = ""
+                commentText.value = ""
+                imagePreview.innerHTML = ""
+            })
         }
     }
 }

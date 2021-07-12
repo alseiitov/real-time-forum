@@ -61,7 +61,12 @@ const showError = (status, message) => {
     `
 }
 
+const drawErrorMessage = (err) => {
+    const inputError = document.getElementById("error-message")
+    if (inputError) {
+        inputError.innerText = err
+    }
+}
 
 
-
-export default { parseJwt, getUser, logOut, fileToBase64, base64isImage, showError }
+export default { parseJwt, getUser, logOut, fileToBase64, base64isImage, showError, drawErrorMessage }
