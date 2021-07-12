@@ -39,7 +39,7 @@ const newMessageElement = (message) => {
     el.id = `message-${message.id}`
 
     const userID = parseInt(localStorage.getItem("sub"))
-    if (!message.read && message.recipientID == userID) {
+    if (!message.read && message.senderID == recipientID) {
         Ws.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: message.id } }))
         changeChatUnreadCount(document.getElementById(`chat-${message.senderID}-unread-messages-count`), -1)
     }
@@ -90,19 +90,8 @@ const newChatElement = (chat) => {
     el.style.cursor = 'pointer'
 
     if (chat.user.id == recipientID) {
-        el.classList.add('active-chat')
+        el.classList.add('active')
     }
-
-    el.addEventListener("click", () => {
-        Array.from(document.getElementsByClassName("chat")).forEach(el => { el.classList.remove('active-chat') })
-        el.classList.add('active-chat')
-
-        document.getElementById("message-form").style.display = "block"
-        document.getElementById("message-input").value = ""
-        document.getElementById("chat-messages").innerHTML = ""
-        recipientID = chat.user.id
-        Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
-    })
 
     const avatatEl = document.createElement("div")
     avatatEl.innerHTML = `<img src="http://${API_HOST_NAME}/images/${chat.user.avatar}">`;
@@ -137,18 +126,31 @@ const newChatElement = (chat) => {
     el.append(messageEl)
     el.append(unreadMessagesCount)
 
+    el.addEventListener("click", () => {
+        Array.from(document.getElementsByClassName("chat")).forEach(el => { el.classList.remove('active') })
+        Array.from(document.getElementsByClassName("chat-unread-messages-count")).forEach(el => { el.classList.remove('active') })
+        
+        el.classList.add('active')
+        unreadMessagesCount.classList.add('active')
+
+        document.getElementById("message-form").style.display = "block"
+        document.getElementById("message-input").value = ""
+        document.getElementById("chat-messages").innerHTML = ""
+        recipientID = chat.user.id
+        Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
+    })
 
     return el
 }
 
-const changeChatUnreadCount = (el, n = 0) => {
+const changeChatUnreadCount = (el, n) => {
     n += parseInt(el.innerText) || 0
+    el.innerText = n
 
     if (n > 0) {
-        el.innerText = n
-        el.style.visibility = 'visible'
+        el.style.opacity = 100
     } else {
-        el.style.visibility = 'hidden'
+        el.style.opacity = 0
     }
 }
 
@@ -221,7 +223,7 @@ export default class extends AbstractView {
     static drawOnlineUsers(users) {
         if (users != null) {
             const user = Utils.getUser()
-            
+
             const onlineUsersEl = document.getElementById("online-users");
             if (onlineUsersEl) {
                 onlineUsersEl.innerText = ""
@@ -263,9 +265,11 @@ export default class extends AbstractView {
         var chatId = message.senderID == user.id ? message.recipientID : message.senderID
         const chat = document.getElementById(`chat-${chatId}`)
         if (chat) {
+            if (message.recipientID == user.id ) {
+                changeChatUnreadCount(document.getElementById(`chat-${chatId}-unread-messages-count`), 1)
+            }
             document.getElementById(`chat-${chatId}-lastMessage`).innerText = message.message
             document.getElementById(`chat-${chatId}-lastMessageDate`).innerText = `${new Date(message.date).toLocaleString()}`
-            changeChatUnreadCount(document.getElementById(`chat-${chatId}-unread-messages-count`), 1)
             const chatsEl = document.getElementById("users-chats");
             chatsEl.prepend(chat)
         } else {
@@ -292,7 +296,7 @@ export default class extends AbstractView {
         })
     }
 
-    static async changeMessageToRead(messageID) {
+    static async changeMessageStatusToRead(messageID) {
         setTimeout(() => {
             let el = document.getElementById(`message-${messageID}-status`)
             if (el) {

@@ -43,7 +43,7 @@ const getConnection = () => {
                         Chats.drawChats(obj.body)
                         break
                     case "readMessageResponse":
-                        Chats.changeMessageToRead(obj.body)
+                        Chats.changeMessageStatusToRead(obj.body)
                        break
                     case "notification":
                         // console.log(obj)

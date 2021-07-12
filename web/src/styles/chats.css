@@ -29,6 +29,11 @@
     color: #c9c9d8
 }
 
+.chat.active {
+    background-color: #c9c9d8;
+    color: #292a2d;
+}
+
 .chat-info p {
     word-wrap: normal;
     max-width: 188px;
@@ -49,9 +54,9 @@
     color: #292a2d;
 }
 
-.active-chat {
-    background-color: #c9c9d8;
-    color: #292a2d;
+.chat-unread-messages-count.active {
+    background-color: #3b3d42;
+    color: #c9c9d8
 }
 
 .chat img {
