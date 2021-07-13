@@ -180,7 +180,7 @@ func (r *UsersRepo) GetUsersRatedPosts(userID int) ([]model.Post, error) {
 		FROM
 			posts
 			LEFT JOIN users u ON posts.user_id = u.id
-            LEFT JOIN posts_likes pl ON posts.id = pl.post_id
+            LEFT JOIN posts_likes pl ON posts.id = pl.post_id AND pl.user_id = $1  
 		WHERE
 			posts.id IN (
             	SELECT 
