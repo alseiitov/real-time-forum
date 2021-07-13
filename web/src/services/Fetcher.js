@@ -83,29 +83,4 @@ const makeRequest = async (path, body, method) => {
     return respBody
 }
 
-// const refreshToken = async () => {
-//     const accessToken = localStorage.getItem("accessToken")
-//     const refreshToken = localStorage.getItem("refreshToken")
-
-//     if (!accessToken || !refreshToken) {
-//         Router.navigateTo("/sign-in")
-//         return
-//     }
-
-//     Utils.logOut()
-
-//     const path = "/api/auth/refresh"
-//     const body = { accessToken: accessToken, refreshToken: refreshToken }
-//     const data = await fetcher.post(path, body)
-//     console.log(data)
-//     localStorage.setItem("accessToken", data.accessToken)
-//     localStorage.setItem("refreshToken", data.refreshToken)
-
-//     const payload = Utils.parseJwt(data.accessToken)
-//     localStorage.setItem("sub", parseInt(payload.sub))
-//     localStorage.setItem("role", parseInt(payload.role))
-// }
-
-
-
 export default fetcher

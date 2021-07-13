@@ -77,7 +77,7 @@ export default class extends AbstractView {
 
     async init() {
         const user = await getUserByID(this.userID)
-        console.log(user)
+       
         document.querySelector('.profile-info#avatar').innerHTML = `<img src="http://${API_HOST_NAME}/images/${user.avatar}">`
         document.querySelector('.profile-info#username').innerText = `Username: ${user.username}`
         document.querySelector('.profile-info#first-name').innerText = `First name: ${user.firstName}`

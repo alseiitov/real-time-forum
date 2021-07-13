@@ -3,10 +3,8 @@ import Ws from "../services/Ws.js";
 import AbstractView from "./AbstractView.js";
 import Utils from "../services/Utils.js"
 
-
 var requestOnlineUsersInterval
 var recipientID
-
 
 var loadMessages
 
@@ -165,6 +163,7 @@ export default class extends AbstractView {
     }
 
     async init() {
+        recipientID = 0
         const chatMessages = document.getElementById("chat-messages");
         const messageForm = document.getElementById("message-form");
         messageForm.style.display = 'none'
@@ -175,13 +174,14 @@ export default class extends AbstractView {
             if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {
                 let offsetMsg = document.querySelector('.message')
                 let offsetMsgID = parseInt(offsetMsg.id.split('-')[1]);
+                console.log(offsetMsgID)
                 Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: offsetMsgID } }))
             }
 
             if (chatMessages.scrollTop == 0) {
-                chatMessages.scrollTop = 1
+                chatMessages.scrollTop = 10
             }
-        }, 100, true)
+        }, 100)
 
         chatMessages.addEventListener("scroll", loadMessages)
 
