@@ -205,6 +205,8 @@ export default class extends AbstractView {
     }
 
     static drawOnlineUsers(users) {
+        Array.from(document.getElementsByClassName("chat")).forEach(el => { el.classList.remove('online') })
+
         if (users != null) {
             const user = Utils.getUser()
 
@@ -216,10 +218,13 @@ export default class extends AbstractView {
                     if (u.id == user.id) {
                         return
                     }
-                    if (!document.getElementById(`chat-${u.id}`)) {
-                        const el = newChatElement({ user: u })
-                        onlineUsersEl.prepend(el)
+
+                    var chat = document.getElementById(`chat-${u.id}`)
+                    if (!chat) {
+                        chat = newChatElement({ user: u })
+                        onlineUsersEl.prepend(chat)
                     }
+                    chat.classList.add('online')
                 })
             }
         }

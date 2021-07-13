@@ -60,9 +60,14 @@
 }
 
 .chat img {
+    border-radius: 50%;
     max-width: 50px;
     margin: 0;
     padding: 0;
+}
+
+.chat.online img {
+    border: 2px solid greenyellow;
 }
 
 .chat p {
