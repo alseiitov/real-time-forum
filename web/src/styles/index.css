@@ -22,10 +22,10 @@ button {
     border: none;
     border-radius: 5px;
     background-color: #292a2d;
+    color: #a9a9b3;
     padding: 10px;
     margin-right: 5px;
     font-size: 15px;
-    color: #a9a9b3;
 }
 
 input, select, textarea {
@@ -103,4 +103,10 @@ textarea {
 
 #posts-navigation p {
     font-size: 20px;
+}
+
+.error {
+    font-size: 20px;
+    margin-top: 10px; 
+    margin-bottom: 10px;
 }

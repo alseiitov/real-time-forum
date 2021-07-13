@@ -6,6 +6,7 @@ import (
 	"github.com/alseiitov/gorouter"
 	_ "github.com/alseiitov/real-time-forum/internal/model"
 	"github.com/alseiitov/real-time-forum/internal/service"
+	"github.com/alseiitov/real-time-forum/pkg/image"
 	"github.com/alseiitov/validator"
 )
 
@@ -61,6 +62,8 @@ func (h *Handler) createComment(ctx *gorouter.Context) {
 	if err != nil {
 		if err == service.ErrPostDoesntExist {
 			ctx.WriteError(http.StatusNotFound, err.Error())
+		} else if err == image.ErrInvalidBase64String || err == image.ErrTooBigImage || err == image.ErrUnsupportedFormat {
+			ctx.WriteError(http.StatusBadRequest, err.Error())
 		} else {
 			ctx.WriteError(http.StatusInternalServerError, err.Error())
 		}

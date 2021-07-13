@@ -26,11 +26,11 @@ export default class extends AbstractView {
         return `
             <form id="post-form" onsubmit="return false;">
                 <p>Title:</p>
-                <input type="text" id="title-input" minlength="2" maxlength="64" required> <br>
+                <input type="text" id="title-input" minlength="2" maxlength="64" required>
 
                 <p>Image:</p>
-                <input type="file" id="post-image-input" accept="image/jpeg, image/png, image/gif"> <br>
-                <div id="post-image-preview"></div> <br>
+                <input type="file" id="post-image-input" accept="image/jpeg, image/png, image/gif">
+                <div id="post-image-preview"></div>
 
                 <p>Categories:</p>
                 <select class="category-selector" id="category-1">
@@ -42,11 +42,10 @@ export default class extends AbstractView {
                 <select class="category-selector" id="category-3">
                     <option value="0" selected disabled>Category</option>
                 </select>
-                <br>
 
-                <textarea id="data-input" cols="30" rows="5" minlength="2" maxlength="512" required></textarea><br>
+                <textarea id="data-input" cols="30" rows="5" minlength="2" maxlength="512" required></textarea>
+                <div class="error" id="error-message"></div>
                 <button>Send</button>
-                <div id="input-error"></div>
             </form>
         `;
     }
@@ -70,7 +69,7 @@ export default class extends AbstractView {
         const category2 = document.getElementById("category-2")
         const category3 = document.getElementById("category-3")
         const postData = document.getElementById("data-input")
-        const inputError = document.getElementById("input-error")
+        const errorMessage = document.getElementById("error-message")
 
         const imageMaxSize = 20 * 1024 * 1024
         const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
@@ -78,19 +77,19 @@ export default class extends AbstractView {
         var imageBase64 = ""
 
         imageInput.addEventListener("change", async () => {
-            inputError.innerText = ""
+            errorMessage.innerText = ""
             imagePreview.innerHTML = ""
 
             const image = imageInput.files[0]
             if (image.size > imageMaxSize) {
-                inputError.innerText = "Too big image! Max image size is 20 Mb"
+                errorMessage.innerText = "Too big image! Max image size is 20 Mb"
                 imageInput.value = ""
                 imageBase64 = ""
                 return
             }
 
             if (!allowedImageTypes.includes(image.type)) {
-                inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
+                errorMessage.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
                 imageInput.value = ""
                 imageBase64 = ""
                 return
@@ -101,11 +100,11 @@ export default class extends AbstractView {
         })
 
         document.getElementById("post-form").addEventListener("submit", async () => {
-            inputError.innerText = ""
+            errorMessage.innerText = ""
 
             const categories = [parseInt(category1.value), parseInt(category2.value), parseInt(category3.value)].filter(n => n != 0)
             if (!categories.length) {
-                inputError.innerText = "Please select at least one category"
+                errorMessage.innerText = "Please select at least one category"
                 return
             }
 
@@ -117,8 +116,10 @@ export default class extends AbstractView {
                     data: postData.value
                 }
             )
-
-            router.navigateTo(`/post/${post.postID}`)
+            
+            if (post) {
+                router.navigateTo(`/post/${post.postID}`)
+            }
         })
     }
 }

@@ -12,6 +12,12 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+var (
+	ErrInvalidBase64String = errors.New("invalid base64 string")
+	ErrTooBigImage         = errors.New("uploaded image size is too big! (Maximum 20 Mb)")
+	ErrUnsupportedFormat   = errors.New("only jpeg, png and gif images can be uploaded")
+)
+
 func Save(base64string, path string) (string, error) {
 	if base64string == "" {
 		return "", nil
@@ -40,7 +46,7 @@ func Save(base64string, path string) (string, error) {
 func bytesFromBase64(base64string string) ([]byte, error) {
 	arr := strings.Split(base64string, ",")
 	if len(arr) != 2 {
-		return nil, errors.New("invalid base64 string")
+		return nil, ErrInvalidBase64String
 	}
 
 	return base64.StdEncoding.DecodeString(arr[1])
@@ -48,14 +54,14 @@ func bytesFromBase64(base64string string) ([]byte, error) {
 
 func validate(data []byte) error {
 	if len(data) > 20*1024*1024 {
-		return errors.New("uploaded image size is too big! (Maximum 20 Mb)")
+		return ErrTooBigImage
 	}
 
 	mimeType := getMimeType(data)
 
 	regex := regexp.MustCompile(`^image/(jpeg|png|gif)$`)
 	if !regex.Match([]byte(mimeType)) {
-		return errors.New("only jpeg, png and gif images can be uploaded")
+		return ErrUnsupportedFormat
 	}
 
 	return nil

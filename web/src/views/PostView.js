@@ -298,11 +298,11 @@ export default class extends AbstractView {
             (authorized ?
                 `
                 <form id="comment-form" onsubmit="return false;">
-                    <textarea id="comment-input" cols="30" rows="5" maxlength="128" placeholder="Leave a comment" required></textarea><br>
+                    <textarea id="comment-input" cols="30" rows="5" maxlength="128" placeholder="Leave a comment" required></textarea>
                     <input type="file" id="comment-image-input" accept="image/jpeg, image/png, image/gif">
                     <div class="image" id="comment-image-preview"></div>
+                    <div class="error" id="error-message"></div>
                     <button>Send</button>
-                    <div id="input-error"></div>
                 </form>
 
                 `
@@ -350,7 +350,7 @@ export default class extends AbstractView {
             const commentText = document.getElementById("comment-input")
             const imageInput = document.getElementById("comment-image-input")
             const imagePreview = document.getElementById("comment-image-preview")
-            const inputError = document.getElementById("input-error")
+            const errorMessage = document.getElementById("error-message")
 
             const imageMaxSize = 20 * 1024 * 1024
             const allowedImageTypes = ["image/jpeg", "image/png", "image/gif"]
@@ -358,19 +358,19 @@ export default class extends AbstractView {
             var imageBase64 = ""
 
             imageInput.addEventListener("change", async () => {
-                inputError.innerText = ""
+                errorMessage.innerText = ""
                 imagePreview.innerHTML = ""
 
                 const image = imageInput.files[0]
                 if (image.size > imageMaxSize) {
-                    inputError.innerText = "Too big image! Max image size is 20 Mb"
+                    errorMessage.innerText = "Too big image! Max image size is 20 Mb"
                     imageInput.value = ""
                     imageBase64 = ""
                     return
                 }
 
                 if (!allowedImageTypes.includes(image.type)) {
-                    inputError.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
+                    errorMessage.innerText = `Only ${allowedImageTypes.join(", ")} types are allowed`
                     imageInput.value = ""
                     imageBase64 = ""
                     return
@@ -383,12 +383,12 @@ export default class extends AbstractView {
 
             document.getElementById("comment-form").addEventListener("submit", async () => {
                 const comment = await addComment(this.postID, commentText.value, imageBase64)
-
-                drawComment(comment, true)
-
-                imageInput.value = ""
-                commentText.value = ""
-                imagePreview.innerHTML = ""
+                if (comment) {
+                    drawComment(comment, true)
+                    imageInput.value = ""
+                    commentText.value = ""
+                    imagePreview.innerHTML = ""
+                }
             })
         }
     }

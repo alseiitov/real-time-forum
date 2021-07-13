@@ -56,10 +56,20 @@ const makeRequest = async (path, body, method) => {
     } catch {
         return
     }
+    
+    if (response.status == 400) {
+        if (respBody.error == "invalid token") {
+            Utils.logOut()
+            Router.navigateTo("/sign-in")
+            return
+        }
 
-    if (response.status == 400 && respBody.error == "invalid token") {
-        Utils.logOut()
-        Router.navigateTo("/sign-in")
+        const errorEl = document.getElementById('error-message')
+        if (errorEl) {
+            errorEl.innerText = respBody.error
+        } else {
+            Utils.showError(response.status, respBody.error)
+        }
         return
     }
 

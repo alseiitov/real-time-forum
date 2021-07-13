@@ -13,8 +13,8 @@ const signUp = async (body) => {
 }
 
 const drawError = (err) => {
-    const inputError = document.getElementById("input-error")
-    inputError.innerText = err
+    const errorMessage = document.getElementById("error-message")
+    errorMessage.innerText = err
 }
 
 export default class extends AbstractView {
@@ -49,9 +49,9 @@ export default class extends AbstractView {
                 <input type="password" id="password" placeholder="Password" minlength=7 maxlength="64" required pattern="(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#~$%^&*()+|_]).{7,}" title="Password must contain at least one lowercase, one uppercase, one number and one symbol. Allowed symbols: ! @ # ~ $ % ^ & * ( ) + | _"> <br> <br>
                 
                 Confirm password: <br>
-                <input type="password" id="password-confirm" placeholder="Password" maxlength="64" required> <br> <br>
+                <input type="password" id="password-confirm" placeholder="Password" maxlength="64" required>
 
-                <div id="input-error"></div>
+                <div class="error" id="error-message"></div>
                 
                 <button type="submit">Sign up</button>
             </form>
