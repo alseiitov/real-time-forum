@@ -299,6 +299,9 @@ export default class extends AbstractView {
                 `
                 <form id="comment-form" onsubmit="return false;">
                     <textarea id="comment-input" cols="30" rows="5" maxlength="128" placeholder="Leave a comment" required></textarea>
+                    <label for="comment-image-input" class="custom-file-input">
+                        Choose image
+                    </label>
                     <input type="file" id="comment-image-input" accept="image/jpeg, image/png, image/gif">
                     <div class="image" id="comment-image-preview"></div>
                     <div class="error" id="error-message"></div>

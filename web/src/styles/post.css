@@ -11,6 +11,7 @@
 img {
     max-width: 500px;
     border-radius: 5px;
+    margin-top: 10px;
     margin-bottom: 10px;
 }
 
@@ -59,6 +60,7 @@ img {
 }
 
 .post-comment {
+    display: grid;
     margin-bottom: 10px;
     border-radius: 5px;
     padding: 10px;

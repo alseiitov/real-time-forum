@@ -18,7 +18,8 @@ p {
     padding: 0;
 }
 
-button {
+button, .custom-file-input {
+    display: inline-block;
     border: none;
     border-radius: 5px;
     background-color: #292a2d;
@@ -26,6 +27,7 @@ button {
     padding: 10px;
     margin-right: 5px;
     font-size: 15px;
+    cursor: pointer;
 }
 
 input, select, textarea {
@@ -37,6 +39,11 @@ input, select, textarea {
     font-size: 16px;
     background-color: #292a2d;
     outline: none;
+}
+
+
+input[type="file"] {
+    display: none;
 }
 
 textarea {
@@ -93,7 +100,7 @@ textarea {
 
 #posts-msg {
     font-size: 30px;
-    margin-left: 20px;
+    margin-bottom: 20px;
 }
 
 .navigation-buttons {

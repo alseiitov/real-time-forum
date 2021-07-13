@@ -29,6 +29,9 @@ export default class extends AbstractView {
                 <input type="text" id="title-input" minlength="2" maxlength="64" required>
 
                 <p>Image:</p>
+                <label for="post-image-input" class="custom-file-input">
+                    Choose image
+                </label>
                 <input type="file" id="post-image-input" accept="image/jpeg, image/png, image/gif">
                 <div id="post-image-preview"></div>
 

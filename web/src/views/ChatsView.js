@@ -111,7 +111,7 @@ const newChatElement = (chat) => {
     el.addEventListener("click", () => {
         Array.from(document.getElementsByClassName("chat")).forEach(el => { el.classList.remove('active') })
         Array.from(document.getElementsByClassName("chat-unread-messages-count")).forEach(el => { el.classList.remove('active') })
-        
+
         el.classList.add('active')
         unreadMessagesCount.classList.add('active')
 
@@ -233,11 +233,13 @@ export default class extends AbstractView {
     static drawChats(chats) {
         if (chats != null) {
             const chatsEl = document.getElementById("users-chats");
-            chatsEl.innerHTML = ""
-            chats.forEach((chat) => {
-                const el = newChatElement(chat)
-                chatsEl.append(el)
-            })
+            if (chatsEl) {
+                chatsEl.innerHTML = ""
+                chats.forEach((chat) => {
+                    const el = newChatElement(chat)
+                    chatsEl.append(el)
+                })
+            }
         }
     }
 
@@ -246,15 +248,17 @@ export default class extends AbstractView {
 
         if ((message.senderID == recipientID || message.senderID == user.id) && !(document.getElementById(`message-${message.id}`))) {
             const chatMessages = document.getElementById("chat-messages");
-            const el = newMessageElement(message)
-            chatMessages.appendChild(el)
-            chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+            if (chatMessages) {
+                const el = newMessageElement(message)
+                chatMessages.appendChild(el)
+                chatMessages.scrollTop = chatMessages.scrollHeight - chatMessages.clientHeight;
+            }
         }
 
         var chatId = message.senderID == user.id ? message.recipientID : message.senderID
         const chat = document.getElementById(`chat-${chatId}`)
         if (chat) {
-            if (message.recipientID == user.id ) {
+            if (message.recipientID == user.id) {
                 changeChatUnreadCount(document.getElementById(`chat-${chatId}-unread-messages-count`), 1)
             }
             document.getElementById(`chat-${chatId}-lastMessage`).innerText = message.message
