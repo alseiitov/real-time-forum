@@ -8,6 +8,7 @@ import (
 
 	"github.com/alseiitov/gorouter"
 	"github.com/alseiitov/real-time-forum/internal/model"
+	"github.com/alseiitov/real-time-forum/pkg/auth"
 )
 
 func (h *Handler) cors(next gorouter.Handler) gorouter.Handler {
@@ -55,7 +56,11 @@ func (h *Handler) identifyByToken(token string, minRole int) (sub int, role int,
 		sub, role, err = h.tokenManager.Parse(token)
 
 		if err != nil {
-			statusCode = http.StatusBadRequest
+			if err == auth.ErrExpiredToken {
+				statusCode = http.StatusUnauthorized
+			} else {
+				statusCode = http.StatusBadRequest
+			}
 			return
 		}
 

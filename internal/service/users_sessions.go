@@ -21,8 +21,10 @@ type UsersRefreshTokensInput struct {
 
 func (s *UsersService) RefreshTokens(input UsersRefreshTokensInput) (Tokens, error) {
 	sub, role, err := s.tokenManager.Parse(input.AccessToken)
-	if err != auth.ErrExpiredToken {
-		return Tokens{}, err
+	if err != nil {
+		if err != auth.ErrExpiredToken {
+			return Tokens{}, err
+		}
 	}
 
 	err = s.repo.DeleteSession(sub, input.RefreshToken)

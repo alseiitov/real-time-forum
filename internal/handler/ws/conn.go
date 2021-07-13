@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
+	"github.com/alseiitov/real-time-forum/pkg/auth"
 	"github.com/gorilla/websocket"
 )
 
@@ -154,6 +155,10 @@ func (h *Handler) identifyConn(c *conn) error {
 	token := fmt.Sprintf("%s", event.Body)
 	sub, _, err := h.tokenManager.Parse(token)
 	if err != nil {
+		if err == auth.ErrExpiredToken {
+			c.writeError(err)
+			return h.identifyConn(c)
+		}
 		return err
 	}
 

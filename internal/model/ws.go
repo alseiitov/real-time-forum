@@ -18,6 +18,7 @@ var WSEventTypes = struct {
 	OnlineUsersRequst   string
 	OnlineUsersResponse string
 	Error               string
+	SuccessConnection   string
 	PingMessage         string
 	PongMessage         string
 }{
@@ -32,6 +33,7 @@ var WSEventTypes = struct {
 	OnlineUsersRequst:   "onlineUsersRequest",
 	OnlineUsersResponse: "onlineUsersResponse",
 	Error:               "error",
+	SuccessConnection:   "successConnection",
 	PingMessage:         "pingMessage",
 	PongMessage:         "pongMessage",
 }

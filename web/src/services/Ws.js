@@ -1,5 +1,6 @@
 import Chats from "../views/ChatsView.js"
 import Utils from "./Utils.js";
+import Fetcher from "./Fetcher.js";
 
 var connection
 
@@ -21,7 +22,6 @@ const getConnection = () => {
 
             conn.onopen = function () {
                 conn.send(JSON.stringify({ type: "token", body: token }))
-                resolve(conn)
             }
 
             conn.onerror = function (evt) {
@@ -29,7 +29,7 @@ const getConnection = () => {
                 return
             }
 
-            conn.onmessage = function (evt) {
+            conn.onmessage = async function (evt) {
                 let obj = JSON.parse(evt.data)
 
                 switch (obj.type) {
@@ -52,13 +52,23 @@ const getConnection = () => {
                         Chats.drawOnlineUsers(obj.body)
                         break
                     case "error":
-                        alert(obj.body)
+                        if (obj.body == "token has expired") {
+                            await Fetcher.refreshToken()
+                            token = localStorage.getItem("accessToken")
+                            conn.send(JSON.stringify({ type: "token", body: token }))
+                        } else {
+                            alert(obj.body)
+                        }
+                        break
+                    case "successConnection":
+                        resolve(conn)
                         break
                     case "pingMessage":
                         conn.send(JSON.stringify({ type: "pongMessage" }))
                         break
                     default:
                         console.log(obj)
+                        break
                 }
             };
         } else {

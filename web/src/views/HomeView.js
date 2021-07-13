@@ -117,6 +117,9 @@ export default class extends AbstractView {
         updateQueryParams()
 
         const categories = await getCategories()
+        if (!categories) {
+            return
+        }
         drawCategories(categories)
 
         const categoryEl = document.getElementById(`category-${currCategoryID}`)

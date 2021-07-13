@@ -1,4 +1,5 @@
 import Utils from "./Utils.js"
+import Router from "./../index.js"
 
 const fetcher = {
     get: async (path, body) => {
@@ -7,6 +8,22 @@ const fetcher = {
 
     post: async (path, body) => {
         return makeRequest(path, body, "POST")
+    },
+
+    refreshToken: async () => {
+        const accessToken = localStorage.getItem("accessToken")
+        const refreshToken = localStorage.getItem("refreshToken")
+        Utils.logOut()
+
+        const path = "/api/auth/refresh"
+        const body = { accessToken: accessToken, refreshToken: refreshToken }
+        const data = await fetcher.post(path, body)
+        const payload = Utils.parseJwt(data.accessToken)
+
+        localStorage.setItem("accessToken", data.accessToken)
+        localStorage.setItem("refreshToken", data.refreshToken)
+        localStorage.setItem("sub", parseInt(payload.sub))
+        localStorage.setItem("role", parseInt(payload.role))
     }
 }
 
@@ -40,7 +57,21 @@ const makeRequest = async (path, body, method) => {
         return
     }
 
-    if (response.status == 401 || response.status == 409) {
+    if (response.status == 400 && respBody.error == "invalid token") {
+        Utils.logOut()
+        Router.navigateTo("/sign-in")
+        return
+    }
+
+    if (response.status == 401) {
+        if (respBody.error == "token has expired") {
+            await fetcher.refreshToken()
+            return await makeRequest(path, body, method)
+        }
+        return respBody
+    }
+
+    if (response.status == 409) {
         return respBody
     }
 
@@ -51,5 +82,30 @@ const makeRequest = async (path, body, method) => {
 
     return respBody
 }
+
+// const refreshToken = async () => {
+//     const accessToken = localStorage.getItem("accessToken")
+//     const refreshToken = localStorage.getItem("refreshToken")
+
+//     if (!accessToken || !refreshToken) {
+//         Router.navigateTo("/sign-in")
+//         return
+//     }
+
+//     Utils.logOut()
+
+//     const path = "/api/auth/refresh"
+//     const body = { accessToken: accessToken, refreshToken: refreshToken }
+//     const data = await fetcher.post(path, body)
+//     console.log(data)
+//     localStorage.setItem("accessToken", data.accessToken)
+//     localStorage.setItem("refreshToken", data.refreshToken)
+
+//     const payload = Utils.parseJwt(data.accessToken)
+//     localStorage.setItem("sub", parseInt(payload.sub))
+//     localStorage.setItem("role", parseInt(payload.role))
+// }
+
+
 
 export default fetcher

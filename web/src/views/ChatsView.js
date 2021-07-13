@@ -18,22 +18,6 @@ const requestChats = () => {
     Ws.send(JSON.stringify({ type: "chatsRequest" }))
 }
 
-const debounce = (func, wait, immediate) => {
-    var timeout;
-    return function () {
-        var context = this, args = arguments;
-        var later = function () {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) func.apply(context, args);
-    };
-};
-
-
 const newMessageElement = (message) => {
     const el = document.createElement("div");
     el.id = `message-${message.id}`
@@ -187,7 +171,7 @@ export default class extends AbstractView {
 
         const messageInput = document.getElementById("message-input");
 
-        loadMessages = debounce(function () {
+        loadMessages = Utils.debounce(function () {
             if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {
                 let offsetMsg = document.querySelector('.message')
                 let offsetMsgID = parseInt(offsetMsg.id.split('-')[1]);
@@ -197,7 +181,7 @@ export default class extends AbstractView {
             if (chatMessages.scrollTop == 0) {
                 chatMessages.scrollTop = 1
             }
-        }, 100)
+        }, 100, true)
 
         chatMessages.addEventListener("scroll", loadMessages)
 

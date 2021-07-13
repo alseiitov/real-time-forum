@@ -86,6 +86,8 @@ func (h *Handler) ServeWS(ctx *gorouter.Context) {
 		h.closeConn(conn)
 	}
 
+	connection.writeJSON(&model.WSEvent{Type: model.WSEventTypes.SuccessConnection})
+
 	go h.connReadPump(connection)
 	go h.pingConn(connection)
 
