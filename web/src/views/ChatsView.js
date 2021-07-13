@@ -118,6 +118,7 @@ const newChatElement = (chat) => {
         document.getElementById("message-form").style.display = "block"
         document.getElementById("message-input").value = ""
         document.getElementById("chat-messages").innerHTML = ""
+        document.getElementById("chat-messages").addEventListener("scroll", loadMessages)
         recipientID = chat.user.id
         Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
     })
@@ -174,7 +175,6 @@ export default class extends AbstractView {
             if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {
                 let offsetMsg = document.querySelector('.message')
                 let offsetMsgID = parseInt(offsetMsg.id.split('-')[1]);
-                console.log(offsetMsgID)
                 Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: offsetMsgID } }))
             }
 
