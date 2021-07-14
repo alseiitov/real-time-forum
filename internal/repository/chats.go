@@ -18,19 +18,28 @@ func (r *ChatsRepo) GetChats(userID int) ([]model.Chat, error) {
 	var chats []model.Chat
 
 	rows, err := r.db.Query(`
-		SELECT 
-			MAX(id), sender_id, recipient_id, message, date, SUM(CASE WHEN (read = 0 AND recipient_id = $1) THEN 1 ELSE 0 END) AS unread_count 
-		FROM 
-			messages 
-		WHERE 
-			sender_id = $1 
-			OR 
-			recipient_id = $1 
-		GROUP BY 
-			MIN(sender_id, recipient_id), MAX(sender_id, recipient_id)
+		SELECT
+			users.id, 
+			users.first_name, 
+			users.last_name, 
+			users.avatar,
+			IFNULL(MAX(m.id), 0) AS last_message_id, 
+			IFNULL(m.sender_id, 0) AS last_message_sender_id,
+			IFNULL(m.recipient_id, 0) AS last_message_recipent_id,
+			IFNULL(m.message, "") AS last_message,
+			IFNULL(m.date, 0)  AS last_message_date,
+			SUM(CASE WHEN (m.read = 0 AND m.recipient_id = $1) THEN 1 ELSE 0 END) AS unread_messages_count
+		FROM
+			users
+		LEFT JOIN messages m ON 
+			m.sender_id = $1 AND m.recipient_id = users.id 
+		OR 
+			m.sender_id = users.id AND m.recipient_id = $1
+		WHERE NOT users.id = $1
+		GROUP BY users.id
 		ORDER BY 
-			date 
-		DESC
+			m.id DESC, 
+			users.first_name ASC
 	`,
 		userID)
 
@@ -43,6 +52,10 @@ func (r *ChatsRepo) GetChats(userID int) ([]model.Chat, error) {
 		var chat model.Chat
 
 		err := rows.Scan(
+			&chat.User.ID,
+			&chat.User.FirstName,
+			&chat.User.LastName,
+			&chat.User.Avatar,
 			&chat.LastMessage.ID,
 			&chat.LastMessage.SenderID,
 			&chat.LastMessage.RecipientID,

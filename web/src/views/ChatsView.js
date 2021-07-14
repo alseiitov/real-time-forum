@@ -92,7 +92,7 @@ const newChatElement = (chat) => {
     const lastMessageDate = document.createElement("p")
     lastMessageDate.id = `chat-${chat.user.id}-lastMessageDate`
 
-    if (chat.lastMessage) {
+    if (chat.lastMessage.id) {
         lastMessage.innerText = `${chat.lastMessage.message}`
         lastMessageDate.innerText = `${new Date(chat.lastMessage.date).toLocaleString()}`
     }
@@ -101,7 +101,7 @@ const newChatElement = (chat) => {
     messageEl.append(lastMessageDate)
 
     const unreadMessagesCount = document.createElement("div")
-    unreadMessagesCount.classList.add(`chat-unread-messages-count`)
+    unreadMessagesCount.classList.add(`unread-messages-count`)
     unreadMessagesCount.id = `chat-${chat.user.id}-unread-messages-count`
     changeChatUnreadCount(unreadMessagesCount, chat.unreadMessagesCount)
 
@@ -110,7 +110,7 @@ const newChatElement = (chat) => {
 
     el.addEventListener("click", () => {
         Array.from(document.getElementsByClassName("chat")).forEach(el => { el.classList.remove('active') })
-        Array.from(document.getElementsByClassName("chat-unread-messages-count")).forEach(el => { el.classList.remove('active') })
+        Array.from(document.getElementsByClassName("unread-messages-count")).forEach(el => { el.classList.remove('active') })
 
         el.classList.add('active')
         unreadMessagesCount.classList.add('active')
@@ -120,6 +120,7 @@ const newChatElement = (chat) => {
         document.getElementById("chat-messages").innerHTML = ""
         document.getElementById("chat-messages").addEventListener("scroll", loadMessages)
         recipientID = chat.user.id
+        updateQueryParams()
         Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: 0 } }))
     })
 
@@ -137,6 +138,12 @@ const changeChatUnreadCount = (el, n) => {
     }
 }
 
+const updateQueryParams = () => {
+    const urlParams = new URLSearchParams(window.location.search)
+    urlParams.set('user', recipientID)
+    history.replaceState(null, null, "?" + urlParams.toString())
+}
+
 export default class extends AbstractView {
     constructor(params) {
         super(params);
@@ -146,15 +153,11 @@ export default class extends AbstractView {
     async getHtml() {
         return `
             <div id="chats-container">
-                <div id="chats">
-                    <p class="chats-title">Your chats:</p>              
-                    <div id="users-chats"></div>
-
-                    <p class="chats-title">Online users:</p>
-                    <div id="online-users"></div>
-                </div>
+                <div id="chats"></div>
                 <div>
-                    <div id="chat-messages"></div>
+                    <div id="chat-messages">
+                        <p id="chat-messages-placeholder">Select chat to start messaging</p>
+                    </div>
                     <form id="message-form">
                         <input type="text" id="message-input" size="64" placeholder="Send message" autocomplete="off" autofocus/>
                     </form>
@@ -164,7 +167,9 @@ export default class extends AbstractView {
     }
 
     async init() {
-        recipientID = 0
+        const urlParams = new URLSearchParams(window.location.search)
+        recipientID = parseInt(urlParams.get('user')) || 0
+        console.log(recipientID)
         const chatMessages = document.getElementById("chat-messages");
         const messageForm = document.getElementById("message-form");
         messageForm.style.display = 'none'
@@ -174,6 +179,10 @@ export default class extends AbstractView {
         loadMessages = Utils.debounce(function () {
             if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {
                 let offsetMsg = document.querySelector('.message')
+                if (!offsetMsg) {
+                    chatMessages.removeEventListener("scroll", loadMessages)
+                    return
+                }
                 let offsetMsgID = parseInt(offsetMsg.id.split('-')[1]);
                 Ws.send(JSON.stringify({ type: "messagesRequest", body: { userID: recipientID, lastMessageID: offsetMsgID } }))
             }
@@ -208,36 +217,27 @@ export default class extends AbstractView {
         Array.from(document.getElementsByClassName("chat")).forEach(el => { el.classList.remove('online') })
 
         if (users != null) {
-            const user = Utils.getUser()
-
-            const onlineUsersEl = document.getElementById("online-users");
-            if (onlineUsersEl) {
-                onlineUsersEl.innerText = ""
-                users.sort((a, b) => a.firstName < b.firstName ? 1 : -1)
-                users.forEach((u) => {
-                    if (u.id == user.id) {
-                        return
-                    }
-
-                    var chat = document.getElementById(`chat-${u.id}`)
-                    if (!chat) {
-                        chat = newChatElement({ user: u })
-                        onlineUsersEl.prepend(chat)
-                    }
+            users.forEach((u) => {
+                var chat = document.getElementById(`chat-${u.id}`)
+                if (chat) {
                     chat.classList.add('online')
-                })
-            }
+                }
+            })
         }
     }
 
     static drawChats(chats) {
         if (chats != null) {
-            const chatsEl = document.getElementById("users-chats");
+            const chatsEl = document.getElementById("chats");
             if (chatsEl) {
                 chatsEl.innerHTML = ""
                 chats.forEach((chat) => {
                     const el = newChatElement(chat)
                     chatsEl.append(el)
+                    if (recipientID == chat.user.id) {
+                        el.click()
+                        el.scrollIntoView({behavior: "smooth"})
+                    }
                 })
             }
         }
@@ -246,7 +246,7 @@ export default class extends AbstractView {
     static async drawNewMessage(message) {
         const user = Utils.getUser()
 
-        if ((message.senderID == recipientID || message.senderID == user.id) && !(document.getElementById(`message-${message.id}`))) {
+        if ((message.senderID == recipientID || (message.senderID == user.id && message.recipientID == recipientID)) && !(document.getElementById(`message-${message.id}`))) {
             const chatMessages = document.getElementById("chat-messages");
             if (chatMessages) {
                 const el = newMessageElement(message)
@@ -263,7 +263,7 @@ export default class extends AbstractView {
             }
             document.getElementById(`chat-${chatId}-lastMessage`).innerText = message.message
             document.getElementById(`chat-${chatId}-lastMessageDate`).innerText = `${new Date(message.date).toLocaleString()}`
-            const chatsEl = document.getElementById("users-chats");
+            const chatsEl = document.getElementById("chats");
             chatsEl.prepend(chat)
         } else {
             requestChats()

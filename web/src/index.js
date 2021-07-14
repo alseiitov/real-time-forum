@@ -66,7 +66,7 @@ const router = async () => {
     }
 
     if (user.role < match.route.minRole) {
-        Utils.showError(401)
+        Utils.showError(401, "Please sign in to access this page")
         return
     }
 

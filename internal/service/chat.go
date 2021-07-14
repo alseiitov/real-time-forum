@@ -22,23 +22,7 @@ func NewChatsService(repo repository.Chats, usersRepo repository.Users, eventsCh
 }
 
 func (s *ChatsService) GetChats(userID int) ([]model.Chat, error) {
-	chats, err := s.repo.GetChats(userID)
-	if err != nil {
-		return nil, err
-	}
-
-	for i := range chats {
-		if chats[i].LastMessage.RecipientID == userID {
-			chats[i].User, err = s.userRepo.GetByID(chats[i].LastMessage.SenderID)
-		} else {
-			chats[i].User, err = s.userRepo.GetByID(chats[i].LastMessage.RecipientID)
-		}
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return chats, nil
+	return s.repo.GetChats(userID)
 }
 
 func (s *ChatsService) CreateMessage(senderID, recipientID int, message string) error {

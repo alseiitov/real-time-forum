@@ -41,7 +41,7 @@
     text-overflow: ellipsis;
 }
 
-.chat-unread-messages-count {
+.unread-messages-count {
     align-self: center;
     width: 25px;
     height: 25px;
@@ -73,6 +73,13 @@
 .chat p {
     padding: 0;
     margin: 0;
+}
+
+#chat-messages-placeholder {
+    position: relative;
+    top: 50%;
+    text-align: center;
+    font-size: 22px;
 }
 
 #chat-messages {
