@@ -41,7 +41,7 @@ const newMessageElement = (message) => {
     readStatus.classList.add('message-status')
     readStatus.id = `message-${message.id}-status`
 
-    if (!message.read ) {
+    if (!message.read) {
         readStatus.innerText = '✓'
     } else {
         readStatus.innerText = '✓✓'
@@ -192,6 +192,9 @@ export default class extends AbstractView {
         }, 100)
 
         chatMessages.addEventListener("scroll", loadMessages)
+        chatMessages.addEventListener("scroll", () => {
+          
+        })
 
         messageForm.onsubmit = function () {
             if (!messageInput.value) {
@@ -220,6 +223,12 @@ export default class extends AbstractView {
                 var chat = document.getElementById(`chat-${u.id}`)
                 if (chat) {
                     chat.classList.add('online')
+                } else {
+                    const user = Utils.getUser()
+                    if (u.id != user.id) {
+                        requestChats()
+                        requestOnlineUsers()
+                    }
                 }
             })
         }
@@ -235,7 +244,7 @@ export default class extends AbstractView {
                     chatsEl.append(el)
                     if (recipientID == chat.user.id) {
                         el.click()
-                        el.scrollIntoView({behavior: "smooth"})
+                        el.scrollIntoView({ behavior: "smooth" })
                     }
                 })
             }
@@ -291,7 +300,7 @@ export default class extends AbstractView {
     static async changeMessageStatusToRead(message) {
         const user = Utils.getUser()
         if (message.recipientID == user.id) {
-            changeChatUnreadCount(document.getElementById(`chat-${message.senderID}-unread-messages-count`), -1)             
+            changeChatUnreadCount(document.getElementById(`chat-${message.senderID}-unread-messages-count`), -1)
         }
 
         setTimeout(() => {
