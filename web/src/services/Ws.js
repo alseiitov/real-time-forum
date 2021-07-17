@@ -32,7 +32,7 @@ const getConnection = () => {
 
             conn.onmessage = async function (evt) {
                 let obj = JSON.parse(evt.data)
-
+              
                 switch (obj.type) {
                     case "message":
                         Chats.drawNewMessage(obj.body)
@@ -45,12 +45,15 @@ const getConnection = () => {
                         break
                     case "readMessageResponse":
                         Chats.changeMessageStatusToRead(obj.body)
-                       break
+                        break
                     case "notification":
                         // console.log(obj)
                         break
                     case "onlineUsersResponse":
                         Chats.drawOnlineUsers(obj.body)
+                        break
+                    case "typingInResponse":
+                        Chats.drawTypingIn(obj.body)
                         break
                     case "error":
                         if (obj.body == "token has expired") {
@@ -83,7 +86,7 @@ const Ws = {
     connect: async () => {
         connection = await getConnection()
     },
-    
+
     send: async (e) => {
         connection = await getConnection()
         connection.send(e)

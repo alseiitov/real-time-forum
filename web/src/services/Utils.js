@@ -86,7 +86,18 @@ const debounce = (func, wait, immediate) => {
     };
 };
 
+const throttle = (func, delay) => {
+    let toThrottle = false;
+    return function () {
+        if (!toThrottle) {
+            toThrottle = true;
+            func.apply(this, arguments)
+            setTimeout(() => {
+                toThrottle = false
+            }, delay);
+        }
+    };
+};
 
 
-
-export default { parseJwt, getUser, logOut, fileToBase64, base64isImage, showError, drawErrorMessage, debounce }
+export default { parseJwt, getUser, logOut, fileToBase64, base64isImage, showError, drawErrorMessage, debounce, throttle }

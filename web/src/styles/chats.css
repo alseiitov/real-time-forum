@@ -136,3 +136,54 @@
     background-color: #3b3d42;
     color: #c9c9d8
 }
+
+.typing-indicator {
+    display: none;
+    will-change: transform;
+    padding: 4px;
+    animation: 2s bulge infinite ease-out;
+}
+
+.typing-indicator::before, .typing-indicator::after {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+}
+
+.typing-indicator span {
+    height: 11px;
+    width: 11px;
+    float: left;
+    margin: 0 1px;
+    background-color: #c9c9d8;
+    border-radius: 50%;
+    opacity: 0.4;
+}
+
+.chat.active .typing-indicator span {
+    background-color: #3b3d42;
+}
+
+.typing-indicator span:nth-of-type(1) {
+    animation: 1s blink infinite 0.3333s;
+}
+
+.typing-indicator span:nth-of-type(2) {
+    animation: 1s blink infinite 0.6666s;
+}
+
+.typing-indicator span:nth-of-type(3) {
+    animation: 1s blink infinite 0.9999s;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes bulge {
+    50% {
+        transform: scale(1.05);
+    }
+}

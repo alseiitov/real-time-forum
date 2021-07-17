@@ -87,3 +87,37 @@ func (h *Handler) readMessage(clientID int, event *model.WSEvent) error {
 
 	return h.chatsService.ReadMessage(clientID, input.MessageID)
 }
+
+type typingInInput struct {
+	RecipientID int `json:"recipientID" validator:"required"`
+}
+
+type typingInResponse struct {
+	SenderID int `json:"senderID"`
+}
+
+func (h *Handler) sendTypingInEvent(clientID int, event *model.WSEvent) error {
+	var input typingInInput
+
+	err := unmarshalEventBody(event, &input)
+	if err != nil {
+		return err
+	}
+
+	err = validator.Validate(input)
+	if err != nil {
+		return err
+	}
+
+	h.sendEventToClient(
+		&model.WSEvent{
+			Type:        model.WSEventTypes.TypingInResponse,
+			RecipientID: input.RecipientID,
+			Body: &typingInResponse{
+				SenderID: clientID,
+			},
+		},
+	)
+
+	return nil
+}

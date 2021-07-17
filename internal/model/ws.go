@@ -17,6 +17,8 @@ var WSEventTypes = struct {
 	Notification        string
 	OnlineUsersRequst   string
 	OnlineUsersResponse string
+	TypingInRequest     string
+	TypingInResponse    string
 	Error               string
 	SuccessConnection   string
 	PingMessage         string
@@ -32,6 +34,8 @@ var WSEventTypes = struct {
 	Notification:        "notification",
 	OnlineUsersRequst:   "onlineUsersRequest",
 	OnlineUsersResponse: "onlineUsersResponse",
+	TypingInRequest:     "typingInRequest",
+	TypingInResponse:    "typingInResponse",
 	Error:               "error",
 	SuccessConnection:   "successConnection",
 	PingMessage:         "pingMessage",

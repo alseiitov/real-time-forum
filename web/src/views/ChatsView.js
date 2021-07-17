@@ -7,6 +7,8 @@ var requestOnlineUsersInterval
 var recipientID
 
 var loadMessages
+var sendTypingInEvent
+
 
 const requestOnlineUsers = () => {
     Ws.send(JSON.stringify({ type: "onlineUsersRequest" }))
@@ -85,17 +87,23 @@ const newChatElement = (chat) => {
     name.innerText = `${chat.user.firstName} ${chat.user.lastName}`
     messageEl.append(name)
 
+    const typingIndicator = document.createElement("div")
+    typingIndicator.classList.add('typing-indicator')
+    typingIndicator.id = `chat-${chat.user.id}-typing-indicator`
+    typingIndicator.innerHTML= `<span></span><span></span><span></span>`
+    messageEl.append(typingIndicator)
+
     const lastMessage = document.createElement("p")
     lastMessage.id = `chat-${chat.user.id}-lastMessage`
-
+    
     const lastMessageDate = document.createElement("p")
     lastMessageDate.id = `chat-${chat.user.id}-lastMessageDate`
-
+    
     if (chat.lastMessage.id) {
         lastMessage.innerText = `${chat.lastMessage.message}`
         lastMessageDate.innerText = `${new Date(chat.lastMessage.date).toLocaleString()}`
     }
-
+    
     messageEl.append(lastMessage)
     messageEl.append(lastMessageDate)
 
@@ -143,6 +151,9 @@ const updateQueryParams = () => {
     history.replaceState(null, null, "?" + urlParams.toString())
 }
 
+
+
+
 export default class extends AbstractView {
     constructor(params) {
         super(params);
@@ -165,6 +176,8 @@ export default class extends AbstractView {
         `;
     }
 
+
+
     async init() {
         const urlParams = new URLSearchParams(window.location.search)
         recipientID = parseInt(urlParams.get('user')) || 0
@@ -173,7 +186,13 @@ export default class extends AbstractView {
         const messageForm = document.getElementById("message-form");
         messageForm.style.display = 'none'
 
+
+        sendTypingInEvent = Utils.throttle(() => {
+            Ws.send(JSON.stringify({ type: "typingInRequest", body: { recipientID: recipientID } }))
+        }, 2000)
+
         const messageInput = document.getElementById("message-input");
+        messageInput.addEventListener("input", sendTypingInEvent)
 
         loadMessages = Utils.debounce(function () {
             if (chatMessages.scrollTop < chatMessages.scrollHeight * 0.1) {
@@ -193,7 +212,7 @@ export default class extends AbstractView {
 
         chatMessages.addEventListener("scroll", loadMessages)
         chatMessages.addEventListener("scroll", () => {
-          
+
         })
 
         messageForm.onsubmit = function () {
@@ -309,5 +328,20 @@ export default class extends AbstractView {
                 el.innerText = '✓✓'
             }
         }, 1000)
+    }
+
+    static async drawTypingIn(event) {
+        const indicator = document.getElementById(`chat-${event.senderID}-typing-indicator`)
+        const lastMessage =  document.getElementById(`chat-${event.senderID}-lastMessage`)
+
+        if (indicator) {
+            indicator.style.display = "table"
+            lastMessage.style.display = "none"
+
+            setTimeout(() => {
+                indicator.style.display = "none"
+                lastMessage.style.display = "block"
+            }, 2000)
+        }
     }
 }

@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/alseiitov/real-time-forum/internal/model"
@@ -17,7 +18,7 @@ func (h *Handler) sendEventToClient(event *model.WSEvent) {
 	if !ok {
 		return
 	}
-
+	fmt.Println(event)
 	client.mu.Lock()
 	defer client.mu.Unlock()
 
