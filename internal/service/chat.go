@@ -69,8 +69,14 @@ func (s *ChatsService) ReadMessage(recipientID int, messageID int) error {
 
 	s.eventsChan <- &model.WSEvent{
 		Type:        model.WSEventTypes.ReadMessageResponse,
-		Body:        message.ID,
+		Body:        message,
 		RecipientID: message.SenderID,
+	}
+
+	s.eventsChan <- &model.WSEvent{
+		Type:        model.WSEventTypes.ReadMessageResponse,
+		Body:        message,
+		RecipientID: recipientID,
 	}
 
 	return nil

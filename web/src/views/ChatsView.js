@@ -23,7 +23,6 @@ const newMessageElement = (message) => {
     const userID = parseInt(localStorage.getItem("sub"))
     if (!message.read && message.senderID == recipientID) {
         Ws.send(JSON.stringify({ type: "readMessageRequest", body: { messageID: message.id } }))
-        changeChatUnreadCount(document.getElementById(`chat-${message.senderID}-unread-messages-count`), -1)
     }
 
     const messageText = document.createElement('p')
@@ -42,7 +41,7 @@ const newMessageElement = (message) => {
     readStatus.classList.add('message-status')
     readStatus.id = `message-${message.id}-status`
 
-    if (!message.read && message.senderID == userID) {
+    if (!message.read ) {
         readStatus.innerText = '✓'
     } else {
         readStatus.innerText = '✓✓'
@@ -289,9 +288,14 @@ export default class extends AbstractView {
         })
     }
 
-    static async changeMessageStatusToRead(messageID) {
+    static async changeMessageStatusToRead(message) {
+        const user = Utils.getUser()
+        if (message.recipientID == user.id) {
+            changeChatUnreadCount(document.getElementById(`chat-${message.senderID}-unread-messages-count`), -1)             
+        }
+
         setTimeout(() => {
-            let el = document.getElementById(`message-${messageID}-status`)
+            let el = document.getElementById(`message-${message.id}-status`)
             if (el) {
                 el.innerText = '✓✓'
             }
