@@ -169,7 +169,7 @@ export default class extends AbstractView {
     async init() {
         const urlParams = new URLSearchParams(window.location.search)
         recipientID = parseInt(urlParams.get('user')) || 0
-        console.log(recipientID)
+
         const chatMessages = document.getElementById("chat-messages");
         const messageForm = document.getElementById("message-form");
         messageForm.style.display = 'none'

@@ -298,7 +298,7 @@ export default class extends AbstractView {
             (authorized ?
                 `
                 <form id="comment-form" onsubmit="return false;">
-                    <textarea id="comment-input" cols="30" rows="5" maxlength="2" maxlength="128" placeholder="Leave a comment" required></textarea>
+                    <textarea id="comment-input" cols="30" rows="5" minlength="2" maxlength="128" placeholder="Leave a comment" required></textarea>
                     <label for="comment-image-input" class="custom-file-input">
                         Choose image
                     </label>
@@ -389,6 +389,7 @@ export default class extends AbstractView {
                     const comment = await addComment(this.postID, commentText.value, imageBase64)
                     if (comment) {
                         drawComment(comment, true)
+                        imageBase64 = ""
                         imageInput.value = ""
                         commentText.value = ""
                         imagePreview.innerHTML = ""
