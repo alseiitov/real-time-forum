@@ -1,6 +1,7 @@
 import Chats from "../views/ChatsView.js"
 import Utils from "./Utils.js";
 import Fetcher from "./Fetcher.js";
+import Router from "../index.js";
 
 var connection
 
@@ -82,7 +83,7 @@ const Ws = {
     connect: async () => {
         connection = await getConnection()
     },
-
+    
     send: async (e) => {
         connection = await getConnection()
         connection.send(e)

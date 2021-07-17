@@ -13,16 +13,17 @@ const fetcher = {
     refreshToken: async () => {
         const accessToken = localStorage.getItem("accessToken")
         const refreshToken = localStorage.getItem("refreshToken")
-        Utils.logOut()
 
+       localStorage.removeItem("accessToken")
+       localStorage.removeItem("refreshToken")
+        
         const path = "/api/auth/refresh"
         const body = { accessToken: accessToken, refreshToken: refreshToken }
         const data = await fetcher.post(path, body)
         const payload = Utils.parseJwt(data.accessToken)
-
+        
         localStorage.setItem("accessToken", data.accessToken)
         localStorage.setItem("refreshToken", data.refreshToken)
-        localStorage.setItem("sub", parseInt(payload.sub))
         localStorage.setItem("role", parseInt(payload.role))
     }
 }

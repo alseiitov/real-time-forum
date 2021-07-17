@@ -65,22 +65,28 @@ const router = async () => {
         localStorage.setItem('role', user.role)
     }
 
+    const navBarView = new NavBar(null, user);
+    document.querySelector("#navbar").innerHTML = await navBarView.getHtml();
+    navBarView.init()
+
     if (user.role < match.route.minRole) {
         Utils.showError(401, "Please sign in to access this page")
         return
     }
 
-    const navBarView = new NavBar(null, user);
     const pageView = new match.route.view(getParams(match), user);
-
-    document.querySelector("#navbar").innerHTML = await navBarView.getHtml();
-    navBarView.init()
-
     document.querySelector("#app").innerHTML = await pageView.getHtml();
     pageView.init()
 };
 
 window.addEventListener("popstate", router);
+
+window.addEventListener("storage", () => {
+    const user = Utils.getUser()
+    if (user.id == null) {
+        location.reload()
+    }
+})
 
 document.addEventListener("DOMContentLoaded", async () => {
     document.body.addEventListener("click", function (e) {

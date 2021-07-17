@@ -1,3 +1,5 @@
+import Ws from "./Ws.js";
+
 const parseJwt = (token) => {
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -22,6 +24,7 @@ const logOut = () => {
     localStorage.removeItem('role')
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
+    Ws.disconnect()
 }
 
 
