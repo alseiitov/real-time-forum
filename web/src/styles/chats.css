@@ -140,8 +140,14 @@
 .typing-indicator {
     display: none;
     will-change: transform;
-    padding: 4px;
-    animation: 2s bulge infinite ease-out;
+    padding: 5px 0;
+    animation: 2s infinite ease-out;
+}
+
+.typing-indicator p {
+    /* display: inline; */
+    margin: 0;
+    padding: 0;
 }
 
 .typing-indicator::before, .typing-indicator::after {
@@ -151,8 +157,8 @@
 }
 
 .typing-indicator span {
-    height: 11px;
-    width: 11px;
+    height: 9px;
+    width: 9px;
     float: left;
     margin: 0 1px;
     background-color: #c9c9d8;
@@ -179,11 +185,5 @@
 @keyframes blink {
     50% {
         opacity: 1;
-    }
-}
-
-@keyframes bulge {
-    50% {
-        transform: scale(1.05);
     }
 }
