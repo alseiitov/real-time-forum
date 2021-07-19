@@ -14,7 +14,7 @@
         "schemesDir": "./database/schema"
     },
     "auth": {
-        "accessTokenTTL": 10,
+        "accessTokenTTL": 1800,
         "refreshTokenTTL": 43200
     },
     "websocket": {
