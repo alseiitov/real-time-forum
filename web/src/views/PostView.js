@@ -253,6 +253,7 @@ const drawComment = (comment, isNewComment) => {
     if (isNewComment) {
         if (commentsEnded) {
             commentsEl.innerText = ""
+            commentsEnded = false
         }
         commentsEl.prepend(commentEl)
     } else {
