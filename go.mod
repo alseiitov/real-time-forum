@@ -10,7 +10,6 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/satori/go.uuid v1.2.0
-	github.com/swaggo/http-swagger v1.0.0
-	github.com/swaggo/swag v1.7.0
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
+	github.com/swaggo/http-swagger v1.2.6
+	github.com/swaggo/swag v1.7.9
 )
